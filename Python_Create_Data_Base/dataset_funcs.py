@@ -132,231 +132,280 @@ def plotcube(edges=None, origin=None, alpha=None, color=None, ax=None):
     return ax
 
 
-def create_locations_18_dynamic(L, R, noise_R, num_jumps):
+def calculate_angle(v1, v2):
+    """Helper to calculate angle in degrees between two vectors."""
+    unit_v1 = v1 / np.linalg.norm(v1)
+    unit_v2 = v2 / np.linalg.norm(v2)
+    dot_product = np.dot(unit_v1, unit_v2)
+    # Clip to handle floating point errors slightly outside [-1, 1]
+    return np.degrees(np.arccos(np.clip(dot_product, -1.0, 1.0)))
+
+def create_locations_18_dynamic(
+    room_dim: list, 
+    speaker_radius: float, 
+    radius_noise: float, 
+    num_jumps: int,
+    plot_name: str = None,
+):
     """
-    Create dynamic speaker locations within a room for microphone array simulation.
-    
+    Generates dynamic trajectories for two speakers and a static noise source in a simulated room.
+    Trajectories = time series of 3D coordinates for each speaker over `num_jumps` time steps.
+
+    The function ensures:
+    1. Speakers move along a general circular path around the microphone array.
+    2. Speaker positions are perturbed with random noise to avoid perfect circles.
+    3. Speakers do not get too close to each other or cross paths abruptly.
+    4. Angles of Arrival (AoA) are discretized into 18 labeled classes (intervals of 10 degrees).
+
     Parameters
     ----------
-    L : array-like
-        Room dimensions [room_x, room_y, room_z]
-    R : float
-        Radius of the speaker circle around microphone array
-    noise_R : float
-        Noise radius for position perturbation
+    room_dim : list
+        Dimensions of the room [length, width, height] in meters.
+    speaker_radius : float
+        Base radius of the speakers from the array center (meters).
+    radius_noise : float
+        Maximum random deviation added to the speaker's position (meters).
+        This is noise to the *POSITION*, not to the angle directly. 
     num_jumps : int
-        Number of speaker position jumps/locations to generate
-    
+        Number of time steps (positions) to generate for the trajectory.
+
     Returns
     -------
-    s_first : numpy.ndarray
-        First speaker positions (3 x num_jumps) [x; y; z]
-    label_first : numpy.ndarray
-        Angular labels for first speaker positions
-    s_second : numpy.ndarray
-        Second speaker positions (3 x num_jumps) [x; y; z]
-    label_second : numpy.ndarray
-        Angular labels for second speaker positions
-    s_noise : numpy.ndarray
-        Noise source position [x, y, z]
-    r : numpy.ndarray
-        Microphone array positions (4 x 3)
+    s_first : np.ndarray
+        Trajectory of Speaker 1 (3 x num_jumps).
+    label_first : np.ndarray
+        Class labels (0-17) for Speaker 1's angle of arrival.
+    s_second : np.ndarray
+        Trajectory of Speaker 2 (3 x num_jumps).
+    label_second : np.ndarray
+        Class labels (0-17) for Speaker 2's angle of arrival.
+    s_noise : np.ndarray
+        Static position of the point-source noise [x, y, z].
+    mic_array_coords : np.ndarray
+        Coordinates of the 4 microphones [x, y, z].
     """
+
+    # --- 1. Setup Simulation Environment ---
+    room_x, room_y, room_z = room_dim
+    mic_height = 1.0
+    mic_radius = 0.1
+    wall_margin = 0.5  # Minimum distance from walls
     
-    # %% variable
-    room_x = L[0]
-    room_y = L[1]
-    high = 1
-    angle = 360
-    radius_mics = 0.1
-    distance_from_woll = 0.5
+    # Calculate safe area for placing the array center
+    # The center must be far enough from walls to accommodate the speaker radius + noise
+    required_clearance = speaker_radius + wall_margin + radius_noise
     
-    # %% create circle & line & mic location
-    distance_total = R + distance_from_woll + noise_R
-    end_point_x = room_x - (R + distance_from_woll + noise_R)
-    end_point_y = room_y - (R + distance_from_woll + noise_R)
-    Radius_X = (end_point_x - distance_total) * np.random.rand() + distance_total
-    Radius_Y = (end_point_y - distance_total) * np.random.rand() + distance_total
+    # Randomly place the center of the array within the safe zone
+    # Formula: (max - min) * rand + min
+    center_x = (room_x - 2 * required_clearance) * np.random.rand() + required_clearance
+    center_y = (room_y - 2 * required_clearance) * np.random.rand() + required_clearance
+    array_center = np.array([center_x, center_y])
+
+    # --- 2. Create Microphone Array Geometry ---
+    # Randomly rotate the entire setup (microphones + speakers)
+    # This ensures the network learns rotation invariance
+    angle_resolution = 360
+    rotation_offset_idx = np.random.randint(1, angle_resolution + 1)
     
-    # take rand 180 degrees of circle to create rand orientation of Microphone array
-    R_angle = np.random.randint(1, angle + 1)  # randi([1,angle])
-    t = np.linspace(-np.pi, 2 * np.pi, angle + angle // 2)  # 3 times 180 to create option to rand whole circ
-    # MATLAB: t=t(R_angle:R_angle+angle/2-1) -> Python: 0-based indexing
-    t = t[R_angle - 1:R_angle - 1 + angle // 2]
-    x = R * np.sin(t) + Radius_X
-    y = R * np.cos(t) + Radius_Y
+    # Create a full circle of points (for reference and potential positions)
+    # We generate more points than needed (1.5 circles) to handle wrapping easily
+    angles = np.linspace(-np.pi, 2 * np.pi, angle_resolution + angle_resolution // 2)
     
-    circ_mics_x = radius_mics * np.sin(t) + Radius_X
-    circ_mics_y = radius_mics * np.cos(t) + Radius_Y
-    line_x, line_y = fillline([x[0], y[0]], [x[angle // 2 - 1], y[angle // 2 - 1]], int(R * 2 * 100))
+    # Slice the specific rotation window we want
+    active_angles = angles[rotation_offset_idx - 1 : rotation_offset_idx - 1 + angle_resolution // 2]
     
-    # r= [circ_mics_x(1) circ_mics_y(1) high; circ_mics_x(25) circ_mics_y(25) high; circ_mics_x(55) circ_mics_y(55) high; circ_mics_x(80) circ_mics_y(80) high;...
-    #     circ_mics_x(120) circ_mics_y(120) high; circ_mics_x(150) circ_mics_y(150) high; circ_mics_x(180) circ_mics_y(180) high];
+    # Calculate microphone positions on the small circle (radius 0.1m)
+    mic_x_all = mic_radius * np.sin(active_angles) + center_x
+    mic_y_all = mic_radius * np.cos(active_angles) + center_y
     
-    # MATLAB indices 1, 55, 120, 180 -> Python indices 0, 54, 119, 179
-    r = np.array([
-        [circ_mics_x[0], circ_mics_y[0], high],
-        [circ_mics_x[54], circ_mics_y[54], high],
-        [circ_mics_x[119], circ_mics_y[119], high],
-        [circ_mics_x[179], circ_mics_y[179], high]
+    # Select 4 specific microphones to form the array geometry
+    # Indices correspond to specific angles: ~0, ~54, ~119, ~179 degrees
+    selected_mic_indices = [0, 54, 119, 179]
+    mic_array_coords = np.array([
+        [mic_x_all[i], mic_y_all[i], mic_height] for i in selected_mic_indices
     ])
+
+    # Reference points for the speaker circle (radius R)
+    speaker_ref_x = speaker_radius * np.sin(active_angles) + center_x
+    speaker_ref_y = speaker_radius * np.cos(active_angles) + center_y
+
+    # --- 3. Define Reference Vector for Angle Calculation ---
+    # This vector represents "0 degrees" for the current rotation
+    # It connects the first point of the circle to the center
+    reference_vec = np.array([speaker_ref_x[0], speaker_ref_y[0]]) - array_center
     
-    # %% create x1 y1 x2 y2
-    center = np.array([Radius_X, Radius_Y])
-    start_circ_vec = np.array([line_x[0], line_y[0]]) - center
-    labels_location = np.arange(5, 176, 10)  # 5:10:175 in MATLAB
-    list_locations = []
+    # Define the 18 possible angle classes (5, 15, ..., 175 degrees)
+    angle_classes = np.arange(5, 176, 10)
+
+    # --- 4. Generate Speaker Trajectories ---
+    # Lists to store the valid path found
+    traj_s1_x, traj_s1_y = np.zeros(num_jumps), np.zeros(num_jumps)
+    traj_s2_x, traj_s2_y = np.zeros(num_jumps), np.zeros(num_jumps)
+    labels_s1, labels_s2 = np.zeros(num_jumps, dtype=int), np.zeros(num_jumps, dtype=int)
     
-    # Initialize arrays
-    x1 = np.zeros(num_jumps)
-    y1 = np.zeros(num_jumps)
-    x2 = np.zeros(num_jumps)
-    y2 = np.zeros(num_jumps)
-    x1_temp = np.zeros(num_jumps)
-    y1_temp = np.zeros(num_jumps)
-    x2_temp = np.zeros(num_jumps)
-    y2_temp = np.zeros(num_jumps)
-    label_first = np.zeros(num_jumps, dtype=int)
-    label_second = np.zeros(num_jumps, dtype=int)
+    # Temporary storage for "lookback" logic to smooth trajectories
+    prev_s1_x, prev_s1_y = np.zeros(num_jumps), np.zeros(num_jumps)
+    prev_s2_x, prev_s2_y = np.zeros(num_jumps), np.zeros(num_jumps)
     
-    i = 0  # Python 0-based indexing (was i=1 in MATLAB)
-    while i < num_jumps:
-        next_speech = True
-        number_of_loops = 0
-        while next_speech:
-            if number_of_loops > 300:
-                i = 0
-                list_locations = []
-            number_of_loops += 1
-            
-            rand1 = np.random.randint(0, angle // 2)  # randi(angle/2) -> 0 to angle/2-1
-            x1[i] = x[rand1]
-            y1[i] = y[rand1]
-            x1_temp[i] = x1[i]
-            y1_temp[i] = y1[i]
-            w = 0.01 * np.random.randint(1, 315)  # randi([1,314])
-            x1[i] = x1[i] + noise_R * np.sin(w)
-            y1[i] = y1[i] + noise_R * np.cos(w)
-            first_vec = np.array([x1[i], y1[i]]) - center
-            ang1 = np.degrees(np.arccos(
-                (start_circ_vec[0] * first_vec[0] + start_circ_vec[1] * first_vec[1]) /
-                (np.linalg.norm(start_circ_vec) * np.linalg.norm(first_vec))
-            ))
-            label_first[i] = np.argmin(np.abs(labels_location - ang1))
-            
-            rand2 = np.random.randint(0, angle // 2)
-            x2[i] = x[rand2]
-            y2[i] = y[rand2]
-            x2_temp[i] = x2[i]
-            y2_temp[i] = y2[i]
-            w = 0.01 * np.random.randint(1, 315)
-            x2[i] = x2[i] + noise_R * np.sin(w)
-            y2[i] = y2[i] + noise_R * np.cos(w)
-            second_vec = np.array([x2[i], y2[i]]) - center
-            ang2 = np.degrees(np.arccos(
-                (start_circ_vec[0] * second_vec[0] + start_circ_vec[1] * second_vec[1]) /
-                (np.linalg.norm(start_circ_vec) * np.linalg.norm(second_vec))
-            ))
-            label_second[i] = np.argmin(np.abs(labels_location - ang2))
-            
-            if label_first[i] in list_locations or label_second[i] in list_locations:
-                next_speech = True
-            else:
-                next_speech = False
-            
-            loc_xy = np.array([[x1[i], y1[i]], [x2[i], y2[i]]])
-            dist = pdist(loc_xy, 'euclidean')[0]
-            if dist < 0.5:
-                next_speech = True
-            
-            if i > 0:
-                loc_xy1 = np.array([[x1[i], y1[i]], [x2[i - 1], y2[i - 1]]])
-                loc_xy2 = np.array([[x1[i - 1], y1[i - 1]], [x2[i], y2[i]]])
-                dist_last1 = pdist(loc_xy1, 'euclidean')[0]
-                dist_last2 = pdist(loc_xy2, 'euclidean')[0]
-                if dist_last1 < 0.5 or dist_last2 < 0.5:
-                    next_speech = True
+    step = 0
+    history_labels = [] # Keep track to avoid immediate repetition if needed
+    
+    while step < num_jumps:
+        is_position_invalid = True
+        attempt_counter = 0
         
-        list_locations.append(label_first[i])
-        list_locations.append(label_second[i])
-        i += 1
+        while is_position_invalid:
+            # Failsafe: If we get stuck finding a valid point, restart the whole trajectory
+            if attempt_counter > 300:
+                step = 0
+                history_labels = []
+                attempt_counter = 0
+            attempt_counter += 1
+
+            # --- Generate Candidate Position for Speaker 1 ---
+            # Pick a random point on the reference circle
+            idx1 = np.random.randint(0, angle_resolution // 2)
+            # Add random noise to radius (perturb position)
+            noise_angle = 0.01 * np.random.randint(1, 315)
+            pos1_x = speaker_ref_x[idx1] + radius_noise * np.sin(noise_angle)
+            pos1_y = speaker_ref_y[idx1] + radius_noise * np.cos(noise_angle)
+            
+            # Calculate Angle relative to reference vector
+            vec1 = np.array([pos1_x, pos1_y]) - array_center
+            angle_deg_1 = calculate_angle(reference_vec, vec1)
+            # Find nearest class index (0-17)
+            label1 = np.argmin(np.abs(angle_classes - angle_deg_1))
+
+            # --- Generate Candidate Position for Speaker 2 ---
+            idx2 = np.random.randint(0, angle_resolution // 2)
+            noise_angle = 0.01 * np.random.randint(1, 315)
+            pos2_x = speaker_ref_x[idx2] + radius_noise * np.sin(noise_angle)
+            pos2_y = speaker_ref_y[idx2] + radius_noise * np.cos(noise_angle)
+            
+            vec2 = np.array([pos2_x, pos2_y]) - array_center
+            angle_deg_2 = calculate_angle(reference_vec, vec2)
+            label2 = np.argmin(np.abs(angle_classes - angle_deg_2))
+
+            # --- Validation Checks ---
+            
+            # 1. Check if these specific angle classes were just used (Optional constraint from original code)
+            if (label1 in history_labels) or (label2 in history_labels):
+                is_position_invalid = True
+                continue # Retry
+            
+            # 2. spatial Distance Check: Are speakers too close?
+            dist_speakers = np.linalg.norm([pos1_x - pos2_x, pos1_y - pos2_y])
+            if dist_speakers < 0.5:
+                is_position_invalid = True
+                continue
+
+            # 3. Trajectory Consistency Check (only if not the first step)
+            # Ensure speakers didn't swap places or cross too confusingly
+            if step > 0:
+                # Distance from S1(current) to S2(previous)
+                cross_dist_1 = np.linalg.norm([pos1_x - prev_s2_x[step-1], pos1_y - prev_s2_y[step-1]])
+                # Distance from S2(current) to S1(previous)
+                cross_dist_2 = np.linalg.norm([pos2_x - prev_s1_x[step-1], pos2_y - prev_s1_y[step-1]])
+                
+                if cross_dist_1 < 0.5 or cross_dist_2 < 0.5:
+                    is_position_invalid = True
+                    continue
+            
+            # If we passed all checks, accept this step
+            is_position_invalid = False
+
+        # Save valid positions
+        traj_s1_x[step], traj_s1_y[step] = pos1_x, pos1_y
+        traj_s2_x[step], traj_s2_y[step] = pos2_x, pos2_y
+        labels_s1[step], labels_s2[step] = label1, label2
+        
+        # Store for next step's comparison
+        prev_s1_x[step], prev_s1_y[step] = pos1_x, pos1_y
+        prev_s2_x[step], prev_s2_y[step] = pos2_x, pos2_y
+
+        history_labels.append(label1)
+        history_labels.append(label2)
+        step += 1
+
+    # Format Output Arrays
+    s_first = np.array([traj_s1_x, traj_s1_y, np.ones(num_jumps) * mic_height])
+    s_second = np.array([traj_s2_x, traj_s2_y, np.ones(num_jumps) * mic_height])
+
+    # --- 5. Generate Point Source Noise Position ---
+    # Find a noise position at least 2 meters away from the array center
+    s_noise = np.array([center_x, center_y, mic_height])
+    dist_noise = 0.0
     
-    # %% create location of the speakers
-    s_first = np.array([x1, y1, np.ones(num_jumps)])
-    s_second = np.array([x2, y2, np.ones(num_jumps)])
-    
-    # %% create location (recalculate labels)
-    labels_location = np.arange(5, 176, 10)
-    for i in range(num_jumps):
-        center = np.array([Radius_X, Radius_Y])
-        start_circ_vec = np.array([line_x[0], line_y[0]]) - center
-        first_vec = np.array([x1[i], y1[i]]) - center
-        second_vec = np.array([x2[i], y2[i]]) - center
-        ang1 = np.degrees(np.arccos(
-            (start_circ_vec[0] * first_vec[0] + start_circ_vec[1] * first_vec[1]) /
-            (np.linalg.norm(start_circ_vec) * np.linalg.norm(first_vec))
-        ))
-        ang2 = np.degrees(np.arccos(
-            (start_circ_vec[0] * second_vec[0] + start_circ_vec[1] * second_vec[1]) /
-            (np.linalg.norm(start_circ_vec) * np.linalg.norm(second_vec))
-        ))
-        label_first[i] = np.argmin(np.abs(labels_location - ang1))
-        label_second[i] = np.argmin(np.abs(labels_location - ang2))
-    
-    # %% noise
-    middle = np.array([Radius_X, Radius_Y, high])
-    s_noise = np.array([Radius_X, Radius_Y, high])
-    d_noise = np.linalg.norm(s_noise - middle)
-    while d_noise < 2:
-        x_noise = distance_from_woll + 0.01 * np.random.randint(1, 101) * (room_x - 2 * distance_from_woll)
-        y_noise = distance_from_woll + 0.01 * np.random.randint(1, 101) * (room_y - 2 * distance_from_woll)
-        s_noise = np.array([x_noise, y_noise, high])
-        d_noise = np.linalg.norm(s_noise - middle)
-    
-    # %% plot all
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    
-    ax.plot(x, y, np.ones(180), label='Speaker circle')
-    ax.plot(circ_mics_x, circ_mics_y, np.ones(180), label='Mic circle')
-    ax.plot(line_x, line_y, np.ones(len(line_x)), label='Reference line')
-    
-    # Plot microphone positions (MATLAB indices 1,25,55,80,120,150,180 -> Python 0,24,54,79,119,149,179)
-    mic_indices = [0, 24, 54, 79, 119, 149, 179]
-    ax.scatter(
-        [circ_mics_x[idx] for idx in mic_indices],
-        [circ_mics_y[idx] for idx in mic_indices],
-        [1] * 7,
-        marker='o', s=50, label='Microphones'
-    )
-    
-    t_noise_location = np.linspace(0, 2 * np.pi, 100)
-    
-    for i in range(num_jumps):
-        x_noise_location = noise_R * np.sin(t_noise_location) + x2_temp[i]
-        y_noise_location = noise_R * np.cos(t_noise_location) + y2_temp[i]
-        z_noise_location = np.ones_like(t_noise_location)
-        ax.plot(x_noise_location, y_noise_location, z_noise_location, 'g-', alpha=0.5)
+    while dist_noise < 2.0:
+        # Pick random point in room (respecting wall margins)
+        nx = wall_margin + np.random.rand() * (room_x - 2 * wall_margin)
+        ny = wall_margin + np.random.rand() * (room_y - 2 * wall_margin)
+        s_noise = np.array([nx, ny, mic_height])
+        dist_noise = np.linalg.norm(s_noise - np.array([center_x, center_y, mic_height]))
+
+    if plot_name is not None:
+        # --- 6. Plot All ---
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        
+        # Plot speaker circle and mic circle
+        ax.plot(speaker_ref_x, speaker_ref_y, np.ones(len(speaker_ref_x)), label='Speaker circle')
+        ax.plot(mic_x_all, mic_y_all, np.ones(len(mic_x_all)), label='Mic circle')
+        
+        # Plot reference line (from first to last point of speaker circle)
+        line_x, line_y = fillline(
+            [speaker_ref_x[0], speaker_ref_y[0]], 
+            [speaker_ref_x[-1], speaker_ref_y[-1]], 
+            int(speaker_radius * 2 * 100)
+        )
+        ax.plot(line_x, line_y, np.ones(len(line_x)), label='Reference line')
+        
+        # Plot microphone positions
+        mic_indices = [0, 24, 54, 79, 119, 149, 179]
+        valid_mic_indices = [idx for idx in mic_indices if idx < len(mic_x_all)]
+        ax.scatter(
+            [mic_x_all[idx] for idx in valid_mic_indices],
+            [mic_y_all[idx] for idx in valid_mic_indices],
+            [1] * len(valid_mic_indices),
+            marker='o', s=50, label='Microphones'
+        )
         
         t_noise_location = np.linspace(0, 2 * np.pi, 100)
-        x_noise_location = noise_R * np.sin(t_noise_location) + x1_temp[i]
-        y_noise_location = noise_R * np.cos(t_noise_location) + y1_temp[i]
-        z_noise_location = np.ones_like(t_noise_location)
-        ax.plot(x_noise_location, y_noise_location, z_noise_location, 'b-', alpha=0.5)
         
-        ax.scatter([x1[i], x2[i], s_noise[0]], [y1[i], y2[i], s_noise[1]], [high, high, high], marker='o', s=30)
-    
-    plotcube(L, [0, 0, 0], 0, [1, 1, 1], ax)  # use function plotcube
-    
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    ax.set_title('Room with Speakers and Microphone Array')
-    ax.legend(loc='upper left')
-    
-    py_path = os.path.dirname(os.path.abspath(__file__))
-    result_path = os.path.join(py_path, 'Results')
-    os.makedirs(result_path, exist_ok=True)
-    plt.savefig(os.path.join(result_path, 'test_locations.png'), dpi=150)
-    
-    return s_first, label_first, s_second, label_second, s_noise, r
+        for i in range(num_jumps):
+            # Plot noise radius circles around speaker 2 positions (green)
+            x_noise_location = radius_noise * np.sin(t_noise_location) + traj_s2_x[i]
+            y_noise_location = radius_noise * np.cos(t_noise_location) + traj_s2_y[i]
+            z_noise_location = np.ones_like(t_noise_location)
+            ax.plot(x_noise_location, y_noise_location, z_noise_location, 'g-', alpha=0.5)
+            
+            # Plot noise radius circles around speaker 1 positions (blue)
+            x_noise_location = radius_noise * np.sin(t_noise_location) + traj_s1_x[i]
+            y_noise_location = radius_noise * np.cos(t_noise_location) + traj_s1_y[i]
+            z_noise_location = np.ones_like(t_noise_location)
+            ax.plot(x_noise_location, y_noise_location, z_noise_location, 'b-', alpha=0.5)
+            
+            # Plot speaker 1 (blue), speaker 2 (green), noise source (red)
+            # Only add labels on first iteration to avoid duplicate legend entries
+            ax.scatter([traj_s1_x[i]], [traj_s1_y[i]], [mic_height], marker='o', s=30, c='blue',
+                    label='Speaker 1' if i == 0 else None)
+            ax.scatter([traj_s2_x[i]], [traj_s2_y[i]], [mic_height], marker='o', s=30, c='green',
+                    label='Speaker 2' if i == 0 else None)
+            ax.scatter([s_noise[0]], [s_noise[1]], [mic_height], marker='o', s=30, c='red',
+                    label='Noise source' if i == 0 else None)
+        
+        plotcube(room_dim, [0, 0, 0], 0, [1, 1, 1], ax)  # use function plotcube
+        
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.set_title('Room with Speakers and Microphone Array (Refactored)')
+        ax.legend(loc='upper left')
+        
+        py_path = os.path.dirname(os.path.abspath(__file__))
+        result_path = os.path.join(py_path, 'Results')
+        os.makedirs(result_path, exist_ok=True)
+        plt.savefig(os.path.join(result_path, f'{plot_name}.png'), dpi=150)
+
+    return s_first, labels_s1, s_second, labels_s2, s_noise, mic_array_coords
+
