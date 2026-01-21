@@ -567,3 +567,72 @@ def fun_create_diffuse_noise(
     return noise
 
 
+def create_vad_dynamic(x: np.ndarray, hop: int, nfft: int) -> np.ndarray:
+    """
+    Create frame-level labels from sample-level labels using majority voting.
+    
+    This function downsamples sample-level labels to STFT frame-level labels
+    by finding the most frequent value (mode) in each frame window. It is used
+    to convert sample-level speaker direction labels to frame-level labels
+    that align with STFT frames.
+    
+    Parameters
+    ----------
+    x : np.ndarray
+        Sample-level label signal (1D array). Values are typically:
+        - 0: silence/padding (no speech)
+        - 1-17: angle class labels indicating speaker direction
+    hop : int
+        Hop size (number of samples between consecutive frames).
+        Typically matches STFT hop size.
+    nfft : int
+        Window length (number of samples per frame).
+        Typically matches STFT window/FFT length.
+    
+    Returns
+    -------
+    vad : np.ndarray
+        Frame-level labels (1D array of length L), where L is the number
+        of frames. Each value is the most frequent label in that frame.
+    
+    Notes
+    -----
+    The function uses the statistical mode (most frequent value) to determine
+    the label for each frame. This effectively performs majority voting:
+    - If a frame is mostly zeros → returns 0 (no speech)
+    - If a frame contains mostly label k → returns k (speech from direction k)
+    
+    Example
+    -------
+    >>> # Sample-level labels: 1 second at 16kHz, first half silence, second half speech from direction 5
+    >>> labels = np.concatenate([np.zeros(8000), np.ones(8000) * 5])
+    >>> hop = 512
+    >>> nfft = 2048
+    >>> frame_labels = create_vad_dynamic(labels, hop, nfft)
+    """
+    from scipy.stats import mode
+    
+    x = np.asarray(x).flatten()
+    xlen = len(x)
+    wlen = nfft
+    
+    # Number of frames (same formula as MATLAB: 1 + fix((xlen-wlen)/hop))
+    L = 1 + (xlen - wlen) // hop
+    
+    vad = np.zeros(L)
+    
+    for l in range(L):
+        # Extract window: MATLAB uses 1-based indexing, Python uses 0-based
+        # MATLAB: x(1+l*hop : wlen+l*hop) -> Python: x[l*hop : l*hop + wlen]
+        start_idx = l * hop
+        end_idx = start_idx + wlen
+        x_w = x[start_idx:end_idx]
+        
+        # Find mode (most frequent value) in the window
+        # scipy.stats.mode returns ModeResult(mode=array, count=array)
+        mode_result = mode(x_w, keepdims=False)
+        vad[l] = mode_result.mode
+    
+    return vad
+
+
