@@ -3,6 +3,10 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import os
+import glob
+import soundfile as sf
+from anf_generator import generate_signals
+from anf_generator.CoherenceMatrix import Parameters 
 
 
 def fillline(startp, endp, pts):
@@ -408,4 +412,158 @@ def create_locations_18_dynamic(
         plt.savefig(os.path.join(result_path, f'{plot_name}.png'), dpi=150)
 
     return s_first, labels_s1, s_second, labels_s2, s_noise, mic_array_coords
+
+
+def fun_create_diffuse_noise(
+    mic_positions: np.ndarray,
+    noise_folder: str = None,
+    fs: int = 16000,
+    c: float = 340.0,
+    K: int = 256,
+    L: int = None,
+    type_nf: str = 'spherical'
+) -> np.ndarray:
+    """
+    Generate diffuse noise with desired spatial coherence for microphone array.
+    
+    This function creates spatially coherent noise signals that simulate
+    a diffuse noise field (e.g., cafe ambience, babble noise) as would be
+    captured by a microphone array.
+    
+    Parameters
+    ----------
+    mic_positions : np.ndarray
+        Microphone positions as M x 2 or M x 3 array, where M is the number
+        of microphones. Each row is [x, y] or [x, y, z] coordinates in meters.
+        If 2D (M x 2), z-coordinates will be set to 0.
+    noise_folder : str, optional
+        Path to folder containing noise WAV files. If None, uses default path
+        relative to this file: 'Diff_noise_srs/'
+    fs : int, optional
+        Sample frequency in Hz. Default: 16000
+    c : float, optional
+        Sound velocity in m/s. Default: 340.0
+    K : int, optional
+        FFT length for coherence matrix computation. Default: 256
+    L : int, optional
+        Desired output length in samples. Default: 20 * fs (20 seconds)
+    type_nf : str, optional
+        Type of noise field: 'spherical' or 'cylindrical'. Default: 'spherical'
+    
+    Returns
+    -------
+    noise : np.ndarray
+        Generated noise signals with spatial coherence, shape (L, M)
+        where L is the number of samples and M is the number of microphones.
+    
+    Raises
+    ------
+    ValueError
+        If sample frequency of input file doesn't match fs.
+    FileNotFoundError
+        If no WAV files are found in the noise folder.
+    
+    Example
+    -------
+    >>> # Define microphone positions (4 mics in semicircular array, radius 0.1m)
+    >>> t = np.linspace(0, np.pi, 180)
+    >>> circ_mics_x = 0.1 * np.sin(t)
+    >>> circ_mics_y = 0.1 * np.cos(t)
+    >>> mic_positions = np.array([
+    ...     [circ_mics_x[0], circ_mics_y[0]],
+    ...     [circ_mics_x[54], circ_mics_y[54]],
+    ...     [circ_mics_x[119], circ_mics_y[119]],
+    ...     [circ_mics_x[179], circ_mics_y[179]]
+    ... ])
+    >>> noise = fun_create_diffuse_noise(mic_positions)
+    """
+    # Set default values
+    if L is None:
+        L = 20 * fs  # 20 seconds of data
+    
+    M = mic_positions.shape[0]  # Number of microphones
+    
+    # Ensure mic_positions is M x 3 (add z=0 if only 2D)
+    if mic_positions.shape[1] == 2:
+        mic_positions_3d = np.column_stack([mic_positions, np.zeros(M)])
+    else:
+        mic_positions_3d = mic_positions
+    
+    # Set default noise folder path
+    if noise_folder is None:
+        py_path = os.path.dirname(os.path.abspath(__file__))
+        noise_folder = os.path.join(py_path, 'Diff_noise_srs')
+    
+    # --- Find and load noise file ---
+    # Get list of all WAV files in the folder
+    wav_files = glob.glob(os.path.join(noise_folder, '*.wav'))
+    
+    if len(wav_files) == 0:
+        raise FileNotFoundError(f"No WAV files found in {noise_folder}")
+    
+    # Pick a random noise file
+    noise_file = wav_files[np.random.randint(len(wav_files))]
+    
+    # Read audio file
+    data, fs_data = sf.read(noise_file)
+    
+    # Convert to float and normalize if integer format
+    if data.dtype == np.int16:
+        data = data.astype(np.float64) / 32768.0
+    elif data.dtype == np.int32:
+        data = data.astype(np.float64) / 2147483648.0
+    elif data.dtype == np.uint8:
+        data = (data.astype(np.float64) - 128) / 128.0
+    else:
+        data = data.astype(np.float64)
+    
+    # Handle stereo files - convert to mono
+    if len(data.shape) > 1:
+        data = data[:, 0]  # Take first channel
+    
+    # Check sample frequency
+    if fs != fs_data:
+        raise ValueError(f'Sample frequency of input file ({fs_data} Hz) does not match required ({fs} Hz).')
+    
+    # --- Generate M mutually 'independent' babble speech input signals ---
+    # Select random starting point ensuring we have enough data for all channels
+    if len(data) < M * L:
+        raise ValueError(f'Audio file too short. Need {M * L} samples, got {len(data)}')
+    
+    start_signal = np.random.randint(0, len(data) - M * L)
+    
+    # Remove DC offset
+    data = data - np.mean(data)
+    data = data[start_signal:]
+    
+    # Extract M non-overlapping segments as "independent" noise sources
+    babble = np.zeros((M, L))  # Shape: [M, L] for anf-generator (channels x samples)
+    for m in range(M):
+        babble[m, :] = data[m * L : (m + 1) * L]
+    
+    # --- Setup parameters for anf-generator ---
+    params = Parameters(
+        mic_positions=mic_positions_3d,  # M x 3 array
+        sc_type=type_nf,                 # 'spherical' or 'cylindrical'
+        sample_frequency=fs,
+        nfft=K,
+        c=c
+    )
+    
+    # --- Generate sensor signals with desired spatial coherence ---
+    # The generate_signals function applies the coherence matrix to create
+    # spatially coherent noise from independent input signals
+    # decomposition='chd' is Cholesky (same as 'cholesky' in MATLAB)
+    noise, _, _ =  generate_signals(
+        input_signals=babble,      # Shape: [M, L]
+        params=params,
+        decomposition='chd',       # Cholesky decomposition
+        processing='standard'
+    )
+    
+    # Transpose to match MATLAB output format: (L, M)
+    noise = noise.T
+    
+    return noise
+
 

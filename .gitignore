@@ -3,3 +3,4 @@ Dataset-env
 __pycache__/
 TIMIT/
 *.zip
+*.wav
