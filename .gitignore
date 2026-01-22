@@ -4,3 +4,4 @@ __pycache__/
 TIMIT/
 *.zip
 *.wav
+data/
