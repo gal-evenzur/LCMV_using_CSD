@@ -28,11 +28,7 @@ from typing import Tuple, List, Optional
 import rir_generator as rir
 
 # Import from dataset_funcs
-from dataset_funcs import (
-    create_locations_18_dynamic,
-    fun_create_diffuse_noise,
-    create_vad_dynamic
-)
+from dataset_funcs import *
 
 
 # =============================================================================
@@ -261,7 +257,8 @@ def create_database_sample(
     sample_idx: int,
     config: Config,
     male_speakers: List[str],
-    female_speakers: List[str]
+    female_speakers: List[str],
+    verbose: bool = True
 ) -> dict:
     """
     Create a single database sample.
@@ -276,7 +273,8 @@ def create_database_sample(
         List of male speaker directories
     female_speakers : list
         List of female speaker directories
-    
+    verbose : bool, optional
+        Verbosity flag for printing progress information. Default is False.
     Returns
     -------
     result : dict
@@ -293,6 +291,7 @@ def create_database_sample(
     beta = 0.3 + 0.001 * np.random.randint(0, 251)  # 0.3 to 0.55 s (T60)
     
     # --- Generate speaker and mic positions ---
+    pos_and_rir_time = time.time()
     (s_first, label_first, s_second, label_second, 
      s_noise, mic_positions) = create_locations_18_dynamic(
         room_dim=room_dim.tolist(),
@@ -311,6 +310,7 @@ def create_database_sample(
         reverberation_time=beta,
         n_samples=config.n_rir_samples
     )
+    if verbose: print(f"Position and RIR generation took {time.time() - pos_and_rir_time:.2f} seconds.")
     
     # --- Select speakers ---
     # Speaker 1
@@ -331,6 +331,7 @@ def create_database_sample(
     label_first_total = None
     label_second_total = None
     
+    jump_time = time.time()
     # --- Process each trajectory segment ---
     for j in range(config.num_jumps):
         # Load random speech files
@@ -350,7 +351,7 @@ def create_database_sample(
         
         # Convolve speech with RIR
         Receivers_first = convolve_with_rir(speech_1, h_first)
-        
+
         # Create sample-level labels
         label_first_temp = np.ones(len(Receivers_first)) * label_first[j]
         
@@ -408,6 +409,7 @@ def create_database_sample(
         Receivers_second_total = np.vstack([Receivers_second_total, np.zeros((pad_len, config.M))])
         label_second_total = np.concatenate([label_second_total, np.zeros(pad_len)])
     
+    if verbose: print(f"Trajectory processing took {time.time() - jump_time:.2f} seconds.")
     # --- Generate point-source noise (using Gaussian as placeholder) ---
     noise_len = maxlen - config.n_rir_samples + 1
     noise_temp = np.random.randn(noise_len)
@@ -439,6 +441,7 @@ def create_database_sample(
     # Get microphone positions in 2D for diffuse noise generation
     mic_pos_2d = mic_positions[:, :2]
     
+    diff_noise = time.time()
     try:
         diffuse_noise = fun_create_diffuse_noise(
             mic_positions=mic_pos_2d,
@@ -461,7 +464,8 @@ def create_database_sample(
         pad_len = length_receives - len(Receivers_noise)
         Receivers_noise = np.vstack([Receivers_noise, np.zeros((pad_len, M))])
     Receivers_noise = Receivers_noise[:length_receives, :]
-    
+    if verbose: print(f"Diffuse noise generation took {time.time() - diff_noise:.2f} seconds.")
+
     # --- Combine all noise sources and create mixture ---
     noise_total = mic_noise + A_n_diffuse * diffuse_noise + A_n_direction * Receivers_noise
     receivers = receivers + noise_total
@@ -594,5 +598,5 @@ def create_database(
     print(f"Files saved to: {output_path}")
 
 
-num_samples = 10
+num_samples = 2
 create_database(num_samples=num_samples)

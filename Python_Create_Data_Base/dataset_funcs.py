@@ -7,7 +7,7 @@ import glob
 import soundfile as sf
 from anf_generator import generate_signals
 from anf_generator.CoherenceMatrix import Parameters 
-
+import time
 
 def fillline(startp, endp, pts):
     """
@@ -528,7 +528,11 @@ def fun_create_diffuse_noise(
     # --- Generate M mutually 'independent' babble speech input signals ---
     # Select random starting point ensuring we have enough data for all channels
     if len(data) < M * L:
-        raise ValueError(f'Audio file too short. Need {M * L} samples, got {len(data)}')
+        print(f'Audio file too short. Need {M * L} samples, got {len(data)}')
+        # Loop the data if too short
+        repeats = int(np.ceil((M * L) / len(data)))
+        data = np.tile(data, repeats)
+        print(f'Looped audio to length {len(data)} samples.')
     
     start_signal = np.random.randint(0, len(data) - M * L)
     
