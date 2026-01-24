@@ -5,3 +5,4 @@ TIMIT/
 *.zip
 *.wav
 data/
+*.npy
