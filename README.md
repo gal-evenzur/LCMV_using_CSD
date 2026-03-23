@@ -3,25 +3,17 @@
 # Dataset_Generation
 To generate the complete dataset for training the Concurrent Speaker Detector (CSD) model, you need to run the scripts in the following order.
 
-> download the TIMIT Dataset [here](https://academictorrents.com/details/34e2b78745138186976cbc27939b1b34d18bd5b3) using a BitTorrent, or ask Gal(galevenzur2@gmail.com) for it 
+> download the TIMIT Dataset [here](https://academictorrents.com/details/34e2b78745138186976cbc27939b1b34d18bd5b3) using a BitTorrent, or ask Gal(galevenzur2@gmail.com) for it. Next, put the timit dataset inside the main folder. 
 
-### **Phase 1: Setup & Compilation (MATLAB)**
+### **Phase 2: Synthetic Audio Generation**
 
-**File to Run:** `Eyal_Files/rir_generator.cpp`
-
-- **Action:** You do not "run" this script directly; you **compile** it.
-- **Purpose:** Creates the `rir_generator` binary (MEX file) required to simulate room acoustics.
-- **Command:** `mex rir_generator.cpp`
-
-### **Phase 2: Synthetic Audio Generation (MATLAB)**
-
-**File to Run:** `Eyal_Files/create_data_base.m`
+**File to Run: Python_Create_Data_Base/create_data_base.py** ``
 
 - **Purpose:** This is the main driver script. It generates thousands of synthetic audio files representing dynamic acoustic scenarios.
 - **Generates:**
     - **Mixed Audio:** `together_*.wav` (The main input for the model).
     - **Clean References:** `first_*.wav` and `second_*.wav` (Individual speakers, used for validation).
-    - **Labels:** `label_location_*.mat` (Contains VAD activity and spatial location data).
+    - **Labels:** `label_location_*.npy` (Contains VAD activity and spatial location data).
 - **Dependencies:** This script automatically calls:
     - `create_locations_18_dynamic.m` to calculate speaker trajectories.
     - `fun_create_deffuse_noise.m` to generate ambient diffuse noise.

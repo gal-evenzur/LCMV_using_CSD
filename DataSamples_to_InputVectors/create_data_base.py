@@ -392,26 +392,65 @@ for k in range(1,nom_data_sets):
         idx=idx+1
         
 np.save(idx_file_name,idx)
-plt.figure();plt.plot(vad1)
-plt.figure();plt.plot(vad2)
-plt.figure();plt.plot(L)
-plt.figure();plt.plot(L2)
-plt.figure();plt.hist(L,3)
-plt.figure();plt.hist(L2,20)
-plt.figure();plt.hist(L_total,3)
-plt.figure();plt.hist(L2_total,20)
 
-plt.figure();
-temp=z_k_0.T;
-plt.title('Model -label prediction')
-plt.imshow(temp[::-1],aspect='auto')
-plt.savefig(output_dir+'stft_input.png')
+# -------------------------
+# Diagnostic plotting block
+# -------------------------
+temp = z_k_0.T
 
-fig, ax1 = plt.subplots()
+# Figure 1: Input spectrogram + activity/label timelines
+fig, axes = plt.subplots(
+    3,
+    1,
+    figsize=(14, 10),
+    sharex=True,
+    gridspec_kw={'height_ratios': [2.2, 1.0, 1.0]}
+)
 
-ax2 = ax1.twinx()
-ax3 = ax1.twinx()
-ax1.imshow(temp[::-1],aspect='auto')
-ax2.plot(L, 'b-')
-ax2.plot(L2, 'g-')
-plt.savefig(output_dir+'label_prediction.png')
+ax_spec, ax_vad, ax_lbl = axes
+
+spec_im = ax_spec.imshow(temp[::-1], aspect='auto', origin='lower', cmap='magma')
+ax_spec.set_title('Input STFT log-magnitude (mic 0)')
+ax_spec.set_ylabel('Frequency bin')
+fig.colorbar(spec_im, ax=ax_spec, pad=0.01, label='Log magnitude')
+
+ax_vad.plot(vad1, label='VAD speaker 1', linewidth=1.0, color='tab:blue')
+ax_vad.plot(vad2, label='VAD speaker 2', linewidth=1.0, color='tab:orange')
+ax_vad.plot(np.clip(L, 0, 2), label='Active speakers count', linewidth=1.2, color='tab:green')
+ax_vad.set_title('Speech activity by frame')
+ax_vad.set_ylabel('Activity')
+ax_vad.set_ylim(-0.1, 2.1)
+ax_vad.grid(alpha=0.25)
+ax_vad.legend(loc='upper right')
+
+ax_lbl.plot(L2, linewidth=1.0, color='tab:purple', label='Direction class (0-19)')
+ax_lbl.set_title('Direction label timeline')
+ax_lbl.set_ylabel('Class')
+ax_lbl.set_xlabel('Frame index')
+ax_lbl.set_ylim(-0.5, 19.5)
+ax_lbl.set_yticks(np.arange(0, 20, 1))
+ax_lbl.grid(alpha=0.25)
+ax_lbl.legend(loc='upper right')
+
+plt.tight_layout()
+plt.savefig(output_dir + 'label_prediction.png', dpi=180)
+
+# Figure 2: Label distribution summary
+fig2, axes2 = plt.subplots(1, 2, figsize=(13, 4))
+
+axes2[0].hist(L_total, bins=np.array([-0.5, 0.5, 1.5, 2.5]), edgecolor='black')
+axes2[0].set_title('Distribution of active-speaker count (L_total)')
+axes2[0].set_xlabel('Active speakers')
+axes2[0].set_ylabel('Frames')
+axes2[0].set_xticks([0, 1, 2])
+axes2[0].grid(alpha=0.25)
+
+axes2[1].hist(L2_total, bins=np.arange(-0.5, 20.5, 1), edgecolor='black')
+axes2[1].set_title('Distribution of direction classes (L2_total)')
+axes2[1].set_xlabel('Direction class')
+axes2[1].set_ylabel('Frames')
+axes2[1].set_xticks(np.arange(0, 20, 2))
+axes2[1].grid(alpha=0.25)
+
+plt.tight_layout()
+plt.savefig(output_dir + 'label_histograms.png', dpi=180)
