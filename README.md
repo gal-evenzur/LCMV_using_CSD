@@ -1,9 +1,14 @@
 # LCMV_using_CSD
 
-# Dataset_Generation
+# First setup
 To generate the complete dataset for training the Concurrent Speaker Detector (CSD) model, you need to run the scripts in the following order.
 
 > download the TIMIT Dataset [here](https://academictorrents.com/details/34e2b78745138186976cbc27939b1b34d18bd5b3) using a BitTorrent, or ask Gal(galevenzur2@gmail.com) for it. Next, put the timit dataset inside the main folder. 
+
+Now, you need the diffuse noise srs files, which emulate a noisy caffe ambience. 
+> Unzip the file "createAudio/Diff_noise_srs/Diff_srs.zip. 
+
+When you'll create a file using diffuse noise, you'll get an error about the np.complex_. just change it for urself (temp fix).
 
 ### **Phase 2: Synthetic Audio Generation**
 
