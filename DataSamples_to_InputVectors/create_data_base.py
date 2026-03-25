@@ -23,7 +23,9 @@ import os
 
 pydir = os.path.dirname(os.path.abspath(__file__))
 output_dir = pydir + '/inputVectors/'
-input_data_dir = os.path.dirname(pydir) + '/Python_Create_Data_Base/data/'
+plot_dir = pydir + '/plots/'
+input_data_dir = os.path.dirname(pydir) + '/createAudio/data/'
+
 
 print('Data root dir:', input_data_dir)
 print('Output root dir:', output_dir)
