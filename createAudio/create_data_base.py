@@ -37,6 +37,8 @@ from dataset_funcs import *
 
 class Config:
     """Configuration parameters for dataset generation."""
+
+    seed = 42
     
     # Acoustic parameters
     c = 340                     # Sound velocity (m/s)
@@ -67,7 +69,12 @@ class Config:
     output_path = None          # Will be set at runtime
     
     # Number of samples to generate
-    num_samples = 500
+    num_samples = 2
+    start_idx = 1  # Starting index for file naming (e.g., 1 for 'first_1.wav')
+
+    # File naming
+    trainORval = 'train'  # 'train' or 'val'
+    dataset_title = trainORval + str(seed)
 
 
 def get_timit_speakers(timit_path: str) -> Tuple[List[str], List[str]]:
@@ -496,35 +503,34 @@ def create_database_sample(
     }
 
 
-def create_database(
-    num_samples: int = 500,
-    timit_path: str = None,
-    output_path: str = None,
-    start_idx: int = 1
-):
+def create_database(config: Config):
     """
     Create the full database.
     
     Parameters
     ----------
-    num_samples : int
-        Number of samples to generate
-    timit_path : str
-        Path to TIMIT dataset root
-    output_path : str
-        Path to save output files
-    start_idx : int
-        Starting index for file naming
+
+    config : Config
+        Configuration object with all parameters
     """
-    
+    np.random.seed(config.seed)
+
+    dataset_title = config.dataset_title
+    num_samples = config.num_samples
+    start_idx = config.start_idx
+
+
     # Set default paths
-    if timit_path is None:
+    if config.timit_base_path is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         timit_path = os.path.join(os.path.dirname(script_dir), 'TIMIT')
     
-    if output_path is None:
+    if config.output_path is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        output_path = os.path.join(script_dir, 'data')
+        data_path = os.path.join(script_dir, 'data')
+        os.makedirs(data_path, exist_ok=True)
+        # output = data_path + f'/{dataset_title}_data'
+        output_path = os.path.join(data_path, f'{dataset_title}')
     
     # Create output directory
     os.makedirs(output_path, exist_ok=True)
@@ -539,7 +545,6 @@ def create_database(
         raise ValueError(f"No speakers found in {timit_path}")
     
     # Configuration
-    config = Config()
     config.timit_base_path = timit_path
     config.output_path = output_path
     
@@ -598,5 +603,4 @@ def create_database(
     print(f"Files saved to: {output_path}")
 
 
-num_samples = 2
-create_database(num_samples=num_samples)
+create_database(config = Config())

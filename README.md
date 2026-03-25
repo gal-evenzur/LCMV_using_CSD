@@ -10,10 +10,10 @@ Now, you need the diffuse noise srs files, which emulate a noisy caffe ambience.
 
 When you'll create a file using diffuse noise, you'll get an error about the np.complex_. just change it for urself (temp fix).
 
-### **Phase 2: Synthetic Audio Generation**
+# Synthetic Audio Generation 
 
-**File to Run: Python_Create_Data_Base/create_data_base.py** ``
-
+**File to Run: createAudio/create_data_base.py** ``
+> Need to change what's written here
 - **Purpose:** This is the main driver script. It generates thousands of synthetic audio files representing dynamic acoustic scenarios.
 - **Generates:**
     - **Mixed Audio:** `together_*.wav` (The main input for the model).
@@ -23,14 +23,19 @@ When you'll create a file using diffuse noise, you'll get an error about the np.
     - `create_locations_18_dynamic.m` to calculate speaker trajectories.
     - `fun_create_deffuse_noise.m` to generate ambient diffuse noise.
 
-### **Phase 3: Feature Extraction (Python)**
+# Dataset train/val creation
 
-**File to Run:** `Eyal_Files/python_codes/create_data_base.py`
+**File to Run:** `DataSamples_to_InputVectors/create_data_base`
 
 - **Purpose:** Processes the raw WAV files from Phase 2 into the specific feature vectors required by the Neural Network.
 - **Generates:**
     - **Features:** `feature_vector_*.npy` (STFT and spatial features).
     - **Labels:** `label_*.npy` (Speaker count labels) and `label2_*.npy` (Direction/Location labels).
     - **Index:** `idx.npy` (Keeps track of the total number of samples).
-- **Note:** You must update the `data_root_dir` variable in this script to point to the folder where MATLAB saved the WAV files.
 
+
+# Model training
+Before using the GPU's, you'll need to run this command in the terminal first:
+`export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(python -c 'import os, glob; print(":".join(glob.glob("/home/evenzug/Sim-venv/lib/python3.12/site-packages/nvidia/*/lib")))')`
+
+_In order to make ur life easier, go to the activate file of the py venv, and paste the command at the bottom of the file._

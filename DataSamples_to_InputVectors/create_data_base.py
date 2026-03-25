@@ -22,10 +22,15 @@ import os
 #data_root_dir = '/mnt/dsi_vol1/users/ayal_shvarts/project/'
 
 pydir = os.path.dirname(os.path.abspath(__file__))
-output_dir = pydir + '/inputVectors/'
+output_dir = pydir + '/dataset/train/'
+val_output_dir = pydir + '/dataset/val/'
 plot_dir = pydir + '/plots/'
 input_data_dir = os.path.dirname(pydir) + '/createAudio/data/'
 
+# make sure dirs exist
+os.makedirs(output_dir, exist_ok=True)
+os.makedirs(val_output_dir, exist_ok=True)
+os.makedirs(plot_dir, exist_ok=True)
 
 print('Data root dir:', input_data_dir)
 print('Output root dir:', output_dir)
@@ -50,7 +55,7 @@ threshold_freq=0.3
 threshold=40
 pad=30
 num_cores = multiprocessing.cpu_count()
-mode='data'
+mode='val'
 indices = [0,1,2,3]
 class_wieght=np.zeros(3)
 scaler = StandardScaler()
@@ -65,12 +70,12 @@ if mode =='data':
     lottery=3
              
 if mode =='val':
-    data_file_name=output_dir+'val_data_sets/separate_files/feature_vector_'
-    label_file_name=output_dir+'val_data_sets/separate_files/label_'
-    label2_file_name=output_dir+'val_data_sets/separate_files/label2_'
-    idx_file_name=output_dir+'val_data_sets/separate_files/idx.npy'
-    nom_data_sets=3
-    lottery=26
+    data_file_name=val_output_dir+'feature_vector_'
+    label_file_name=val_output_dir+'label_'
+    label2_file_name=val_output_dir+'label2_'
+    idx_file_name=val_output_dir+'idx.npy'
+    nom_data_sets=2
+    lottery=3
 
 def stft_z(get_receivers):
     return stft(get_receivers, win, hop, nfft)
@@ -117,11 +122,11 @@ for k in range(1,nom_data_sets):
        
         if mode =='val':
             print(i)
-            first_file=(input_data_dir+'val_dynamic/first_%d.wav'%index_file)
-            second_file=(input_data_dir+'val_dynamic/second_%d.wav'%index_file) 
-            together_file=(input_data_dir+'val_dynamic/together_%d.wav'%index_file) 
-            label_first_location_file=(input_data_dir+'val_dynamic/label_location_first_%d.npy'%index_file)
-            label_second_location_file=(input_data_dir+'val_dynamic/label_location_second_%d.npy'%index_file)
+            first_file=(input_data_dir+'val12/first_%d.wav'%index_file)
+            second_file=(input_data_dir+'val12/second_%d.wav'%index_file) 
+            together_file=(input_data_dir+'val12/together_%d.wav'%index_file) 
+            label_first_location_file=(input_data_dir+'val12/label_location_first_%d.npy'%index_file)
+            label_second_location_file=(input_data_dir+'val12/label_location_second_%d.npy'%index_file)
 
 
         fs,receiver_first = wavfile.read(first_file)
