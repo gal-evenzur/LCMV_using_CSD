@@ -7,6 +7,7 @@ Created on Thu Dec 26 11:05:40 2019
 
 from __future__ import print_function
 import keras
+import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Dropout, Activation
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Flatten
@@ -21,15 +22,34 @@ from keras.constraints import max_norm
 from keras import losses
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'  
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
-data_file_name='/mnt/dsi_vol1/users/ayal_shvarts/project/data_sets/separate_files_spectrum/feature_vector_'
-label_file_name='/mnt/dsi_vol1/users/ayal_shvarts/project/data_sets/separate_files_spectrum/label_'
-idx_file_name='/mnt/dsi_vol1/users/ayal_shvarts/project/data_sets/separate_files_spectrum/idx.npy'
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+  try:
+    # Currently, memory growth needs to be the same across GPUs
+    for gpu in gpus:
+      tf.config.experimental.set_memory_growth(gpu, True)
+    logical_gpus = tf.config.list_logical_devices('GPU')
+    print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+  except RuntimeError as e:
+    # Memory growth must be set before GPUs have been initialized
+    print(e)
 
-val_data_file_name='/mnt/dsi_vol1/users/ayal_shvarts/project/val_data_sets/separate_files_spectrum/feature_vector_'
-val_label_file_name='/mnt/dsi_vol1/users/ayal_shvarts/project/val_data_sets/separate_files_spectrum/label_'
-val_idx_file_name='/mnt/dsi_vol1/users/ayal_shvarts/project/val_data_sets/separate_files_spectrum/idx.npy'
+pydir = os.path.dirname(os.path.realpath(__file__))
+datasetDir = os.path.join(pydir, 'dataset')
+
+data_file_name=os.path.join(datasetDir,'train/feature_vector_')
+label_file_name=os.path.join(datasetDir,'train/label_')
+idx_file_name=os.path.join(datasetDir,'train/idx.npy')
+
+val_data_file_name=os.path.join(datasetDir,'val/feature_vector_')
+val_label_file_name=os.path.join(datasetDir,'val/label_')
+val_idx_file_name=os.path.join(datasetDir,'val/idx.npy')
+
+# models dir
+models_dir = os.path.join(pydir, 'models')
+os.makedirs(models_dir, exist_ok=True)
 
 plt.close("all")                                                                                                           
 batch_size = 64
@@ -122,9 +142,8 @@ layer5b=BatchNormalization()(layer5a)
 output3=Dense(3, activation='softmax',name='out_3')(layer5b)
 model=Model(inputs=inputs, outputs=output3)
 
-for layer in model.layers:
-    print(layer.output_shape)
-  
+model.summary()
+
 model.compile(loss=losses.categorical_crossentropy,
               optimizer=Adam(lr=0.001),
               metrics=['accuracy'])
@@ -148,7 +167,8 @@ model.fit_generator(generator=training_generator,
                     workers=12
                     )
 
-model3.save('/home/dsi/shvarta3/models/model_GEVD_18_separate_only_csd_spectrum_multi_channel_%s_%s.h5'%(time1,time2))
+model3_path = os.path.join(models_dir, 'model_GEVD_18_separate_only_csd_spectrum_multi_channel_%s_%s.h5' % (time1, time2))
+model3.save(model3_path)
 
 #confution matrix
 size = np.load(val_idx_file_name)
