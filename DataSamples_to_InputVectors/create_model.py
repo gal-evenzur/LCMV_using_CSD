@@ -7,11 +7,11 @@ Created on Thu Dec 26 11:05:40 2019
 """
 
 from __future__ import print_function
-import keras
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Dropout, Activation
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, BatchNormalization, Flatten
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.utils import Sequence, to_categorical
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -22,17 +22,28 @@ import ordinal_categorical_crossentropy3 as OCC3
 from keras.constraints import max_norm
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '1'  
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'  
 
-data_file_name='/home/dsi/shvarta3/data_sets/separate_files/feature_vector_'
-label_file_name='/home/dsi/shvarta3/data_sets/separate_files/label_'
-label2_file_name='/home/dsi/shvarta3/data_sets/separate_files/label2_'
-idx_file_name='/home/dsi/shvarta3/data_sets/separate_files/idx.npy'
 
-val_data_file_name='/home/dsi/shvarta3/val_data_sets/separate_files/feature_vector_'
-val_label_file_name='/home/dsi/shvarta3/val_data_sets/separate_files/label_'
-val_label2_file_name='/home/dsi/shvarta3/val_data_sets/separate_files/label2_'
-val_idx_file_name='/home/dsi/shvarta3/val_data_sets/separate_files/idx.npy'
+pydir = os.path.dirname(os.path.realpath(__file__))
+datasetDir = os.path.join(pydir, 'dataset')
+
+data_file_name=os.path.join(datasetDir,'train/feature_vector_')
+label_file_name=os.path.join(datasetDir,'train/label_')
+label2_file_name=os.path.join(datasetDir,'train/label2_')
+idx_file_name=os.path.join(datasetDir,'train/idx.npy')
+
+val_data_file_name=os.path.join(datasetDir,'val/feature_vector_')
+val_label_file_name=os.path.join(datasetDir,'val/label_')
+val_label2_file_name=os.path.join(datasetDir,'val/label2_')
+val_idx_file_name=os.path.join(datasetDir,'val/idx.npy')
+
+# models dir
+models_dir = os.path.join(pydir, 'models')
+os.makedirs(models_dir, exist_ok=True)
+
+plot_folder = os.path.join(pydir, 'plots')
+os.makedirs(plot_folder, exist_ok=True)
 
 plt.close("all")                                                                                                           
 batch_size = 64
@@ -44,7 +55,7 @@ time1=strftime("%d",gmtime())
 time2=strftime("%m",gmtime())
 norm = max_norm(5.0)
 
-class DataGenerator(keras.utils.Sequence):
+class DataGenerator(Sequence):
     def __init__(self, data_file, label_file,label_file2,idx_file, batch_size=batch_size,
                  dim=(img_rows,img_cols),
                  num_classes3=num_classes3,num_classes12=num_classes12):
@@ -83,7 +94,7 @@ class DataGenerator(keras.utils.Sequence):
             y3[i]=np.load(self.label_file+str(idx)+'.npy' )
             y12[i]=np.load(self.label_file2+str(idx)+'.npy')
             
-        return X, keras.utils.to_categorical(y3, num_classes=self.num_classes3),keras.utils.to_categorical(y12, num_classes=self.num_classes12)
+        return X, to_categorical(y3, num_classes=self.num_classes3),to_categorical(y12, num_classes=self.num_classes12)
   
 
 inputs=Input(shape=[img_rows,img_cols])
@@ -127,12 +138,11 @@ output3=Dense(3, activation='softmax',name='out_3')(layer_FC_out_3a)
 output18=Dense(20, activation='softmax',name='out_12')(layer_FC_out_18d)
 model=Model(inputs=inputs, outputs=[output3,output18])
 
-for layer in model.layers:
-    print(layer.output_shape)
+model.summary()
 
 lossWeights = {"out_3": 1.0, "out_12": 2.0}   
 model.compile(loss=[OCC3.loss33,OCC.loss1]  , loss_weights=lossWeights,
-              optimizer=Adam(lr=0.001),
+              optimizer=Adam(learning_rate=0.001),
               metrics=['accuracy'])
 
 model3=Model(inputs=inputs, outputs=output3)
@@ -155,16 +165,20 @@ validation_generator = DataGenerator(
 # checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='min')
 # callbacks_list = [checkpoint]
 
-model.fit_generator(generator=training_generator,
+model.fit(x=training_generator,
                     validation_data=validation_generator,
                     epochs=epochs,
 #                    use_multiprocessing=True,
-                    workers=12
+                    workers=12,
+                    verbose=2,
                     # callbacks=callbacks_list
+                    
                     )
 
-model3.save('/home/dsi/shvarta3/models/model_GEVD_18_separate_%s_%s.h5'%(time1,time2))
-model18.save('/home/dsi/shvarta3/models/model2_GEVD_18_separate_%s_%s.h5'%(time1,time2))
+model3_path = os.path.join(models_dir, 'model_GEVD_18_separate_only_csd_spectrum_multi_channel_%s_%s.h5' % (time1, time2))
+model3.save(model3_path)
+model18_path = os.path.join(models_dir, 'model2_GEVD_18_separate_only_csd_spectrum_multi_channel_%s_%s.h5' % (time1, time2))
+model18.save(model18_path)
 
 #confution matrix
 size = np.load(val_idx_file_name)

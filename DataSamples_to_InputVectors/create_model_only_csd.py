@@ -6,7 +6,6 @@ Created on Thu Dec 26 11:05:40 2019
 """
 
 from __future__ import print_function
-import keras
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Dropout, Activation
@@ -18,23 +17,13 @@ import pandas as pd
 from time import gmtime, strftime
 from plot_confusion_matrix_from_data import plot_confusion_matrix_from_data
 #import ordinal_categorical_crossentropy3 as OCC3
+from tensorflow.keras.utils import Sequence, to_categorical
 from keras.constraints import max_norm
 from keras import losses
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
-gpus = tf.config.list_physical_devices('GPU')
-if gpus:
-  try:
-    # Currently, memory growth needs to be the same across GPUs
-    for gpu in gpus:
-      tf.config.experimental.set_memory_growth(gpu, True)
-    logical_gpus = tf.config.list_logical_devices('GPU')
-    print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-  except RuntimeError as e:
-    # Memory growth must be set before GPUs have been initialized
-    print(e)
 
 pydir = os.path.dirname(os.path.realpath(__file__))
 datasetDir = os.path.join(pydir, 'dataset')
@@ -55,14 +44,14 @@ plt.close("all")
 batch_size = 64
 num_classes3 = 3
 epochs = int(1)
-img_rows, img_cols,img_deep = 14,1025,4
+img_rows, img_cols = 1025,7
 time1=strftime("%d",gmtime())
 time2=strftime("%m",gmtime())
 norm = max_norm(5.0)
 
-class DataGenerator(keras.utils.Sequence):
+class DataGenerator(Sequence):
     def __init__(self, data_file, label_file,idx_file, batch_size=batch_size,
-                 dim=(img_rows,img_cols,img_deep),
+                 dim=(img_rows,img_cols),
                  num_classes3=num_classes3):
         
         self.data_file=data_file
@@ -70,11 +59,11 @@ class DataGenerator(keras.utils.Sequence):
         self.batch_size = batch_size
         self.dim = dim
         self.num_classes3 = num_classes3
-        self.size = np.load(idx_file)
+        self.size = int(np.load(idx_file))
         self.on_epoch_end()
 
     def __len__(self):
-        return int(self.size/self.batch_size)
+        return int(np.ceil(self.size/self.batch_size))
     
     def __getitem__(self, index):
         self.index = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
@@ -82,6 +71,7 @@ class DataGenerator(keras.utils.Sequence):
         return X,y3
 
     def on_epoch_end(self):
+        # Shuffle indexes after each epoch (Useless becuse fit calls it with shuffle = True, but just in case)
         self.indexes = np.arange(self.size)
         np.random.shuffle(self.indexes)
 
@@ -94,10 +84,10 @@ class DataGenerator(keras.utils.Sequence):
             X[i,]=np.load(self.data_file+str(idx)+'.npy')         
             y3[i]=np.load(self.label_file+str(idx)+'.npy')
             
-        return X, keras.utils.to_categorical(y3, num_classes=self.num_classes3)
+        return X, to_categorical(y3, num_classes=self.num_classes3)
   
 
-inputs=Input(shape=[img_rows,img_cols,img_deep])
+inputs=Input(shape=[img_rows,img_cols])
 
 #layer1=Conv2D(filters=16, kernel_size=(14,6),strides=(1,2),kernel_constraint=norm, bias_constraint=norm)(inputs)
 #layer1a = Activation('relu')(layer1)
@@ -144,11 +134,12 @@ model=Model(inputs=inputs, outputs=output3)
 
 model.summary()
 
-model.compile(loss=losses.categorical_crossentropy,
-              optimizer=Adam(lr=0.001),
-              metrics=['accuracy'])
 
 model3=Model(inputs=inputs, outputs=output3)
+
+model.compile(loss=losses.categorical_crossentropy,
+              optimizer=Adam(learning_rate=0.001),
+              metrics=['accuracy'])
 
 training_generator = DataGenerator(
     data_file_name, 
@@ -161,11 +152,10 @@ validation_generator = DataGenerator(
     val_idx_file_name)
 
 
-model.fit_generator(generator=training_generator,
-                    validation_data=validation_generator,
-                    epochs=epochs,
-                    workers=12
-                    )
+model.fit(x=training_generator, 
+          validation_data=validation_generator,
+          epochs=epochs,
+          workers=8, use_multiprocessing=False)
 
 model3_path = os.path.join(models_dir, 'model_GEVD_18_separate_only_csd_spectrum_multi_channel_%s_%s.h5' % (time1, time2))
 model3.save(model3_path)
@@ -173,7 +163,7 @@ model3.save(model3_path)
 #confution matrix
 size = np.load(val_idx_file_name)
 
-x_test=np.zeros((size,img_rows, img_cols,img_deep),dtype=float)
+x_test=np.zeros((size,img_rows, img_cols),dtype=float)
 y=np.zeros(size)
 for index in range(size):
     x_test[index,:,:]=np.squeeze(np.load(val_data_file_name+str(index)+'.npy'))

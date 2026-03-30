@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.collections import QuadMesh
 import seaborn as sn
-
+import os
 
 def get_new_fig(fn, figsize=[9,9]):
     """ Init graphics """
@@ -120,11 +120,12 @@ def insert_totals(df_cm):
 #
 
 def pretty_plot_confusion_matrix(df_cm, annot=True, cmap="Oranges", fmt='.2f', fz=11,
-      lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='y'):
+      lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='y', plot_folder=None):
     """
       print conf matrix with default layout (like matlab)
       params:
         df_cm          dataframe (pandas) without totals
+        plot_folder     folder to save the plot
         annot          print text in each cell
         cmap           Oranges,Oranges_r,YlGnBu,Blues,RdBu, ... see:
         fz             fontsize
@@ -195,16 +196,20 @@ def pretty_plot_confusion_matrix(df_cm, annot=True, cmap="Oranges", fmt='.2f', f
     ax.set_xlabel(xlbl)
     ax.set_ylabel(ylbl)
     plt.tight_layout()  #set layout slim
-    plt.show()
+    name_fig = 'confusion_matrix.png' 
+    plt.savefig(os.path.join(plot_folder, name_fig))
 
 def plot_confusion_matrix_from_data(y_test, predictions,num_classes,columns=None, annot=True, cmap="Oranges",
-      fmt='.2f', fz=11, lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='lin'):
+      fmt='.2f', fz=11, lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='lin', plot_folder=None):
     """
         plot confusion matrix function with y_test (actual values) and predictions (predic),
         whitout a confusion matrix yet
     """
     from sklearn.metrics import confusion_matrix
     from pandas import DataFrame
+    if not plot_folder:
+        plot_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plots')
+    os.makedirs(plot_folder, exist_ok=True)
 
     #data
     if(not columns):
@@ -225,7 +230,7 @@ def plot_confusion_matrix_from_data(y_test, predictions,num_classes,columns=None
     figsize=[9,9];
     show_null_values = 2
     df_cm = DataFrame(confm, index=columns, columns=columns)
-    pretty_plot_confusion_matrix(df_cm, fz=fz, cmap=cmap, figsize=figsize, show_null_values=show_null_values, pred_val_axis=pred_val_axis)
+    pretty_plot_confusion_matrix(df_cm, fz=fz, cmap=cmap, figsize=figsize, show_null_values=show_null_values, pred_val_axis=pred_val_axis, plot_folder=plot_folder)
 
 
 
