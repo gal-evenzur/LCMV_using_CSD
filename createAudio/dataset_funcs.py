@@ -503,6 +503,8 @@ def fun_create_diffuse_noise(
     
     # Pick a random noise file
     noise_file = wav_files[np.random.randint(len(wav_files))]
+    # Print the chosen file for debugging
+    print(f"Selected noise file: {noise_file}")
     
     # Read audio file
     data, fs_data = sf.read(noise_file)

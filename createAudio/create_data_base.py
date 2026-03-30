@@ -38,7 +38,7 @@ from dataset_funcs import *
 class Config:
     """Configuration parameters for dataset generation."""
 
-    seed = 42
+    seed = 12
     
     # Acoustic parameters
     c = 340                     # Sound velocity (m/s)
@@ -73,8 +73,8 @@ class Config:
     start_idx = 1  # Starting index for file naming (e.g., 1 for 'first_1.wav')
 
     # File naming
-    trainORval = 'train'  # 'train' or 'val'
-    dataset_title = trainORval + str(seed)
+    trainORval = 'val'  # 'train' or 'val'
+    dataset_title = trainORval
 
 
 def get_timit_speakers(timit_path: str) -> Tuple[List[str], List[str]]:
