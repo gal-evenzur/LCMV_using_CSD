@@ -120,12 +120,14 @@ def insert_totals(df_cm):
 #
 
 def pretty_plot_confusion_matrix(df_cm, annot=True, cmap="Oranges", fmt='.2f', fz=11,
-      lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='y', plot_folder=None):
+      lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='y', 
+      name='confusion_matrix.png', plot_folder=None):
     """
       print conf matrix with default layout (like matlab)
       params:
         df_cm          dataframe (pandas) without totals
         plot_folder     folder to save the plot
+        name            name of the plot file
         annot          print text in each cell
         cmap           Oranges,Oranges_r,YlGnBu,Blues,RdBu, ... see:
         fz             fontsize
@@ -196,11 +198,11 @@ def pretty_plot_confusion_matrix(df_cm, annot=True, cmap="Oranges", fmt='.2f', f
     ax.set_xlabel(xlbl)
     ax.set_ylabel(ylbl)
     plt.tight_layout()  #set layout slim
-    name_fig = 'confusion_matrix.png' 
-    plt.savefig(os.path.join(plot_folder, name_fig))
+    plt.savefig(os.path.join(plot_folder, name))
 
 def plot_confusion_matrix_from_data(y_test, predictions,num_classes,columns=None, annot=True, cmap="Oranges",
-      fmt='.2f', fz=11, lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='lin', plot_folder=None):
+      fmt='.2f', fz=11, lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='lin', 
+      name='confusion_matrix.png', plot_folder=None):
     """
         plot confusion matrix function with y_test (actual values) and predictions (predic),
         whitout a confusion matrix yet
@@ -230,7 +232,8 @@ def plot_confusion_matrix_from_data(y_test, predictions,num_classes,columns=None
     figsize=[9,9];
     show_null_values = 2
     df_cm = DataFrame(confm, index=columns, columns=columns)
-    pretty_plot_confusion_matrix(df_cm, fz=fz, cmap=cmap, figsize=figsize, show_null_values=show_null_values, pred_val_axis=pred_val_axis, plot_folder=plot_folder)
+    pretty_plot_confusion_matrix(df_cm, fz=fz, cmap=cmap, figsize=figsize, show_null_values=show_null_values, pred_val_axis=pred_val_axis, 
+                                 plot_folder=plot_folder, name=name)
 
 
 

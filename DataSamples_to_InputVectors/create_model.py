@@ -7,6 +7,15 @@ Created on Thu Dec 26 11:05:40 2019
 """
 
 from __future__ import print_function
+import os
+
+# 1. Hide the TensorFlow C++ Warnings
+# 0 = all logs, 1 = filter INFO, 2 = filter INFO and WARNINGS, 3 = filter ALL except FATAL
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+# 2. Your existing GPU configuration
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Dropout, Activation
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, BatchNormalization, Flatten
@@ -21,8 +30,6 @@ import ordinal_categorical_crossentropy18 as OCC
 import ordinal_categorical_crossentropy3 as OCC3
 from keras.constraints import max_norm
 
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'  
 
 
 pydir = os.path.dirname(os.path.realpath(__file__))
@@ -214,7 +221,8 @@ y_prob3=y_pred3_2.idxmax(axis=1)
 num_classes=model3.layers[-1].output_shape[1]     
 cm_plot_labels = ['Noise','One speaker','2 speakers']
 plot_confusion_matrix_from_data(y, y_prob3,num_classes,cm_plot_labels,
-  annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis)
+  annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis,
+  name='confusion_matrix_3_classes.png', plot_folder=plot_folder)
 
 y_pred12=model18.predict(x_test)
 y_pred12_2=pd.DataFrame(y_pred12)
@@ -231,7 +239,8 @@ num_classes=model18.layers[-1].output_shape[1]-2
 cm_plot_labels = ['0-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100'
                   ,'101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180']
 plot_confusion_matrix_from_data(y2_delete-1, y_prob12_np-1,num_classes,cm_plot_labels,
-  annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis)
+  annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis,
+  name='confusion_matrix_18_classes.png', plot_folder=plot_folder)
 
 
 
