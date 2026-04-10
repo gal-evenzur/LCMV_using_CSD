@@ -1,4 +1,27 @@
+"""
+Offline separation from tracked CSD/DOA labels using GEVD-based RTF estimation and
+LCMV beamforming.
 
+Theory-to-code map:
+1) Noise covariance update (Qvv)
+    - Estimated from CSD=noise frames as outer products z z^H.
+    - Smoothed online with exponential averaging.
+
+2) RTF (steering vector) estimation per DOA and frequency
+    - Uses GEVD-style whitening: a = L^{-1} z, where L is Cholesky(Qvv).
+    - Dominant eigenvector of whitened PSD is re-colored by L to get g.
+    - First microphone is the reference by normalization with L[0,:] @ phi.
+
+3) Separation filter design
+    - One active source: MVDR form
+         w = Qvv^{-1} g / (g^H Qvv^{-1} g)
+    - Two active sources: LCMV form
+         W = Qvv^{-1} G (G^H Qvv^{-1} G)^{-1}
+
+4) State machine around tracked DOA labels
+    - Keeps two active DOA slots plus one candidate slot.
+    - Candidate is promoted only after persistence to reduce DOA jitter/chatter.
+"""
 
 from __future__ import print_function
 import numpy as np
@@ -14,56 +37,67 @@ import mir_eval
 from scipy.io import wavfile
 import torch
 import pysepm
+
+# Legacy logistic coefficients used by mapping_stoi (kept for compatibility).
 A = -17.49
 B = 9.69
-def mapping_stoi(d,a=A,b=B):
-        return 100/(1+np.exp(a*d+b))
+
+
+def mapping_stoi(d, a=A, b=B):
+    """Map STOI-like score into a percentage-like scale used in older reports."""
+    return 100 / (1 + np.exp(a * d + b))
+
 
 def si_sdr_torchaudio_calc(estimate, reference, epsilon=1e-8):
-        estimate = estimate - estimate.mean()
-        reference = reference - reference.mean()
-        reference_pow = reference.pow(2).mean(axis=1, keepdim=True)
-        mix_pow = (estimate * reference).mean(axis=1, keepdim=True)
-        scale = mix_pow / (reference_pow + epsilon)
-        reference = scale * reference
-        error = estimate - reference
-        reference_pow = reference.pow(2)
-        error_pow = error.pow(2)
-        reference_pow = reference_pow.mean(axis=1)
-        error_pow = error_pow.mean(axis=1)
-        sisdr = 10 * torch.log10(reference_pow) - 10 * torch.log10(error_pow)
-        return torch.mean(sisdr)
+    """Simple SI-SDR implementation used for final scalar quality reporting."""
+    estimate = estimate - estimate.mean()
+    reference = reference - reference.mean()
+    reference_pow = reference.pow(2).mean(axis=1, keepdim=True)
+    mix_pow = (estimate * reference).mean(axis=1, keepdim=True)
+    scale = mix_pow / (reference_pow + epsilon)
+    reference = scale * reference
+    error = estimate - reference
+    reference_pow = reference.pow(2)
+    error_pow = error.pow(2)
+    reference_pow = reference_pow.mean(axis=1)
+    error_pow = error_pow.mean(axis=1)
+    sisdr = 10 * torch.log10(reference_pow) - 10 * torch.log10(error_pow)
+    return torch.mean(sisdr)
 
 
-k=3
+# --------------------------------------------------------------------------------------
+# Experiment/config section
+# --------------------------------------------------------------------------------------
+k = 3
 RTF_mode = 'GEVD'
 
-nom_data_sets=11          ################ amount of signals to test ###################
-nfft=2048
-wlen = 2048                                                                     
-hop = wlen/4 
+nom_data_sets = 11  # Number of signals in the original experiment setup.
+nfft = 2048
+wlen = 2048
+hop = wlen / 4
 num_classes = 3
 new = 1
-img_rows, img_cols = 1025,7
-NUP=1025                                          
-win=np.hamming(wlen)
-pad=60
-e=0.01
-epsilon=0.01
-num_speech=2
-frame_threshold=9
-threshold_freq=0.3
-threshold=40
+img_rows, img_cols = 1025, 7
+NUP = 1025
+win = np.hamming(wlen)
+pad = 60
+e = 0.01
+epsilon = 0.01
+num_speech = 2
+frame_threshold = 9
+threshold_freq = 0.3
+threshold = 40
 alfa_Qvv = 0.99
 last_update_first = 0
 last_update_second = 0
 alfa_G = 1
+# Candidate DOA must persist this many frames before slot replacement.
 threshold_chage_location = 8
-frame_before=8
+frame_before = 8
 frame_after = 5
 win_vad = np.hamming(21)
-indices = [0,1,2,3]
-labels_location = np.arange(5,185,10)
+indices = [0, 1, 2, 3]
+labels_location = np.arange(5, 185, 10)
 
 annot = True
 cmap = 'Oranges'
@@ -75,18 +109,21 @@ pred_val_axis = 'y'
 fz = 9
 figsize = [18,18]
 
-time_second =0
-time_first =0
+time_second = 0
+time_first = 0
 first_speaker_active = 0
 second_speaker_active = 0
 
 forlder_to_work2 = 'C:/project/dynamic_signals/two_speakers_real_recording/'
-folder_to_save = forlder_to_work2+'results/'
+folder_to_save = forlder_to_work2 + 'results/'
 
-y2_prob_stat_mf = np.load(folder_to_save+'estimate_DOA_3.npy')
-y2 = np.load(folder_to_save+'true_DOA_3.npy')
-y_prob_stat_mf = np.load(folder_to_save+'estimate_CSD_3.npy')
-y_mf = np.load(folder_to_save+'true_CSD_3.npy')
+# Model outputs/labels produced by the tracking script.
+# CSD convention: 0=noise, 1=one speaker, 2=two speakers/overlap.
+# DOA convention: 1..18 correspond to 10-degree bins from 5 to 175 degrees.
+y2_prob_stat_mf = np.load(folder_to_save + 'estimate_DOA_3.npy')
+y2 = np.load(folder_to_save + 'true_DOA_3.npy')
+y_prob_stat_mf = np.load(folder_to_save + 'estimate_CSD_3.npy')
+y_mf = np.load(folder_to_save + 'true_CSD_3.npy')
 
 z_k = 0
 M = 4
@@ -94,19 +131,27 @@ M = 4
 y_prob_dynamic = np.zeros(len(y2))
 y2_prob_dynamic = np.zeros(len(y2))    
 Qvv_temp=np.zeros((NUP,M,M),complex)
+# Frame_classification_system layout:
+# row 0 -> [active_DOA_slot_0, active_DOA_slot_1, candidate_DOA]
+# row 1 -> [frame_count_slot_0, frame_count_slot_1, frame_count_candidate]
 Frame_classification_system = np.zeros((2,3))
 G = np.ones((NUP,M,2),dtype=complex)
 Qvv = np.zeros((NUP,M,M))
 for j in range(NUP):
     Qvv[j,:,:] = np.eye(M)
 
+# Per-frame frequency-domain beamformer weights: W[frame, freq_bin, mic, source_idx].
 W=np.ones((len(y2),NUP,M,2),complex)
 
+# Running per-DOA whitened PSD estimate used to extract dominant RTF eigenvector.
 PSD_matrix_per_DOA = np.zeros((18,NUP,M,M),complex)
 total_frame_per_DOA = np.zeros((18))
 stand_z = []
 
 
+# --------------------------------------------------------------------------------------
+# Input signals for this experiment index
+# --------------------------------------------------------------------------------------
 signal_file=(forlder_to_work2+'signal_%d.wav'%k)
 
 signal_first_file=(forlder_to_work2+'signal_first_%d.wav'%k)
@@ -127,6 +172,7 @@ fs,receivers= wavfile.read(signal_file)
 receivers = receivers[:,indices]
 
 
+# Normalize channels to avoid per-file scaling artifacts in covariance estimation.
 receiver_first=receiver_first/(abs(receiver_first).max())
 receiver_second=receiver_second/(abs(receiver_second).max())
 receivers=receivers/(abs(receivers).max())
@@ -139,7 +185,7 @@ flag_first_noise = 0
 M=len(receiver_first[0,:])
 index=int(1+np.fix((len(receiver_first[:,1])-wlen)/hop))
 
-############################## create y2 from location file #############################
+############################## STFT tensor construction #############################
 
 z_k = np.zeros((M,NUP,index),dtype=complex)
 for i in range(M):
@@ -157,6 +203,8 @@ z_k_second = np.zeros((M,NUP,index),dtype=complex)
 for i in range(M):
     z_k_second[i,:,:] = stft(receiver_second[:,i], win, hop, nfft)
 
+# Reorder to [frame, frequency, microphone], then trim border frames so every frame
+# has full context for the original tracking setup.
 z_k= np.transpose(z_k, (2,1,0))
 z_k= z_k[frame_before:index-frame_after,:,:]
 
@@ -168,15 +216,20 @@ for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
 logging.basicConfig(filename=forlder_to_work2+'/results/log_files/info_3.log',level=logging.DEBUG)    
 
+# Rolling context windows used to stabilize RTF updates when DOA fluctuates by +/-2 bins.
 save_last_frames_first = np.zeros((32,1025,4),dtype=complex)
 save_last_frames_doa_first = np.zeros(32)
 save_last_frames_second = np.zeros((32,1025,4),dtype=complex)
 save_last_frames_doa_second = np.zeros(32)
 
+# --------------------------------------------------------------------------------------
+# Online frame loop: update Qvv / RTF estimates and then separate sources
+# --------------------------------------------------------------------------------------
 for l in range(len(y2)):
     y_prob=y_prob_stat_mf[l]
     logging.info('frame number %d CSD association: %d'%(l,y_prob))
     
+    # CSD=0: treat as noise-only frame and update Qvv from z z^H.
     if y_prob==0:
             current_y2_label = 0
             current_y_label = 0
@@ -191,14 +244,19 @@ for l in range(len(y2)):
                 Qvv = Qvv_temp
                 sum_Qvv =1
             else:
+                # Legacy script uses fixed adaptation rate 0.05 after initialization.
                 sum_Qvv +=1
                 alfa_Qvv = 0.05
                 Qvv = (1-alfa_Qvv)*Qvv+(alfa_Qvv)*Qvv_temp
 
+    # CSD=1: single-speaker frame. Use tracked DOA to update one of the active slots.
     if y_prob==1:
+        # Keep original behavior from the experiment script: only first ~950 frames are used
+        # for this branch in this specific recording.
         if l<950: 
             y2_prob=y2_prob_stat_mf[l]
 
+            # If DOA is near an active slot, push this frame into that slot's context buffer.
             if abs(y2_prob - Frame_classification_system[0,0])<3:
                 if Frame_classification_system[0,0]!=0:
                     save_last_frames_first = np.roll(save_last_frames_first,1,axis=0)
@@ -213,6 +271,7 @@ for l in range(len(y2)):
                     save_last_frames_doa_second = np.roll(save_last_frames_doa_second,1)
                     save_last_frames_doa_second[0] = y2_prob
 
+            # Slot 0 update: current DOA matches active slot 0.
             if y2_prob == Frame_classification_system[0,0]:
                 
                 current_save_last_frames_first = save_last_frames_first[np.where(save_last_frames_doa_first>0)]
@@ -229,6 +288,7 @@ for l in range(len(y2)):
                 time_first = 0
                 time_second += 1
 
+                # Blend factor balances historical PSD estimate and current local context frames.
                 total_frame_per_DOA[y2_prob-1] += 1
                 alfa_G = (1+len(current_save_last_frames_first))/(total_frame_per_DOA[y2_prob-1]+len(current_save_last_frames_first))
                 
@@ -239,6 +299,10 @@ for l in range(len(y2)):
                         current_frames = z_k[l,j,:].reshape(1,M).T
 
                     if RTF_mode=='GEVD':
+                        # GEVD-style RTF estimate via whitening with Cholesky(Qvv):
+                        #   a = L^{-1} z
+                        #   phi = principal_eigvec(E[a a^H])
+                        #   g = L phi / (reference_mic_normalization)
                         cholesky_Qvv=LA.cholesky(Qvv[j,:,:])
                         chol_j=LA.inv(cholesky_Qvv+epsilon*np.eye(M)*(LA.norm(cholesky_Qvv)))
                         a=chol_j@current_frames
@@ -250,6 +314,7 @@ for l in range(len(y2)):
                         G[j,:,0]=np.squeeze(cholesky_Qvv@phi/denominator)        
                 current_y2_label = y2_prob
 
+            # Slot 1 update: same logic as slot 0 but for second active source slot.
             elif y2_prob == Frame_classification_system[0,1]:
                 Frame_classification_system[1,1]=Frame_classification_system[1,1]+1
                 Frame_classification_system[1,2]=0
@@ -288,6 +353,8 @@ for l in range(len(y2)):
                         
                 current_y2_label = y2_prob
 
+            # Candidate DOA persistence branch. Candidate DOA is promoted only after it is
+            # observed for threshold_chage_location consecutive frames.
             elif y2_prob == Frame_classification_system[0,2]:
                 stand_z = np.concatenate((stand_z,z_k[l,:,:].reshape(1,NUP,M)))
                 Frame_classification_system[1,2]=Frame_classification_system[1,2]+1 
@@ -304,6 +371,9 @@ for l in range(len(y2)):
                             Zvv_temp = a@a.conj().T/threshold_chage_location
                             temp_alfa = total_frame_per_DOA[y2_prob-1]+threshold_chage_location
                             PSD_matrix_per_DOA[y2_prob-1,j,:,:] = total_frame_per_DOA[y2_prob-1]/temp_alfa*PSD_matrix_per_DOA[y2_prob-1,j,:,:]+threshold_chage_location/temp_alfa*Zvv_temp
+                            # Slot assignment policy:
+                            # 1) fill empty slot(s)
+                            # 2) otherwise replace nearest/least-favored slot using time+distance heuristic.
                     if Frame_classification_system[1,0] == 0:
                         Frame_classification_system[0,0] = y2_prob
                         Frame_classification_system[1,0] = Frame_classification_system[1,2] 
@@ -341,6 +411,7 @@ for l in range(len(y2)):
                     total_frame_per_DOA[y2_prob-1] += threshold_chage_location
                     
             else:
+                # Start tracking a new candidate DOA (not yet accepted as active slot).
                 stand_z = z_k[l,:,:].reshape(1,NUP,M)
                 Frame_classification_system[0,2] = y2_prob
                 Frame_classification_system[1,2] = 1
@@ -352,6 +423,7 @@ for l in range(len(y2)):
             logging.info(Frame_classification_system[0,:])
             logging.info(Frame_classification_system[1,:])
 
+            # CSD=2: overlap frame. Keep both outputs enabled.
     if y_prob==2:
             first_speaker_active = 1
             second_speaker_active = 1
@@ -363,9 +435,13 @@ for l in range(len(y2)):
 ################### source separation ###################################################
     
     
+    # Case A: no active DOA slots yet. Use reference mic as placeholder output.
     if (Frame_classification_system[0,0]==0) & (Frame_classification_system[0,1]==0):
         s_hat=z_k[l,:,0]
         s_hat = np.concatenate((s_hat.reshape(1,NUP),1e-10*np.ones((1,NUP))))
+
+    # Case B: one active source slot -> MVDR weight.
+    #   w = Qvv^{-1} g / (g^H Qvv^{-1} g)
     elif (Frame_classification_system[0,0]!=0) & (Frame_classification_system[0,1]==0):
         s_hat = np.zeros(NUP,complex)
         for j in range(NUP):
@@ -378,6 +454,9 @@ for l in range(len(y2)):
             s_hat[j]=W[l,j,:,0].conj().T@z_k[l,j,:]
             
         s_hat = np.concatenate((s_hat.reshape(1,NUP),s_hat.reshape(1,NUP)))
+
+    # Case C: two active source slots -> LCMV matrix weight.
+    #   W = Qvv^{-1} G (G^H Qvv^{-1} G)^{-1}
     elif (Frame_classification_system[0,0]!=0) & (Frame_classification_system[0,1]!=0):
         if flag_start_lcmv:
             start_lcmv = l
@@ -392,6 +471,7 @@ for l in range(len(y2)):
             W[l,j,:,:]=c@inv_temp
             s_hat[:,j]=W[l,j,:,:].conj().T@z_k[l,j,:]
             
+        # Optional gating that can mute a stream when heuristic says it is inactive.
         s_hat[0,:] = s_hat[0,:]*first_speaker_active
         s_hat[1,:] = s_hat[1,:]*second_speaker_active
         
@@ -401,6 +481,7 @@ for l in range(len(y2)):
         s_hat_total = np.concatenate((s_hat_total,s_hat.T.reshape(1,NUP,num_speech)),axis=0)
 
 ################################### bss eval ################################
+# Evaluate only in overlap interval (CSD label == 2), where 2-source separation is relevant.
 start_overlap = np.nonzero(y_mf == 2)[0][0]
 finish_overlap = np.nonzero(y_mf == 2)[0][-1]
 
@@ -423,6 +504,7 @@ noisy_sources = np.concatenate((z_k_noise_time.reshape(z_k_noise_time.shape[0],1
 reference_sources = np.concatenate((z_k_first_one_speaker_time.reshape(z_k_first_one_speaker_time.shape[0],1),z_k_second_one_speaker_time.reshape(z_k_second_one_speaker_time.shape[0],1)),axis=1)
 estimated_sources = np.concatenate((s_hat_first_one_speaker_time.reshape(s_hat_first_one_speaker_time.shape[0],1),s_hat_second_one_speaker_time.reshape(s_hat_second_one_speaker_time.shape[0],1)),axis=1)
 
+# Baseline: unprocessed noisy reference channel duplicated to two outputs.
 (sdr_noise,sir_noise,sar_noise,perm)  = mir_eval.separation.bss_eval_sources(reference_sources.T+10**(-9), noisy_sources.T, compute_permutation=True)
 
 sir_noisy = sir_noise.mean()
@@ -430,11 +512,13 @@ sdr_noisy = sdr_noise.mean()
 
 ###################################### alg results ##################################################3    
 
+# Algorithm output BSS metrics (permutation-invariant matching enabled).
 (sdr,sir,sar,perm)  = mir_eval.separation.bss_eval_sources(reference_sources.T+10**(-9), estimated_sources.T, compute_permutation=True)
 
 sir_alg = sir.mean()
 sdr_alg = sdr.mean()
 
+# STOI/PESQ are computed with channel-permutation handling by taking max over both outputs.
 first_stoi = max(stoi(z_k_first_one_speaker_time,s_hat_first_one_speaker_time,fs),stoi(z_k_first_one_speaker_time,s_hat_second_one_speaker_time,fs))
 second_stoi = max(stoi(z_k_second_one_speaker_time,s_hat_first_one_speaker_time,fs),stoi(z_k_second_one_speaker_time,s_hat_second_one_speaker_time,fs))
 
@@ -457,6 +541,7 @@ pesq_noisy = (first_pesq_noisy+second_pesq_noisy)/2
 
 ################################### save prediction to confusion matrix ######################
 
+# Export full-length reconstructed streams for listening/debugging.
 for p in range(0,num_speech):
     speech,t1=istft(s_hat_total[:,:,p].T, win, win, hop, nfft, fs)  
     # scaled = speech/np.max(speech)
@@ -479,13 +564,16 @@ speech,t1=istft(z_k_noise.T[:,:,0].T, win, win, hop, nfft, fs)
 file_temp=(forlder_to_work2+'results/only_noise_%d.wav'%k)
 write(file_temp, fs,speech)  
 
+# Convert to torch tensors for SI-SDR summary.
 z_k_noise_time = torch.tensor(z_k_noise_time).unsqueeze(0)
 z_k_first_one_speaker_time = torch.tensor(z_k_first_one_speaker_time).unsqueeze(0)
 z_k_second_one_speaker_time = torch.tensor(z_k_second_one_speaker_time).unsqueeze(0)
 s_hat_first_one_speaker_time = torch.tensor(s_hat_first_one_speaker_time).unsqueeze(0)
 s_hat_second_one_speaker_time = torch.tensor(s_hat_second_one_speaker_time).unsqueeze(0)
 
+# Input SI-SDR is noisy-vs-clean average.
 si_sdr_input = (si_sdr_torchaudio_calc(z_k_noise_time, z_k_first_one_speaker_time)+si_sdr_torchaudio_calc(z_k_noise_time, z_k_second_one_speaker_time))/2
+# Prediction SI-SDR uses permutation-robust max pairing per reference speaker.
 si_sdr_pred_first = torch.max(si_sdr_torchaudio_calc(s_hat_first_one_speaker_time, z_k_first_one_speaker_time),si_sdr_torchaudio_calc(s_hat_second_one_speaker_time, z_k_first_one_speaker_time))
 si_sdr_pred_second = torch.max(si_sdr_torchaudio_calc(s_hat_first_one_speaker_time, z_k_second_one_speaker_time),si_sdr_torchaudio_calc(s_hat_second_one_speaker_time, z_k_second_one_speaker_time))
 si_sdr_pred = (si_sdr_pred_second+si_sdr_pred_first)/2

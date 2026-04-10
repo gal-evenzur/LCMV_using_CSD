@@ -1,9 +1,20 @@
 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" 
-Created on Thu Apr 22 14:40:28 2021
-@author: shvarta3
+"""Tracking front-end for two-speaker CSD/DOA estimation.
+
+This script builds GEVD-derived spatial features from multichannel STFT frames and
+runs two pretrained models:
+1) CSD classifier (noise / one speaker / overlap)
+2) DOA classifier (18 angular bins)
+
+GEVD theory reminder (and why this matters for separation):
+1) Estimate per-frequency noise covariance Qvv from a noise segment.
+2) Whiten observations with L^{-1}, where Qvv = L L^H (Cholesky factorization).
+3) Build local whitened PSD and extract dominant eigenvector phi.
+4) Recolor/normalize to RTF-like vector g = L phi / reference.
+5) These tracked CSD/DOA outputs are later consumed by the separation script to
+    update RTFs online and form MVDR/LCMV beamformers.
 """
 
 from __future__ import print_function
@@ -28,6 +39,9 @@ from pesq import pesq
 import mir_eval
 from scipy import ndimage
 
+# --------------------------------------------------------------------------------------
+# Paths and global configuration
+# --------------------------------------------------------------------------------------
 plt.close("all")
 forlder_to_work1 = 'C:/project/'
 dynamic = True
@@ -103,6 +117,10 @@ time_first =0
 #    return np.asarray(X_temp)[:,1:M] 
 
 plt.close("all")
+
+# --------------------------------------------------------------------------------------
+# Model loading
+# --------------------------------------------------------------------------------------
 model3=load_model(forlder_to_work1+'models/model_GEVD_18_separate_17_02.h5',compile=False)
 model18=load_model(forlder_to_work1+'models/model2_GEVD_18_separate_17_02.h5',compile=False)
 accurercy_list=np.zeros(nom_data_sets-1)
@@ -114,6 +132,9 @@ y_prob_total_stat=[]
 y2_prob_total_stat=[]
 
 
+# --------------------------------------------------------------------------------------
+# Dataset paths and score buffers
+# --------------------------------------------------------------------------------------
 forlder_to_work2 = 'C:/project/dynamic_signals/two_speakers_real_recording/'
 folder_to_save = forlder_to_work2+'results/'
 
@@ -150,6 +171,9 @@ else:
 
 
 flag_start_lcmv = 1
+# --------------------------------------------------------------------------------------
+# Main experiment loop
+# --------------------------------------------------------------------------------------
 for d in range(0,1):
     for k in range(3,4):
         flag_start_lcmv = 1
@@ -186,7 +210,8 @@ for d in range(0,1):
     
         M=len(receiver_first[0,:])
         index=int(1+np.fix((len(receiver_first[:,1])-wlen)/hop))
-    ############################### create input to the model ##############################################
+
+    ############################### build frame labels ##############################################
             
         if dynamic:
             mat_locations=sio.loadmat(angle_location_first)
@@ -216,7 +241,7 @@ for d in range(0,1):
             y2_first = np.ones((index,1))*location_first
             y2_second = np.ones((index,1))*location_second
     
-    ############################## create y2 from location file #############################
+    ############################## STFT + GEVD feature extraction #############################
     
         z_k = np.zeros((M,NUP,index),dtype=complex)
         for i in range(M):
@@ -233,7 +258,9 @@ for d in range(0,1):
         z_k_second = np.zeros((M,NUP,index),dtype=complex)
         for i in range(M):
             z_k_second[i,:,:] = stft(receiver_second[:,i], win, hop, nfft)
-     
+
+        # GEVD step 1: estimate Qvv from an early noise-dominant segment and compute
+        # its Cholesky factor Qvv = L L^H.
         cholesky_Qvv = np.zeros((NUP,M,M),dtype=complex)
         for i in range(0,NUP):
             PSD_tmp =z_k[:,i,0:pad]@(z_k[:,i,0:pad].conj().T)/pad
@@ -243,21 +270,33 @@ for d in range(0,1):
         x_index = 0
         for l in range(frame_before,index-frame_after):
             for j in range(NUP):
+                # GEVD step 2: whiten with L^{-1}; whitening reduces colored noise effects.
                 chol_j=LA.inv(cholesky_Qvv[j,:,:])
                 Zvv = 0
                 sum_win_vad = 0
                 for p in range(frame_before+frame_after+1):
+                    # Aggregate local context frames for a more stable PSD estimate.
                     temp_zvv = chol_j@(win_vad[10-frame_before+p]*z_k[:,j,l-frame_before+p].reshape(M,1))
                     Zvv = Zvv+temp_zvv@temp_zvv.conj().T
                     sum_win_vad = sum_win_vad+win_vad[10-frame_before+p]
                 Zvv=Zvv/sum_win_vad
+
+                # GEVD step 3: dominant eigenvector of whitened PSD.
                 w,v = LA.eig(Zvv)
                 fi=v[:,w.argmax()].reshape(M,1)
+
+                # GEVD step 4: recolor and normalize to RTF-like steering vector g.
+                # First microphone acts as the reference channel.
+                # Later separation uses this form as:
+                #   w_mvdr = Qvv^{-1} g / (g^H Qvv^{-1} g)
+                #   W_lcmv = Qvv^{-1} G (G^H Qvv^{-1} G)^{-1}
                 denominator=cholesky_Qvv[j,0,:].reshape(1,M)@fi
                 G_cw=np.squeeze(cholesky_Qvv[j,:,:])@fi/denominator
                 X[x_index,j,:] = np.squeeze(G_cw)
             x_index+=1
-        
+
+        # Model input layout: [real(non-ref channels), imag(non-ref channels),
+        # log-magnitude(ref channel)].
         X_T=np.concatenate((X[:,:,1:M].real,X[:,:,1:M].imag),axis=2)
         for b in range(len(X_T)):
             X_T[b,:,:] = scaler.fit_transform(X_T[b,:,:])
@@ -270,7 +309,8 @@ for d in range(0,1):
         
     
         x_test=np.concatenate((X_T,z_k_0_standart),axis=2)
-        
+
+        # Voice activity labels used to build CSD/DOA references for evaluation.
         vad1_temp=abs(z_k_first)
         vad1_temp = vad1_temp/(vad1_temp.std())
         vad1_temp = vad1_temp.mean(0)
@@ -318,9 +358,10 @@ for d in range(0,1):
         y= L[frame_before:index-frame_after]
         y2 = np.squeeze(vad1_location_update+vad2_location_update)   
         y2= y2[frame_before:index-frame_after]
+        # Sentinel label 19 marks overlap frames (CSD=2).
         y2=np.where(y!=2, y2,19)
         
-    ############################### source separation #####################################
+    ############################### tracking inference outputs #####################################
     
         z_k= np.transpose(z_k, (2,1,0))
         z_k= z_k[frame_before:index-frame_after,:,:]
@@ -353,14 +394,14 @@ for d in range(0,1):
         y2_prob=y2_pred2.idxmax(axis=1)
         y2_prob_stat=y2_prob.to_numpy()
 
-        ######### manipulation part ##############################
+        ######### smoothing/manipulation ##############################
 
         y_mf = ndimage.median_filter(y,size=11)
         y_prob_stat_mf = ndimage.median_filter(y_prob_stat,size=25)
         y2_prob_stat_mf = ndimage.median_filter(y2_prob_stat,size=11)
 
 
-        ########## fix bugs ####################
+        ########## experiment-specific manual fixes ####################
         y_prob_stat_mf[750:950] = 1
         y2_prob_stat_mf[399:410] = 10
         y2_prob_stat_mf[930:941] = 18
@@ -385,6 +426,9 @@ for d in range(0,1):
         y_prob_total_stat=np.append(y_prob_total_stat,y_prob_stat_mf)
         y2_prob_total_stat=np.append(y2_prob_total_stat,y2_prob_stat_mf)
 
+    # --------------------------------------------------------------------------------------
+    # Confusion-matrix reporting
+    # --------------------------------------------------------------------------------------
 y2_prob_total_stat_plot=np.delete(y2_prob_total_stat, np.where(y2_total==0)[0])
 y2_total_plot=np.delete(y2_total, np.where(y2_total==0))
 y2_prob_total_stat_plot=np.delete(y2_prob_total_stat_plot, np.where(y2_total_plot==19))
