@@ -182,9 +182,9 @@ model.fit(x=training_generator,
                     
                     )
 
-model3_path = os.path.join(models_dir, 'model_GEVD_18_separate_only_csd_spectrum_multi_channel_%s_%s.h5' % (time1, time2))
+model3_path = os.path.join(models_dir, 'model3_GEVD_%s_%s.h5' % (time1, time2))
 model3.save(model3_path)
-model18_path = os.path.join(models_dir, 'model2_GEVD_18_separate_only_csd_spectrum_multi_channel_%s_%s.h5' % (time1, time2))
+model18_path = os.path.join(models_dir, 'model18_GEVD_%s_%s.h5' % (time1, time2))
 model18.save(model18_path)
 
 #confution matrix
