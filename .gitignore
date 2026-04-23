@@ -3,5 +3,5 @@ Dataset-env
 __pycache__/
 TIMIT/
 *.wav
-data/
 *.npy
+*.npz

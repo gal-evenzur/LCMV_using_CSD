@@ -492,7 +492,9 @@ def fun_create_diffuse_noise(
     # Set default noise folder path
     if noise_folder is None:
         py_path = os.path.dirname(os.path.abspath(__file__))
-        noise_folder = os.path.join(py_path, 'Diff_noise_srs')
+        workspace_path = os.path.dirname(py_path)
+        TIMIT_path = os.path.join(workspace_path, 'data', 'TIMIT')
+        noise_folder = os.path.join(TIMIT_path, 'Diff_noise_srs')
     
     # --- Find and load noise file ---
     # Get list of all WAV files in the folder

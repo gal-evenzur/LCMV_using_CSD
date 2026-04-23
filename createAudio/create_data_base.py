@@ -29,7 +29,14 @@ import rir_generator as rir
 
 # Import from dataset_funcs
 from dataset_funcs import *
+# diffuse noise generation function (fun_create_diffuse_noise) 
+# && VAD label creation function (create_vad_dynamic) 
+# --> are imported from dataset_funcs.py
 
+# - The script is located in LCMV_using_CSD/createAudio/
+# - The TIMIT dataset should be located in LCMV_using_CSD/data/TIMIT/
+# - diffuse noise wav source is LCMV_using_CSD/data/TIMIT/Diff_noise_srs/
+# - The generated audio files and labels will be saved in LCMV_using_CSD/data/simulated_audio/{trainORval}/
 
 # =============================================================================
 # Configuration
@@ -38,7 +45,7 @@ from dataset_funcs import *
 class Config:
     """Configuration parameters for dataset generation."""
 
-    seed = 12
+    seed = 50
     
     # Acoustic parameters
     c = 340                     # Sound velocity (m/s)
@@ -69,11 +76,11 @@ class Config:
     output_path = None          # Will be set at runtime
     
     # Number of samples to generate
-    num_samples = 2
+    num_samples = 1
     start_idx = 1  # Starting index for file naming (e.g., 1 for 'first_1.wav')
 
     # File naming
-    trainORval = 'val'  # 'train' or 'val'
+    trainORval = 'train'  # 'train' or 'val'
     dataset_title = trainORval
 
 
@@ -523,14 +530,16 @@ def create_database(config: Config):
     # Set default paths
     if config.timit_base_path is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        timit_path = os.path.join(os.path.dirname(script_dir), 'TIMIT')
+        workspace_path = os.path.dirname(script_dir)
+        timit_path = os.path.join(workspace_path, 'data', 'TIMIT')
     
     if config.output_path is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        data_path = os.path.join(script_dir, 'data')
-        os.makedirs(data_path, exist_ok=True)
-        # output = data_path + f'/{dataset_title}_data'
-        output_path = os.path.join(data_path, f'{dataset_title}')
+        workspace_path = os.path.dirname(script_dir)
+        data_path = os.path.join(workspace_path, 'data')
+        sim_audio_path = os.path.join(data_path, 'simulated_audio')
+        os.makedirs(sim_audio_path, exist_ok=True)
+        output_path = os.path.join(sim_audio_path, dataset_title)
     
     # Create output directory
     os.makedirs(output_path, exist_ok=True)

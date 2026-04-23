@@ -85,9 +85,14 @@ def visualize_audio_and_angles(sample_idx, data_dir='data', channel_idx=0, outpu
     plt.tight_layout()
     plt.savefig(f'{output_dir}/sample_{sample_idx}_visualization.png')
 
+pydir = os.path.dirname(os.path.realpath(__file__))
+workspace_dir = os.path.dirname(pydir)
+data_dir = os.path.join(workspace_dir, 'data', 'simulated_audio', 'train')
+output_dir = os.path.join(pydir, 'Results')
+os.makedirs(output_dir, exist_ok=True)
 
 visualize_audio_and_angles(
-    2,
-    data_dir='/home/evenzug/LCMV_using_CSD/Python_Create_Data_Base/data',
-    output_dir='/home/evenzug/LCMV_using_CSD/Python_Create_Data_Base/Results',
+    1,
+    data_dir=data_dir,
+    output_dir=output_dir,
 )
