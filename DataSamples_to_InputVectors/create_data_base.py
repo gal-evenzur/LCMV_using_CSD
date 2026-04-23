@@ -17,6 +17,7 @@ import multiprocessing
 import scipy.io as sio
 from sklearn.preprocessing import StandardScaler
 import os
+from time import perf_counter
 
 #root_dir = '/home/dsi/shvarta3/data_sets/'
 #data_root_dir = '/mnt/dsi_vol1/users/ayal_shvarts/project/'
@@ -24,12 +25,11 @@ mode='train'
 
 
 pydir = os.path.dirname(os.path.abspath(__file__))
-if mode == 'train':
-    output_dir = pydir + '/dataset/train/'
-elif mode == 'val':
-    output_dir = pydir + '/dataset/val/'
+workspace_dir = os.path.dirname(pydir)
+data_dir = os.path.join(workspace_dir, 'data')
 plot_dir = pydir + '/plots/'
-input_data_dir = os.path.dirname(pydir) + '/createAudio/data/'
+input_data_dir = os.path.join(data_dir, 'simulated_audio')
+output_dir = os.path.join(data_dir, 'dataset', mode)
 
 # make sure dirs exist
 os.makedirs(output_dir, exist_ok=True)
@@ -37,6 +37,10 @@ os.makedirs(plot_dir, exist_ok=True)
 
 print('Data root dir:', input_data_dir)
 print('Output root dir:', output_dir)
+
+timing_enabled = True
+if timing_enabled:
+    print('Timing diagnostics enabled: per-sample stage breakdown')
 
 plt.close("all")
 # variens
@@ -63,21 +67,14 @@ class_wieght=np.zeros(3)
 scaler = StandardScaler()
 num_diraction=18
 
-if mode =='train':
-    data_file_name=output_dir+'feature_vector_'
-    label_file_name=output_dir+'label_'
-    label2_file_name=output_dir+'label2_'
-    idx_file_name=output_dir+'idx.npy'
-    nom_data_sets=2
-    lottery=3
-             
-if mode =='val':
-    data_file_name=output_dir+'feature_vector_'
-    label_file_name=output_dir+'label_'
-    label2_file_name=output_dir+'label2_'
-    idx_file_name=output_dir+'idx.npy'
-    nom_data_sets=2
-    lottery=3
+data_file_name=output_dir+'/feature_vector_'
+label_file_name=output_dir+'/label_'
+label2_file_name=output_dir+'/label2_'
+idx_file_name=output_dir+'/idx.npy'
+nom_data_sets=2 # number of data sets to process (train1, train2, etc.) - 
+# each data set contains 'lottery' number of files (e.g., 200 files for train1, 200 files for train2, etc.)
+lottery=2 # number of files to process per data set 
+
 
 def stft_z(get_receivers):
     return stft(get_receivers, win, hop, nfft)
@@ -109,18 +106,89 @@ def create_X_total(l):
         create_X)(l,j)for j in range(NUP))            
     return np.asarray(X_temp)[:,1:M] 
 
+def add_stage_time(stage_times, stage_name, stage_start):
+    stage_times[stage_name] = stage_times.get(stage_name, 0.0) + (perf_counter() - stage_start)
+
+def print_sample_timing(index_file, stage_times, total_time):
+    accounted_time = sum(stage_times.values())
+    if total_time > accounted_time:
+        stage_times = dict(stage_times)
+        stage_times['other'] = total_time - accounted_time
+    ordered_stage_times = sorted(stage_times.items(), key=lambda item: item[1], reverse=True)
+    timing_summary = ', '.join(
+        '%s=%.3fs (%.1f%%)' % (stage_name, stage_time, 100.0 * stage_time / total_time)
+        for stage_name, stage_time in ordered_stage_times
+    )
+    print('[Timing] sample %d total=%.3fs | %s' % (index_file, total_time, timing_summary))
+
+def update_timing_history(sample_total_times, stage_time_history, sample_total_time, stage_times):
+    sample_total_times.append(sample_total_time)
+    for stage_name, stage_time in stage_times.items():
+        if stage_name not in stage_time_history:
+            stage_time_history[stage_name] = []
+        stage_time_history[stage_name].append(stage_time)
+
+def print_run_timing_summary(sample_total_times, stage_time_history):
+    if len(sample_total_times) == 0:
+        return
+
+    sample_total_times_arr = np.asarray(sample_total_times, dtype=np.float64)
+    total_runtime = float(sample_total_times_arr.sum())
+    print('[Timing summary] samples=%d total_runtime=%.3fs avg/sample=%.3fs median/sample=%.3fs max/sample=%.3fs' % (
+        len(sample_total_times),
+        total_runtime,
+        float(sample_total_times_arr.mean()),
+        float(np.median(sample_total_times_arr)),
+        float(sample_total_times_arr.max())
+    ))
+
+    stage_rows = []
+    for stage_name, stage_values in stage_time_history.items():
+        stage_values_arr = np.asarray(stage_values, dtype=np.float64)
+        stage_total = float(stage_values_arr.sum())
+        stage_rows.append((
+            stage_name,
+            stage_total,
+            float(stage_values_arr.mean()),
+            float(np.median(stage_values_arr)),
+            float(stage_values_arr.max())
+        ))
+
+    stage_rows.sort(key=lambda item: item[1], reverse=True)
+    for stage_name, stage_total, stage_avg, stage_median, stage_max in stage_rows:
+        share = 0.0 if total_runtime == 0 else 100.0 * stage_total / total_runtime
+        print('[Timing summary] %s total=%.3fs (%.1f%%) avg=%.3fs median=%.3fs max=%.3fs' % (
+            stage_name,
+            stage_total,
+            share,
+            stage_avg,
+            stage_median,
+            stage_max
+        ))
+
+all_sample_total_times = []
+all_stage_time_history = {}
+
 for k in range(1,nom_data_sets):
     print(k)
     idx_start_epoch = idx
+    X_total_parts = []
+    L_total_parts = []
+    L2_total_parts = []
     for i in range(start,lottery):
+        sample_start_time = perf_counter()
+        sample_stage_times = {}
+
         index_file=i+(lottery-1)*(k-1)
         print(i)
 
-        first_file=(input_data_dir+'%s/first_%d.wav'% (mode, index_file))
-        second_file=(input_data_dir+'%s/second_%d.wav'% (mode, index_file)) 
-        together_file=(input_data_dir+'%s/together_%d.wav'% (mode, index_file)) 
-        label_first_location_file=(input_data_dir+'%s/label_location_first_%d.npy'% (mode, index_file))
-        label_second_location_file=(input_data_dir+'%s/label_location_second_%d.npy'% (mode, index_file))
+        stage_start = perf_counter()
+
+        first_file=(input_data_dir+'/%s/first_%d.wav'% (mode, index_file))
+        second_file=(input_data_dir+'/%s/second_%d.wav'% (mode, index_file)) 
+        together_file=(input_data_dir+'/%s/together_%d.wav'% (mode, index_file)) 
+        label_first_location_file=(input_data_dir+'/%s/label_location_first_%d.npy'% (mode, index_file))
+        label_second_location_file=(input_data_dir+'/%s/label_location_second_%d.npy'% (mode, index_file))
 
 
 
@@ -140,23 +208,31 @@ for k in range(1,nom_data_sets):
 
         M=len(receiver_first[0,:])
         index=int(1+np.fix((len(receiver_first[:,1])-wlen)/hop))
+        add_stage_time(sample_stage_times, 'load_and_prepare_inputs', stage_start)
 
+        stage_start = perf_counter()
         z_k_first=[]
         z_k_first = Parallel(n_jobs=1, verbose=0)(delayed(
         stft_z)(receiver_first[:,i])for i in range(M))
         z_k_first=np.asarray(z_k_first)
+        add_stage_time(sample_stage_times, 'stft_first_signal', stage_start)
         
 
+        stage_start = perf_counter()
         z_k=[]
         z_k = Parallel(n_jobs=1, verbose=0)(delayed(
         stft_z)(receivers[:,i])for i in range(M))
         z_k=np.asarray(z_k)
+        add_stage_time(sample_stage_times, 'stft_mixed_signal', stage_start)
 
+        stage_start = perf_counter()
         cholesky_Qvv=[]
         cholesky_Qvv = Parallel(n_jobs=num_cores, verbose=0)(delayed(
         create_cholesky_Qvv)(z_k[:,i,0:pad])for i in range(0,NUP))
         cholesky_Qvv=np.asarray(cholesky_Qvv) 
+        add_stage_time(sample_stage_times, 'noise_covariance_cholesky', stage_start)
 
+        stage_start = perf_counter()
         X_temp_total=[]
         X_temp_total = Parallel(n_jobs=num_cores, verbose=0)(delayed(
         create_X_total)(l)for l in range(frame_before,index-frame_after))
@@ -174,6 +250,7 @@ for k in range(1,nom_data_sets):
         
 
         X_T=np.concatenate((X_T,z_k_0_standart),axis=2)
+        add_stage_time(sample_stage_times, 'feature_extraction_and_scaling', stage_start)
         
         vad1_temp=abs(z_k_first)
         vad1_temp = vad1_temp/(vad1_temp.std())
@@ -185,11 +262,14 @@ for k in range(1,nom_data_sets):
         vad1_temp_sum1 = vad1_temp_sum > threshold
         vad1=vad1_temp_sum1.astype(np.int32)
 
+        stage_start = perf_counter()
         z_k_second=[]
         z_k_second = Parallel(n_jobs=1, verbose=0)(delayed(
         stft_z)(receiver_second[:,i])for i in range(M))
         z_k_second=np.asarray(z_k_second)  
+        add_stage_time(sample_stage_times, 'stft_second_signal', stage_start)
         
+        stage_start = perf_counter()
         vad2_temp=abs(z_k_second)
         vad2_temp = vad2_temp/(vad2_temp.std())
         vad2_temp = vad2_temp.mean(0)
@@ -227,17 +307,19 @@ for k in range(1,nom_data_sets):
         L2 = np.squeeze(vad1_location_update+vad2_location_update)   
         L2= L2[frame_before:index-frame_after]
         L2=np.where(L!=2, L2,19)
+        add_stage_time(sample_stage_times, 'vad_and_label_update', stage_start)
         
+        stage_start = perf_counter()
         if (mode=='train') | (mode == 'val'):
-        
-            if i==start:
-                X_total=X_T
-                L_total=L
-                L2_total=L2
-            else :
-                X_total=np.concatenate((X_total,X_T))
-                L_total=np.concatenate((L_total,L))
-                L2_total=np.concatenate((L2_total,L2))
+            X_total_parts.append(X_T)
+            L_total_parts.append(L)
+            L2_total_parts.append(L2)
+        add_stage_time(sample_stage_times, 'dataset_aggregation', stage_start)
+
+        if timing_enabled:
+            sample_total_time = perf_counter() - sample_start_time
+            update_timing_history(all_sample_total_times, all_stage_time_history, sample_total_time, sample_stage_times)
+            print_sample_timing(index_file, sample_stage_times, sample_total_time)
         
     if (mode=='test') :
         X_total=X_T
@@ -246,6 +328,18 @@ for k in range(1,nom_data_sets):
         
         
     if (mode=='train') | (mode=='val'):
+        if len(X_total_parts) == 0:
+            raise RuntimeError('No train/val samples were accumulated for this run.')
+
+        # Concatenate once after all files to avoid repeated full copies.
+        X_total=np.concatenate(X_total_parts, axis=0)
+        L_total=np.concatenate(L_total_parts, axis=0)
+        L2_total=np.concatenate(L2_total_parts, axis=0)
+        print('[Data] chunk %d aggregated %d files into %d vectors before balancing' % (
+            k,
+            len(X_total_parts),
+            X_total.shape[0]
+        ))
         
         x_0=X_total[np.where(L2_total==0)]
         x_1=X_total[np.where(L2_total==1)]
@@ -394,6 +488,9 @@ for k in range(1,nom_data_sets):
         idx=idx+1
         
 np.save(idx_file_name,idx)
+
+if timing_enabled:
+    print_run_timing_summary(all_sample_total_times, all_stage_time_history)
 
 # -------------------------
 # Diagnostic plotting block
