@@ -76,11 +76,11 @@ class Config:
     output_path = None          # Will be set at runtime
     
     # Number of samples to generate
-    num_samples = 1
+    num_samples = 3
     start_idx = 1  # Starting index for file naming (e.g., 1 for 'first_1.wav')
 
     # File naming
-    trainORval = 'train'  # 'train' or 'val'
+    trainORval = 'test'  # 'train' or 'val'
     dataset_title = trainORval
 
 

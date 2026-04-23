@@ -493,8 +493,8 @@ def fun_create_diffuse_noise(
     if noise_folder is None:
         py_path = os.path.dirname(os.path.abspath(__file__))
         workspace_path = os.path.dirname(py_path)
-        TIMIT_path = os.path.join(workspace_path, 'data', 'TIMIT')
-        noise_folder = os.path.join(TIMIT_path, 'Diff_noise_srs')
+        data_path = os.path.join(workspace_path, 'data')
+        noise_folder = os.path.join(data_path, 'Diff_noise_srs')
     
     # --- Find and load noise file ---
     # Get list of all WAV files in the folder
@@ -624,8 +624,12 @@ def create_vad_dynamic(x: np.ndarray, hop: int, nfft: int) -> np.ndarray:
     xlen = len(x)
     wlen = nfft
     
-    # Number of frames (same formula as MATLAB: 1 + fix((xlen-wlen)/hop))
+    ''' L = Number of frames in the stft. Explanation:
+    The first frame: The very first frame consumes exactly wlen samples of the signal.
+    The remaining samples (xlen - wlen): After placing the first frame,
+    this is how much of the signal is left for the window to slide across. '''
     L = 1 + (xlen - wlen) // hop
+
     
     vad = np.zeros(L)
     
