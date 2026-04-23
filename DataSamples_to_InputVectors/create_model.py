@@ -33,7 +33,8 @@ from keras.constraints import max_norm
 
 
 pydir = os.path.dirname(os.path.realpath(__file__))
-datasetDir = os.path.join(pydir, 'dataset')
+workspaceDir = os.path.dirname(pydir)
+datasetDir = os.path.join(workspaceDir,'data','dataset')
 
 data_file_name=os.path.join(datasetDir,'train/feature_vector_')
 label_file_name=os.path.join(datasetDir,'train/label_')
@@ -46,10 +47,12 @@ val_label2_file_name=os.path.join(datasetDir,'val/label2_')
 val_idx_file_name=os.path.join(datasetDir,'val/idx.npy')
 
 # models dir
-models_dir = os.path.join(pydir, 'models')
+models_dir = os.path.join(workspaceDir, 'models')
 os.makedirs(models_dir, exist_ok=True)
 
-plot_folder = os.path.join(pydir, 'plots')
+plots_dir = os.path.join(workspaceDir, 'plots')
+os.makedirs(plots_dir, exist_ok=True)
+plot_folder = os.path.join(plots_dir, 'confusion_matrices')
 os.makedirs(plot_folder, exist_ok=True)
 
 plt.close("all")                                                                                                           
