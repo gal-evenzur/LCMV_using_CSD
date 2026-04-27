@@ -239,20 +239,150 @@ class SpatialTrackingPipeline:
 
         if self.verbose > 1:
             print(f"Final input tensor shape: {self.x_test.shape}")
+    
+    def compute_ground_truth_labels(self):
+        """
+        Step 5: Computes VAD masks from clean references, applies temporal smoothing, 
+        and maps DOA angles to active frames.
+        """
+        if self.verbose:
+            print("--- Computing Ground Truth Labels ---")
 
-    def run(self):
+        threshold_freq = self.p_tracking['threshold_freq']
+        threshold = self.p_tracking['threshold']
+        frame_before = self.p_tracking['frame_before']
+        frame_after = self.p_tracking['frame_after']
+
+        # 1. Frequency-Based Voice Activity Detection (VAD)
+        def compute_raw_vad(z_k_clean):
+            # Calculate absolute magnitude
+            vad_temp = abs(z_k_clean)
+            # Standardize based on global standard deviation
+            vad_temp = vad_temp / vad_temp.std()
+            # Mean across the M microphone channels -> shape: (NUP, frames)
+            vad_temp = vad_temp.mean(axis=0)
+            # Boolean mask for frequencies exceeding threshold
+            vad_temp = vad_temp > threshold_freq
+            # Sum active frequencies per frame and apply frame-level threshold
+            vad_sum = vad_temp.astype(int).sum(axis=0)
+            return (vad_sum > threshold).astype(int)
+
+        vad1 = compute_raw_vad(self.z_k_first)
+        vad2 = compute_raw_vad(self.z_k_second)
+
+        # 2. Temporal Smoothing (Original For-Loop Implementation)
+        check_vad1 = np.zeros(self.n_frames)
+        check_vad2 = np.zeros(self.n_frames)
+
+        for l in range(frame_before, self.n_frames - frame_after):
+            check_vad1[l] = vad1[l-1:l+2].sum()
+            check_vad2[l] = vad2[l-1:l+2].sum()
+        
+        for l in range(frame_before, self.n_frames - frame_after):
+            vad1[l] = 1 if check_vad1[l] == 3 else 0
+            vad2[l] = 1 if check_vad2[l] == 3 else 0
+
+        # 3. Angle Alignment and Label Generation
+        # Multiply flattened angles by the binary VAD mask
+        vad1_location_update = self.y2_first.flatten() * vad1
+        vad2_location_update = self.y2_second.flatten() * vad2
+        
+        # Concurrent Speaker Detection (CSD) labels: 0 (Noise), 1 (One Spk), 2 (Overlap)
+        L = vad1 + vad2
+        self.y = L[frame_before:self.n_frames - frame_after]
+
+        # DOA labels
+        y2_temp = vad1_location_update + vad2_location_update
+        self.y2 = y2_temp[frame_before:self.n_frames - frame_after]
+        
+        # Apply Sentinel Label (19) for frames where both speakers are active
+        self.y2 = np.where(self.y != 2, self.y2, 19)
+
+    def run_inference(self):
+        """
+        Step 6: Executes the forward pass on the loaded models using the formatted inputs.
+        """
+        if self.verbose:
+            print("--- Running Inference ---")
+
+        # Predict CSD (Concurrent Speaker Detection)
+        y_pred = self.model_csd.predict(self.x_test)
+        # Replaces Pandas idxmax with NumPy argmax (faster, zero overhead)
+        self.y_prob_stat = np.argmax(y_pred, axis=1)
+
+        # Predict DOA (Direction of Arrival)
+        y2_pred = self.model_doa.predict(self.x_test)
+        self.y2_prob_stat = np.argmax(y2_pred, axis=1)
+
+    def evaluate_and_save(self, folder_to_save):
+        """
+        Step 7: Post-processes predictions via median filtering, saves outputs, and plots confusion matrices.
+        """
+        if self.verbose:
+            print("--- Evaluating, Saving, and Plotting ---")
+
+        # Create save directory if it doesn't exist
+        os.makedirs(folder_to_save, exist_ok=True)
+
+        # 1. Median Filtering
+        y_mf = ndimage.median_filter(self.y, size=11)
+        y_prob_stat_mf = ndimage.median_filter(self.y_prob_stat, size=25)
+        y2_prob_stat_mf = ndimage.median_filter(self.y2_prob_stat, size=11)
+
+        # 2. Save Arrays
+        np.save(os.path.join(folder_to_save, f'estimate_DOA_{self.run_idx}.npy'), y2_prob_stat_mf)
+        np.save(os.path.join(folder_to_save, f'true_DOA_{self.run_idx}.npy'), self.y2)
+        np.save(os.path.join(folder_to_save, f'estimate_CSD_{self.run_idx}.npy'), y_prob_stat_mf)
+        np.save(os.path.join(folder_to_save, f'true_CSD_{self.run_idx}.npy'), y_mf)
+
+        # 3. Plotting Setup (Formatting labels to match original script)
+        annot, cmap, fmt, fz, lw, cbar = True, 'Oranges', '.2f', 9, 0.5, False
+        show_null_values, pred_val_axis = 2, 'y'
+        figsize = [18, 18]
+
+        # Plot 1: CSD Confusion Matrix
+        cm_plot_labels_csd = ['Noise', 'One speaker', '2 speakers']
+        if self.verbose > 1:
+            print("Plotting CSD Confusion Matrix...")
+        plot_confusion_folder = os.path.join(folder_to_save, 'confusion_matrices')
+        os.makedirs(plot_confusion_folder, exist_ok=True)
+        plot_confusion_matrix_from_data(
+            y_mf, y_prob_stat_mf, 3, cm_plot_labels_csd,
+            annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis,
+            name=f'CSD_Confusion_Matrix_Experiment_{self.run_idx}.png', plot_folder=plot_confusion_folder
+        )
+
+        # 4. Filter DOA data for plotting (Remove 0 noise and 19 overlap classes)
+        y2_prob_plot = np.delete(y2_prob_stat_mf, np.where(self.y2 == 0)[0])
+        y2_true_plot = np.delete(self.y2, np.where(self.y2 == 0))
+        y2_prob_plot = np.delete(y2_prob_plot, np.where(y2_true_plot == 19))
+        y2_true_plot = np.delete(y2_true_plot, np.where(y2_true_plot == 19))
+
+        # Plot 2: DOA Confusion Matrix
+        cm_plot_labels_doa = [f'{i}-{i+9}' for i in range(0, 180, 10)]
+        # Offset arrays by -1 because classes are 1-18, but plotting logic expects 0-indexed arrays
+        if self.verbose > 1:
+            print("Plotting DOA Confusion Matrix...")
+        plot_confusion_matrix_from_data(
+            y2_true_plot - 1, y2_prob_plot - 1, 18, cm_plot_labels_doa,
+            annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis,
+            name=f'DOA_Confusion_Matrix_Experiment_{self.run_idx}.png', plot_folder=plot_confusion_folder
+        )
+
+    def run(self, folder_to_save):
         """Orchestrates the pipeline steps."""
         self.load_data()
         self.compute_stft()
         self.estimate_noise_covariance()
         self.extract_gevd_features()
         self.prepare_model_inputs()
+        self.compute_ground_truth_labels()
+        self.run_inference()
+        self.evaluate_and_save(folder_to_save)
         
         if self.verbose:
-            print("--- Ready for Inference ---")
-        return self# Setup dictionaries required to initialize the new pipeline architecture
-    
-
+            print(f"--- Pipeline Execution Complete for Experiment {self.run_idx} ---")
+        return self
 # Configuration setup
 models_folder = os.path.join(workspace_folder, 'models')
 p_models = { # Need to be updated with actual model filenames
@@ -277,7 +407,9 @@ p_tracking = {
     'threshold_freq': 0.3
 }
 
+plot_dir = os.path.join(workspace_folder, 'plots')
+
 # Example instantiation
 pipeline = SpatialTrackingPipeline(run_idx=1, p_stft=p_stft, p_tracking=p_tracking, p_models=p_models,
                                     folder_to_test_data=folder_to_test_data, M=4, verbose=2)
-pipeline.run()
+pipeline.run(plot_dir)
