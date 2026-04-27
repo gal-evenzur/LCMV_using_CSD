@@ -7,30 +7,49 @@ folder_to_all_data = os.path.join(workspace_folder,'data')
 folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test')
 
 class SpatialTrackingPipeline:
-    def __init__(self, run_idx, p_stft, p_tracking, folder_to_test_data, M=4, verbose=1):
+    def __init__(self, run_idx, p_models, p_stft, p_tracking, folder_to_test_data, M=4, verbose=1):
         """
-        Initializes the pipeline configuration.
+        Initializes the pipeline configuration and loads Keras models.
         """
         self.run_idx = run_idx
+        self.p_models = p_models
         self.p_stft = p_stft
         self.p_tracking = p_tracking
         self.folder_to_test_data = folder_to_test_data
         self.M = M
-        self.verbose = verbose  # Set verbosity level for debugging and progress updates
+        self.verbose = verbose  
 
-        # Step 1: Instantiate scaler exactly as original script did globally
+        # Data states
         self.scaler = StandardScaler()
-
-        # Placeholders for data state
         self.input_data = None
         self.n_frames = 0
         
-        # Placeholders for STFT and matrices
+        # Matrix placeholders
         self.z_k = None
         self.z_k_first = None
         self.z_k_second = None
         self.cholesky_Qvv = None
         self.X = None
+        self.x_test = None
+        
+        # Model placeholders
+        self.model_csd = None
+        self.model_doa = None
+
+        # Load models immediately upon instantiation
+        self._load_models()
+
+    def _load_models(self):
+        """Loads the pre-trained Keras models into memory."""
+        if self.verbose:
+            print("--- Loading Neural Network Models ---")
+        
+        # compile=False saves time and avoids warnings if custom loss functions aren't needed for inference
+        self.model_csd = load_model(self.p_models['csd_path'], compile=False)
+        self.model_doa = load_model(self.p_models['doa_path'], compile=False)
+        
+        if self.verbose > 1:
+            print("Models loaded successfully.")
 
     def load_data(self):
         """Loads audio and angle data, calculates frames, and verifies dimensions."""
@@ -98,6 +117,7 @@ class SpatialTrackingPipeline:
             # Using z_k (mixed signal) with 'pad' frames as in original script
             PSD_tmp = self.z_k[:, i, 0:pad] @ (self.z_k[:, i, 0:pad].conj().T) / pad
             self.cholesky_Qvv[i, :, :] = LA.cholesky(PSD_tmp)
+
     def extract_gevd_features(self):
         """Step 4: Extracts GEVD-derived spatial features (RTF-like vectors).
         Optimized using NumPy broadcasting across the frequency axis.
@@ -177,115 +197,69 @@ class SpatialTrackingPipeline:
             self.X[x_index, :, :] = G_cw
             
             x_index += 1
-    
-    def verify_vectorization(self, max_frames=50):
+
+    def prepare_model_inputs(self):
         """
-        Runs both the original sequential and the new vectorized GEVD 
-        implementations and asserts that the resulting RTFs are identical.
-        max_frames limits the number of frames to compare for faster verification during development.
+        Formats the GEVD spatial features and reference log-magnitude spectrum 
+        into the exact tensor shape expected by the Keras models.
         """
-        print("--- Starting GEVD Verification ---")
-        
+        if self.verbose:
+            print("--- Preparing Model Inputs ---")
+
         NUP = self.p_stft['NUP']
         frame_before = self.p_tracking['frame_before']
         frame_after = self.p_tracking['frame_after']
-        win_vad = self.p_tracking['win_vad']
+
+        # 1. Isolate Non-Reference Spatial Features
+        # X shape: (frames, NUP, M). We skip index 0 (reference mic).
+        X_non_ref = self.X[:, :, 1:self.M]
         
-        # ---------------------------------------------------------
-        # 1. RUN ORIGINAL SEQUENTIAL LOGIC
-        # ---------------------------------------------------------
-        print("Running sequential extraction...")
+        # Concatenate real and imaginary components along the feature axis
+        X_T = np.concatenate((X_non_ref.real, X_non_ref.imag), axis=2)
+
+        # 2. Per-Frame Spatial Scaling
+        # Replicating original logic: fit_transform applied individually to each time frame
+        for b in range(len(X_T)):
+            X_T[b, :, :] = self.scaler.fit_transform(X_T[b, :, :])
+
+        # 3. Process Reference Microphone (Log-Magnitude)
+        # Extract the STFT of the 1st mic, crop temporal padding, and transpose to (frames, NUP)
+        z_k_0 = self.z_k[0, :, frame_before:self.n_frames - frame_after].T
+        z_k_0_log = np.log(abs(z_k_0))
+
+        # Scale the log-magnitude features across the entire temporal sequence at once
+        z_k_0_standart = self.scaler.fit_transform(z_k_0_log)
         
-        X_sequential = np.zeros((max_frames, NUP, self.M), dtype=complex)
-        x_index = 0
-        
-        for l in range(frame_before, min(frame_before + max_frames, self.n_frames - frame_after)):
-            for j in range(NUP):
-                chol_j = LA.inv(self.cholesky_Qvv[j, :, :])
-                Zvv = 0
-                sum_win_vad = 0
-                for p in range(frame_before + frame_after + 1):
-                    temp_zvv = chol_j @ (win_vad[10 - frame_before + p] * self.z_k[:, j, l - frame_before + p].reshape(self.M, 1))
-                    Zvv = Zvv + temp_zvv @ temp_zvv.conj().T
-                    sum_win_vad = sum_win_vad + win_vad[10 - frame_before + p]
-                Zvv = Zvv / sum_win_vad
+        # Reshape to (frames, NUP, 1) to match X_T dimensions
+        z_k_0_standart = np.reshape(z_k_0_standart, (z_k_0_standart.shape[0], NUP, 1))
 
-                w, v = LA.eig(Zvv)
-                fi = v[:, w.argmax()].reshape(self.M, 1)
+        # 4. Final Tensor Assembly
+        # Combine spatial features (6 channels) with spectral features (1 channel)
+        self.x_test = np.concatenate((X_T, z_k_0_standart), axis=2)
 
-                denominator = self.cholesky_Qvv[j, 0, :].reshape(1, self.M) @ fi
-                G_cw = np.squeeze(self.cholesky_Qvv[j, :, :] @ fi / denominator)
-                X_sequential[x_index, j, :] = G_cw
-            x_index += 1
+        if self.verbose > 1:
+            print(f"Final input tensor shape: {self.x_test.shape}")
 
-        # ---------------------------------------------------------
-        # 2. RUN NEW VECTORIZED LOGIC
-        # ---------------------------------------------------------
-        print("Running vectorized extraction...")
-        X_vectorized = np.zeros_like(X_sequential)
-        chol_inv_batched = LA.inv(self.cholesky_Qvv)
-        x_index = 0
-        
-        for l in range(frame_before, min(frame_before + max_frames, self.n_frames - frame_after)):
-            Zvv = np.zeros((NUP, self.M, self.M), dtype=complex)
-            sum_win_vad = 0
-            for p in range(frame_before + frame_after + 1):
-                win_val = win_vad[10 - frame_before + p]
-                z_slice_batched = self.z_k[:, :, l - frame_before + p].T[:, :, np.newaxis]
-                
-                temp_zvv = chol_inv_batched @ (win_val * z_slice_batched)
-                Zvv += temp_zvv @ temp_zvv.conj().transpose(0, 2, 1)
-                sum_win_vad += win_val
-                
-            Zvv /= sum_win_vad
-
-            w, v = LA.eig(Zvv)
-            max_idx = np.argmax(w.real, axis=1)
-            fi = v[np.arange(NUP), :, max_idx][:, :, np.newaxis]
-
-            numerator = self.cholesky_Qvv @ fi
-            denominator = self.cholesky_Qvv[:, 0, :][:, np.newaxis, :] @ fi
-            X_vectorized[x_index, :, :] = np.squeeze(numerator / denominator)
-            
-            x_index += 1
-
-        # ---------------------------------------------------------
-        # 3. COMPARE RESULTS
-        # ---------------------------------------------------------
-        # We use np.allclose rather than strict == because batched operations 
-        # and serial operations handle memory and rounding slightly differently 
-        # at the C-library level, leading to microscopic floating-point variations.
-        is_identical = np.allclose(X_sequential, X_vectorized, rtol=1e-5, atol=1e-8)
-        
-        if is_identical:
-            print("SUCCESS: Vectorized RTFs match the sequential RTFs exactly!")
-        else:
-            print("WARNING: Mismatch detected between implementations.")
-            # Calculate Mean Squared Error to see how far off it is
-            mse = np.mean(np.abs(X_sequential - X_vectorized)**2)
-            print(f"Mean Squared Error: {mse}")
-            
-        # Assign to class state to keep pipeline intact if you continue the run
-        self.X = X_vectorized
-    
     def run(self):
-        """Orchestrates the pipeline steps in the correct order."""
+        """Orchestrates the pipeline steps."""
         self.load_data()
         self.compute_stft()
         self.estimate_noise_covariance()
         self.extract_gevd_features()
-        
-        # Future methods will be called here:
-        # self.prepare_model_inputs()
-        # self.compute_ground_truth_labels()
-        # self.run_inference()
-        # self.evaluate_and_save()
+        self.prepare_model_inputs()
         
         if self.verbose:
-            print("--- Pipeline execution up to GEVD feature extraction complete. ---")
-        return self
+            print("--- Ready for Inference ---")
+        return self# Setup dictionaries required to initialize the new pipeline architecture
+    
 
-# Setup dictionaries required to initialize the new pipeline architecture
+# Configuration setup
+models_folder = os.path.join(workspace_folder, 'models')
+p_models = { # Need to be updated with actual model filenames
+    'csd_path': os.path.join(models_folder, 'model3_GEVD_30_3.h5'),
+    'doa_path': os.path.join(models_folder, 'model18_GEVD_30_3.h5')
+}
+
 p_stft = {
     'n_fft': 2048,
     'hoplen': 512,
@@ -304,6 +278,6 @@ p_tracking = {
 }
 
 # Example instantiation
-pipeline = SpatialTrackingPipeline(run_idx=1, p_stft=p_stft, p_tracking=p_tracking,
+pipeline = SpatialTrackingPipeline(run_idx=1, p_stft=p_stft, p_tracking=p_tracking, p_models=p_models,
                                     folder_to_test_data=folder_to_test_data, M=4, verbose=2)
 pipeline.run()
