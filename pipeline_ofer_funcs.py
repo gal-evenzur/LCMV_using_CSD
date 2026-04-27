@@ -89,3 +89,22 @@ def load_and_preprocess_experiment(data_dir, experiment_index, mic_indices):
             'spk2': y2_second
         }
     }
+
+
+
+def calc_n_frames(xlen, hop, wlen):
+    '''
+    Calculates the number of frames given the length of the signal, hop size, and window length.
+    inputs:
+        xlen (int): Length of the input signal in samples.
+        hop (int): Hop size in samples.
+        wlen (int): Window length in samples.
+    outputs:
+            n_frames (int): The total number of frames that will be generated from the input signal.
+    formula_explanation:
+    The formula 1 + (xlen - wlen) // hop is derived from the way frames are extracted from the signal:
+    - The first frame starts at sample 0 and ends at sample wlen-1.
+    - Each subsequent frame starts hop samples after the previous frame's start.
+    '''
+    return 1 + (xlen - wlen) // hop
+
