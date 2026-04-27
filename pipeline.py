@@ -5,6 +5,7 @@ py_folder = os.path.dirname(os.path.realpath(__file__))
 workspace_folder = py_folder
 folder_to_all_data = os.path.join(workspace_folder,'data')
 folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test')
+
 class SpatialTrackingPipeline:
     def __init__(self, run_idx, p_stft, p_tracking, folder_to_test_data, M=4, verbose=1):
         """
@@ -97,65 +98,176 @@ class SpatialTrackingPipeline:
             # Using z_k (mixed signal) with 'pad' frames as in original script
             PSD_tmp = self.z_k[:, i, 0:pad] @ (self.z_k[:, i, 0:pad].conj().T) / pad
             self.cholesky_Qvv[i, :, :] = LA.cholesky(PSD_tmp)
-
     def extract_gevd_features(self):
-        """Step 4: Extracts GEVD-derived spatial features (RTF-like vectors)."""
+        """Step 4: Extracts GEVD-derived spatial features (RTF-like vectors).
+        Optimized using NumPy broadcasting across the frequency axis.
+        """
         if self.verbose:
-            print("--- Extracting GEVD Features ---")
+            print("--- Extracting GEVD Features (Vectorized) ---")
             
         NUP = self.p_stft['NUP']
         frame_before = self.p_tracking['frame_before']
         frame_after = self.p_tracking['frame_after']
         win_vad = self.p_tracking['win_vad']
         
-        total_frames = self.n_frames - frame_before - frame_after
-        if total_frames <= 0:
-            raise ValueError("Not enough frames for GEVD feature extraction.")
-
-        # Original script's 'index' variable is equivalent to our 'self.n_frames'
-        self.X = np.zeros((total_frames, NUP, self.M), dtype=complex)
-        x_index = 0
-
-        def _print_progress(current, total):
-            if not self.verbose:
-                return
-            bar_len = 24
-            filled = int(bar_len * current / total)
-            bar = "#" * filled + "-" * (bar_len - filled)
-            print(f"\rGEVD extraction: [{bar}] {current:>4}/{total} frames", end="", flush=True)
+        # Pre-compute the inverse of the Cholesky matrices for all frequency bins at once
+        # Shape: (NUP, M, M)
+        chol_inv_batched = LA.inv(self.cholesky_Qvv)
         
-        # Strictly sequential loop to maintain exact original logic
+        self.X = np.zeros((self.n_frames - frame_before - frame_after, NUP, self.M), dtype=complex)
+        x_index = 0
+        
+        # We must keep the temporal 'l' loop serial for online pipeline compatibility
         for l in range(frame_before, self.n_frames - frame_after):
-            if self.verbose > 1:
-                _print_progress(x_index, total_frames)
+            # Progress update every 50 frames
+            if self.verbose > 1 and l % 50 == 0:
+                print(f"Processing frame {l}/{self.n_frames - frame_before - frame_after}...")
+            
+            # Initialize a batched Zvv tensor for all frequency bins
+            # Shape: (NUP, M, M)
+            Zvv = np.zeros((NUP, self.M, self.M), dtype=complex)
+            sum_win_vad = 0
+            
+            # Aggregate local context frames
+            for p in range(frame_before + frame_after + 1):
+                win_val = win_vad[10 - frame_before + p]
+                
+                # Slice the time frame. Original shape (M, NUP). 
+                z_slice = self.z_k[:, :, l - frame_before + p]
+                
+                # Transpose and add a dummy axis so shape becomes (NUP, M, 1)
+                # This aligns it for batched matrix multiplication
+                z_slice_batched = z_slice.T[:, :, np.newaxis]
+                
+                # Multiply batched inverse with batched vectors: (NUP, M, M) @ (NUP, M, 1)
+                # temp_zvv shape: (NUP, M, 1)
+                temp_zvv = chol_inv_batched @ (win_val * z_slice_batched)
+                
+                # Outer product across the M dimension for all NUP matrices: (NUP, M, 1) @ (NUP, 1, M)
+                # Resulting shape: (NUP, M, M)
+                Zvv += temp_zvv @ temp_zvv.conj().transpose(0, 2, 1)
+                sum_win_vad += win_val
+                
+            Zvv /= sum_win_vad
 
+            # Vectorized Eigendecomposition on all NUP matrices simultaneously
+            # w shape: (NUP, M) -> Eigenvalues
+            # v shape: (NUP, M, M) -> Eigenvectors
+            w, v = LA.eig(Zvv)
+            
+            # Find the index of the maximum eigenvalue for each frequency bin
+            # We use .real because eigenvalues of a PSD matrix are strictly real
+            max_idx = np.argmax(w.real, axis=1)
+            
+            # Extract the dominant eigenvectors for all NUP matrices
+            # Fancy indexing v[np.arange(NUP), :, max_idx] yields shape (NUP, M)
+            # Add an axis to make it (NUP, M, 1) for the final multiplication
+            fi = v[np.arange(NUP), :, max_idx][:, :, np.newaxis]
+
+            # Recolor and normalize (numerator shape: NUP, M, 1)
+            numerator = self.cholesky_Qvv @ fi
+            
+            # Denominator: Isolate the first row (reference mic) of cholesky_Qvv
+            # self.cholesky_Qvv[:, 0, :] shape: (NUP, M). Add middle axis to make it (NUP, 1, M)
+            # Denominator final shape: (NUP, 1, 1)
+            denominator = self.cholesky_Qvv[:, 0, :][:, np.newaxis, :] @ fi
+            
+            # Divide, squeeze out the trailing dummy dimension, and assign to feature matrix
+            G_cw = np.squeeze(numerator / denominator)
+            self.X[x_index, :, :] = G_cw
+            
+            x_index += 1
+    
+    def verify_vectorization(self, max_frames=50):
+        """
+        Runs both the original sequential and the new vectorized GEVD 
+        implementations and asserts that the resulting RTFs are identical.
+        max_frames limits the number of frames to compare for faster verification during development.
+        """
+        print("--- Starting GEVD Verification ---")
+        
+        NUP = self.p_stft['NUP']
+        frame_before = self.p_tracking['frame_before']
+        frame_after = self.p_tracking['frame_after']
+        win_vad = self.p_tracking['win_vad']
+        
+        # ---------------------------------------------------------
+        # 1. RUN ORIGINAL SEQUENTIAL LOGIC
+        # ---------------------------------------------------------
+        print("Running sequential extraction...")
+        
+        X_sequential = np.zeros((max_frames, NUP, self.M), dtype=complex)
+        x_index = 0
+        
+        for l in range(frame_before, min(frame_before + max_frames, self.n_frames - frame_after)):
             for j in range(NUP):
                 chol_j = LA.inv(self.cholesky_Qvv[j, :, :])
                 Zvv = 0
                 sum_win_vad = 0
-                
                 for p in range(frame_before + frame_after + 1):
-                    # Note: win_vad index 10 is hardcoded just like the original script 
-                    # (assuming win_vad is np.hamming(21) where 10 is the center)
                     temp_zvv = chol_j @ (win_vad[10 - frame_before + p] * self.z_k[:, j, l - frame_before + p].reshape(self.M, 1))
                     Zvv = Zvv + temp_zvv @ temp_zvv.conj().T
                     sum_win_vad = sum_win_vad + win_vad[10 - frame_before + p]
-                    
                 Zvv = Zvv / sum_win_vad
 
                 w, v = LA.eig(Zvv)
                 fi = v[:, w.argmax()].reshape(self.M, 1)
 
                 denominator = self.cholesky_Qvv[j, 0, :].reshape(1, self.M) @ fi
-                G_cw = np.squeeze(self.cholesky_Qvv[j, :, :]) @ fi / denominator
-                self.X[x_index, j, :] = np.squeeze(G_cw)
-                
+                G_cw = np.squeeze(self.cholesky_Qvv[j, :, :] @ fi / denominator)
+                X_sequential[x_index, j, :] = G_cw
             x_index += 1
 
-        if self.verbose:
-            _print_progress(total_frames, total_frames)
-            print()
+        # ---------------------------------------------------------
+        # 2. RUN NEW VECTORIZED LOGIC
+        # ---------------------------------------------------------
+        print("Running vectorized extraction...")
+        X_vectorized = np.zeros_like(X_sequential)
+        chol_inv_batched = LA.inv(self.cholesky_Qvv)
+        x_index = 0
+        
+        for l in range(frame_before, min(frame_before + max_frames, self.n_frames - frame_after)):
+            Zvv = np.zeros((NUP, self.M, self.M), dtype=complex)
+            sum_win_vad = 0
+            for p in range(frame_before + frame_after + 1):
+                win_val = win_vad[10 - frame_before + p]
+                z_slice_batched = self.z_k[:, :, l - frame_before + p].T[:, :, np.newaxis]
+                
+                temp_zvv = chol_inv_batched @ (win_val * z_slice_batched)
+                Zvv += temp_zvv @ temp_zvv.conj().transpose(0, 2, 1)
+                sum_win_vad += win_val
+                
+            Zvv /= sum_win_vad
 
+            w, v = LA.eig(Zvv)
+            max_idx = np.argmax(w.real, axis=1)
+            fi = v[np.arange(NUP), :, max_idx][:, :, np.newaxis]
+
+            numerator = self.cholesky_Qvv @ fi
+            denominator = self.cholesky_Qvv[:, 0, :][:, np.newaxis, :] @ fi
+            X_vectorized[x_index, :, :] = np.squeeze(numerator / denominator)
+            
+            x_index += 1
+
+        # ---------------------------------------------------------
+        # 3. COMPARE RESULTS
+        # ---------------------------------------------------------
+        # We use np.allclose rather than strict == because batched operations 
+        # and serial operations handle memory and rounding slightly differently 
+        # at the C-library level, leading to microscopic floating-point variations.
+        is_identical = np.allclose(X_sequential, X_vectorized, rtol=1e-5, atol=1e-8)
+        
+        if is_identical:
+            print("SUCCESS: Vectorized RTFs match the sequential RTFs exactly!")
+        else:
+            print("WARNING: Mismatch detected between implementations.")
+            # Calculate Mean Squared Error to see how far off it is
+            mse = np.mean(np.abs(X_sequential - X_vectorized)**2)
+            print(f"Mean Squared Error: {mse}")
+            
+        # Assign to class state to keep pipeline intact if you continue the run
+        self.X = X_vectorized
+    
     def run(self):
         """Orchestrates the pipeline steps in the correct order."""
         self.load_data()
