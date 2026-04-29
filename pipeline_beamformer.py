@@ -1,4 +1,5 @@
 from pipeline_ofer_funcs import *
+import time
 """
 =========================================================================================
 SPATIAL AUDIO SEPARATION PIPELINE
@@ -181,25 +182,31 @@ class SpatialSeparationPipeline:
             self.z_k_second = do_stft(self.receiver_second)
 
     def _update_noise_covariance(self, l):
-        """Handles CSD=0 (Noise-only frames)
-            Updates the noise covariance matrix (Qvv) using an exponential moving average.
-
-            l (int): Current frame index being processed.        
-        """
+        """Handles CSD=0 (Noise-only frames) using batched matrix operations."""
         self.time_second += 1
         self.time_first += 1
-
-        for j in range(self.NUP):
-            self.Qvv_temp[j, :, :] = self.z_k[l, j, :].reshape(self.M, 1) @ (self.z_k[l, j, :].reshape(self.M, 1).conj().T)
-
+        
+        # 1. Extract the current frame for all frequencies: Shape (NUP, M)
+        z_frame = self.z_k[l]
+        
+        # 2. Reshape for batched outer product 
+        # z_col: (NUP, M, 1) | z_row: (NUP, 1, M)
+        z_col = z_frame[:, :, np.newaxis]
+        z_row = z_frame[:, np.newaxis, :].conj()
+        
+        # 3. Calculate instantaneous covariance for all NUP bins at once: (NUP, M, M)
+        # This replaces the Qvv_temp global array with a readable intermediate variable
+        Qvv_inst = z_col @ z_row
+            
         if self.flag_first_noise == 0:
             self.flag_first_noise = 1
-            self.Qvv = self.Qvv_temp.copy()
+            self.Qvv = Qvv_inst.copy()
             self.sum_Qvv = 1
         else:
             self.sum_Qvv += 1
             self.alfa_Qvv = self.p_beamforming['alfa_Qvv_run']
-            self.Qvv = (1 - self.alfa_Qvv) * self.Qvv + (self.alfa_Qvv) * self.Qvv_temp
+            # Broadcast scalar smoothing across the entire 3D tensor
+            self.Qvv = (1 - self.alfa_Qvv) * self.Qvv + (self.alfa_Qvv) * Qvv_inst
 
     def _update_rtf_and_tracking(self, l):
         """Handles CSD=1 (Single speaker active). Manages slots and GEVD."""
@@ -322,42 +329,80 @@ class SpatialSeparationPipeline:
             self.total_frame_per_DOA[y2_prob - 1] += thresh
 
     def _compute_spatial_filters(self, l):
-        """Applies MVDR or LCMV based on tracked active slots."""
+        """Applies MVDR or LCMV using fully vectorized numpy broadcasting."""
         e = self.p_beamforming['e']
         epsilon = self.p_beamforming['epsilon']
         fc = self.Frame_classification_system
+        
+        # Pre-allocate output for this frame
+        s_hat = np.zeros((2, self.NUP), dtype=complex)
+        
+        # Extract the signal frame and reshape for batched multiplication: (NUP, M, 1)
+        z_frame = self.z_k[l, :, :, np.newaxis]
 
         # Case A: No slots -> Ref mic placeholder
         if fc[0, 0] == 0 and fc[0, 1] == 0:
-            s_hat = self.z_k[l, :, 0]
-            s_hat = np.concatenate((s_hat.reshape(1, self.NUP), 1e-10 * np.ones((1, self.NUP))))
+            s_hat[0, :] = self.z_k[l, :, 0]
+            s_hat[1, :] = 1e-10
+            
+        # Case B & C require inverted Qvv. We do this once for all frequencies!
+        elif fc[0, 0] != 0 or fc[0, 1] != 0:
+            # Diagonal Loading: Calculate norm per frequency bin, shape (NUP, 1, 1)
+            norm_Qvv = LA.norm(self.Qvv, axis=(1, 2), keepdims=True)
+            reg_matrix = e * norm_Qvv * np.eye(self.M)
+            
+            # Batch invert all 1,025 matrices: (NUP, M, M)
+            inv_Qvv = LA.inv(self.Qvv + reg_matrix)
 
-        # Case B: One slot -> MVDR
-        elif fc[0, 0] != 0 and fc[0, 1] == 0:
-            s_hat = np.zeros(self.NUP, dtype=complex)
-            for j in range(self.NUP):
-                g = self.G[j, :, 0]
-                inv_Qvv = LA.inv(self.Qvv[j, :, :] + e * LA.norm(self.Qvv[j, :, :]) * np.eye(self.M))
-                c = inv_Qvv @ g
-                inv_temp = g.conj().T @ c + epsilon
-                self.W[l, j, :, 0] = c / inv_temp
-                self.W[l, j, :, 1] = c / inv_temp
-                s_hat[j] = self.W[l, j, :, 0].conj().T @ self.z_k[l, j, :]
-            s_hat = np.concatenate((s_hat.reshape(1, self.NUP), s_hat.reshape(1, self.NUP)))
+            # Case B: One slot -> MVDR
+            if fc[0, 0] != 0 and fc[0, 1] == 0:
+                # Isolate target spatial fingerprint: (NUP, M, 1)
+                g = self.G[:, :, 0:1] 
+                g_conj = g.conj().transpose(0, 2, 1) # (NUP, 1, M)
+                
+                # Batched MVDR formula
+                c = inv_Qvv @ g                        # (NUP, M, 1)
+                inv_temp = (g_conj @ c) + epsilon      # (NUP, 1, 1)
+                w = c / inv_temp                       # (NUP, M, 1)
+                
+                # Save weights and apply filter
+                w_flat = np.squeeze(w, axis=2)
+                self.W[l, :, :, 0] = w_flat
+                self.W[l, :, :, 1] = w_flat
+                
+                # Apply filter to signal: (NUP, 1, M) @ (NUP, M, 1) -> (NUP, 1, 1)
+                s_hat_j = w.conj().transpose(0, 2, 1) @ z_frame
+                s_hat_flat = np.squeeze(s_hat_j)
+                s_hat[0, :] = s_hat_flat
+                s_hat[1, :] = s_hat_flat
 
-        # Case C: Two slots -> LCMV
-        elif fc[0, 0] != 0 and fc[0, 1] != 0:
-            if self.flag_start_lcmv: self.flag_start_lcmv = 0
-            s_hat = np.zeros((2, self.NUP), dtype=complex)
-            for j in range(self.NUP):
-                g = self.G[j, :, :]
-                inv_b = LA.inv(self.Qvv[j, :, :] + e * LA.norm(self.Qvv[j, :, :]) * np.eye(self.M))
-                c = inv_b @ g
-                inv_temp = LA.inv(g.conj().T @ c + e * LA.norm(g.conj().T @ c) * np.eye(self.num_speech))
-                self.W[l, j, :, :] = c @ inv_temp
-                s_hat[:, j] = self.W[l, j, :, :].conj().T @ self.z_k[l, j, :]
-            s_hat[0, :] = s_hat[0, :] * self.first_speaker_active
-            s_hat[1, :] = s_hat[1, :] * self.second_speaker_active
+            # Case C: Two slots -> LCMV
+            elif fc[0, 0] != 0 and fc[0, 1] != 0:
+                if self.flag_start_lcmv: self.flag_start_lcmv = 0
+                
+                # Target spatial fingerprints for both speakers: (NUP, M, 2)
+                g = self.G 
+                g_conj = g.conj().transpose(0, 2, 1)   # (NUP, 2, M)
+                
+                # Batched LCMV formula
+                c = inv_Qvv @ g                        # (NUP, M, 2)
+                term = g_conj @ c                      # (NUP, 2, 2)
+                
+                # Diagonal loading for the inner 2x2 matrix
+                norm_term = LA.norm(term, axis=(1, 2), keepdims=True)
+                reg_term = e * norm_term * np.eye(self.num_speech)
+                inv_temp = LA.inv(term + reg_term)     # (NUP, 2, 2)
+                
+                w = c @ inv_temp                       # (NUP, M, 2)
+                self.W[l, :, :, :] = w
+                
+                # Apply filter to signal: (NUP, 2, M) @ (NUP, M, 1) -> (NUP, 2, 1)
+                s_hat_j = w.conj().transpose(0, 2, 1) @ z_frame
+                s_hat_flat = np.squeeze(s_hat_j, axis=2).T # Transpose to match (2, NUP) shape
+                
+                # Gating
+                s_hat[0, :] = s_hat_flat[0, :] * self.first_speaker_active
+                s_hat[1, :] = s_hat_flat[1, :] * self.second_speaker_active
 
         # Aggregate outputs
         if l == 0:
@@ -445,13 +490,53 @@ class SpatialSeparationPipeline:
             print(f"SDR: {sdr.mean():.2f} dB | SIR: {sir.mean():.2f} dB")
 
     def run(self):
-        """Orchestrates the separation pipeline."""
+        """Orchestrates the separation pipeline with timing."""
+        print(f"\n{'='*55}")
+        print(f" STARTING PIPELINE EXECUTION (Experiment {self.run_idx})")
+        print(f"{'='*55}")
+
+        total_start = time.time()
+
+        # 1. Load Data
+        step_start = time.time()
         self.load_data()
+        t_load = time.time() - step_start
+        print(f"[⏱] 1. Load Data:                  {t_load:>6.2f} seconds")
+
+        # 2. Compute STFT
+        step_start = time.time()
         self.compute_stft()
+        t_stft = time.time() - step_start
+        print(f"[⏱] 2. Compute STFT:               {t_stft:>6.2f} seconds")
+
+        # 3. Online Separation (The heavy lifting)
+        step_start = time.time()
         self.run_online_separation()
+        t_sep = time.time() - step_start
+        print(f"[⏱] 3. Run Online Separation:      {t_sep:>6.2f} seconds")
+        # print time per frame for the online separation step
+        if self.verbose > 1:
+            num_frames = len(self.y2_prob_stat_mf)
+            time_per_frame = t_sep / num_frames
+            print(f"     - Time per frame: {time_per_frame:.4f} seconds/frame")
+
+        # 4. Reconstruct Audio (ISTFT)
+        step_start = time.time()
         self.reconstruct_audio()
+        t_recon = time.time() - step_start
+        print(f"[⏱] 4. Reconstruct Audio:          {t_recon:>6.2f} seconds")
+
+        # 5. Evaluate and Save
+        step_start = time.time()
         self.evaluate_and_save()
-        if self.verbose: print(f"--- Pipeline Execution Complete for Experiment {self.run_idx} ---")
+        t_eval = time.time() - step_start
+        print(f"[⏱] 5. Evaluate and Save:          {t_eval:>6.2f} seconds")
+
+        total_time = time.time() - total_start
+        print(f"{'-'*55}")
+        print(f" TOTAL EXECUTION TIME:             {total_time:>6.2f} seconds")
+        print(f"{'='*55}\n")
+        
         return self
 
 if __name__ == "__main__":
