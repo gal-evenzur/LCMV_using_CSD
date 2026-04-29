@@ -247,13 +247,13 @@ class SpatialSeparationPipeline:
             self.time_first += 1
 
     def _update_slot(self, slot_idx, y2_prob, l, save_last_frames, save_last_frames_doa):
-        """Helper to compute GEVD RTF for an active slot."""
+        """Helper to compute batched GEVD RTF for an active slot."""
         epsilon = self.p_beamforming['epsilon']
-
+        
         self.Frame_classification_system[1, slot_idx] += 1
         self.Frame_classification_system[1, 2] = 0
         self.Frame_classification_system[0, 2] = 0
-
+        
         if slot_idx == 0:
             self.time_first = 0
             self.time_second += 1
@@ -261,6 +261,7 @@ class SpatialSeparationPipeline:
             self.time_second = 0
             self.time_first += 1
 
+        # Extract valid historical frames
         curr_frames = save_last_frames[np.where(save_last_frames_doa > 0)]
         curr_doa = save_last_frames_doa[np.where(save_last_frames_doa > 0)]
         curr_frames = curr_frames[np.where(abs(curr_doa - y2_prob) != 0)]
@@ -269,64 +270,106 @@ class SpatialSeparationPipeline:
 
         self.total_frame_per_DOA[y2_prob - 1] += 1
         alfa_G = (1 + len(curr_frames)) / (self.total_frame_per_DOA[y2_prob - 1] + len(curr_frames))
+        
+        # 1. Assemble Batched Signal Matrix
+        # Current frame: (NUP, M, 1)
+        z_frame = self.z_k[l, :, :, np.newaxis] 
+        if len(curr_frames) > 0:
+            # Transpose history from (Frames, NUP, M) -> (NUP, M, Frames)
+            history_trans = curr_frames.transpose(1, 2, 0)
+            # Concatenate along the frame axis -> (NUP, M, Frames + 1)
+            all_frames = np.concatenate((z_frame, history_trans), axis=2)
+        else:
+            all_frames = z_frame
 
-        for j in range(self.NUP):
-            if len(curr_frames):
-                current_f = np.concatenate((self.z_k[l, j, :].reshape(1, self.M).T, curr_frames[:, j, :].reshape(len(curr_frames), self.M).T), axis=1)
-            else:
-                current_f = self.z_k[l, j, :].reshape(1, self.M).T
-
-            cholesky_Qvv = LA.cholesky(self.Qvv[j, :, :])
-            chol_j = LA.inv(cholesky_Qvv + epsilon * np.eye(self.M) * LA.norm(cholesky_Qvv))
-            a = chol_j @ current_f
-            Zvv_temp = a @ a.conj().T
-            self.PSD_matrix_per_DOA[y2_prob - 1, j, :, :] = (1 - alfa_G) * self.PSD_matrix_per_DOA[y2_prob - 1, j, :, :] + (alfa_G) * Zvv_temp
-
-            w, v = LA.eig(self.PSD_matrix_per_DOA[y2_prob - 1, j, :, :])
-            phi = v[:, w.argmax()].reshape(self.M, 1)
-            denominator = cholesky_Qvv[0, :].reshape(1, self.M) @ phi
-            self.G[j, :, slot_idx] = np.squeeze(cholesky_Qvv @ phi / denominator)
+        # 2. Batched Cholesky and Inversion
+        chol_Qvv = LA.cholesky(self.Qvv) # (NUP, M, M)
+        norm_chol = LA.norm(chol_Qvv, axis=(1, 2), keepdims=True)
+        chol_inv = LA.inv(chol_Qvv + epsilon * norm_chol * np.eye(self.M))
+        
+        # 3. Batched Whitening and Covariance
+        # (NUP, M, M) @ (NUP, M, Frames+1) -> (NUP, M, Frames+1)
+        a = chol_inv @ all_frames 
+        # Outer product across the frame axis -> (NUP, M, M)
+        Zvv_temp = a @ a.conj().transpose(0, 2, 1) 
+        
+        # Smooth PSD matrix
+        self.PSD_matrix_per_DOA[y2_prob - 1] = (1 - alfa_G) * self.PSD_matrix_per_DOA[y2_prob - 1] + (alfa_G) * Zvv_temp
+        
+        # 4. Batched Eigendecomposition
+        w, v = LA.eig(self.PSD_matrix_per_DOA[y2_prob - 1])
+        
+        # Find index of max REAL eigenvalue for each frequency bin -> shape (NUP,)
+        max_idx = np.argmax(w.real, axis=1)
+        
+        # Fancy indexing: extract the dominant eigenvector for each frequency
+        # v[np.arange(self.NUP), :, max_idx] -> (NUP, M). Then add axis -> (NUP, M, 1)
+        phi = v[np.arange(self.NUP), :, max_idx][:, :, np.newaxis]
+        
+        # 5. Batched Recolor and Normalize
+        numerator = chol_Qvv @ phi  # (NUP, M, 1)
+        # Denominator: Isolate reference mic (row 0) -> (NUP, 1, M) @ (NUP, M, 1) -> (NUP, 1, 1)
+        denominator = chol_Qvv[:, 0:1, :] @ phi 
+        
+        # Divide, squeeze out dummy dimension, and save to G
+        self.G[:, :, slot_idx] = np.squeeze(numerator / denominator, axis=2)
 
     def _process_candidate_doa(self, l, y2_prob):
-        """Helper to promote a candidate DOA to an active slot."""
+        """Helper to promote a candidate DOA to an active slot using batched ops."""
         epsilon = self.p_beamforming['epsilon']
         thresh = self.p_tracking['threshold_chage_location']
-
+        
+        # Append current frame to candidate buffer
         self.stand_z = np.concatenate((self.stand_z, self.z_k[l, :, :].reshape(1, self.NUP, self.M)))
-        self.Frame_classification_system[1, 2] += 1
+        self.Frame_classification_system[1, 2] += 1 
         self.time_second += 1
         self.time_first += 1
-
+        
+        # If the candidate has persisted long enough to be promoted:
         if self.Frame_classification_system[1, 2] > (thresh - 1):
-            for j in range(self.NUP):
-                cholesky_Qvv = LA.cholesky(self.Qvv[j, :, :])
-                chol_j = LA.inv(cholesky_Qvv + epsilon * np.eye(self.M) * LA.norm(cholesky_Qvv))
-                a = chol_j @ self.stand_z[:, j, :].T
-                Zvv_temp = a @ a.conj().T / thresh
-                temp_alfa = self.total_frame_per_DOA[y2_prob - 1] + thresh
-                self.PSD_matrix_per_DOA[y2_prob - 1, j, :, :] = self.total_frame_per_DOA[y2_prob - 1] / temp_alfa * self.PSD_matrix_per_DOA[y2_prob - 1, j, :, :] + thresh / temp_alfa * Zvv_temp
-
-            # Slot assignment policy
+            
+            # 1. Batched Cholesky and Inversion
+            chol_Qvv = LA.cholesky(self.Qvv) # (NUP, M, M)
+            norm_chol = LA.norm(chol_Qvv, axis=(1, 2), keepdims=True)
+            chol_inv = LA.inv(chol_Qvv + epsilon * norm_chol * np.eye(self.M))
+            
+            # 2. Transpose stand_z buffer -> (NUP, M, thresh)
+            stand_z_trans = self.stand_z.transpose(1, 2, 0)
+            
+            # 3. Batched Whitening and Covariance
+            # (NUP, M, M) @ (NUP, M, thresh) -> (NUP, M, thresh)
+            a = chol_inv @ stand_z_trans
+            # Outer product -> (NUP, M, M)
+            Zvv_temp = (a @ a.conj().transpose(0, 2, 1)) / thresh
+            
+            # Update PSD
+            temp_alfa = self.total_frame_per_DOA[y2_prob - 1] + thresh
+            self.PSD_matrix_per_DOA[y2_prob - 1] = (self.total_frame_per_DOA[y2_prob - 1] / temp_alfa) * self.PSD_matrix_per_DOA[y2_prob - 1] + (thresh / temp_alfa) * Zvv_temp
+            
+            # 4. Slot assignment policy (Scalar state machine logic, unchanged)
             fc = self.Frame_classification_system
             if fc[1, 0] == 0:
                 to_change = 0
             elif (fc[1, 1] == 0) and (abs(fc[0, 0] - y2_prob) < 4):
                 to_change = 0
-            elif fc[1, 1] == 0:
+            elif fc[1, 1] == 0: 
                 to_change = 1
-            else:
+            else:     
                 to_change = np.argmin(np.abs(np.array((y2_prob, y2_prob)) - fc[0, 0:2]))
                 min1, min2 = np.abs(np.array((y2_prob, y2_prob)) - fc[0, 0:2])
                 if (min1 > (thresh - 2)) and (min2 > (thresh - 2)):
                     self.first_speaker_active = 1
                     self.second_speaker_active = 1
                     to_change = 0 if (self.time_first - min1 * 30) > (self.time_second - min2 * 30) else 1
-
+                    
             self.Frame_classification_system[0, to_change] = y2_prob
-            self.Frame_classification_system[1, to_change] = self.Frame_classification_system[1, 2]
+            self.Frame_classification_system[1, to_change] = self.Frame_classification_system[1, 2] 
             self.Frame_classification_system[0, 2] = 0
             self.Frame_classification_system[1, 2] = 0
             self.total_frame_per_DOA[y2_prob - 1] += thresh
+            
+            # Clear candidate buffer now that it's promoted
+            self.stand_z = np.empty((0, self.NUP, self.M), dtype=complex)
 
     def _compute_spatial_filters(self, l):
         """Applies MVDR or LCMV using fully vectorized numpy broadcasting."""
