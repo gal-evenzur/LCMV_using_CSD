@@ -17,19 +17,18 @@ import multiprocessing
 import scipy.io as sio
 from sklearn.preprocessing import StandardScaler
 import os
-from time import perf_counter
+import time
 
 #root_dir = '/home/dsi/shvarta3/data_sets/'
 #data_root_dir = '/mnt/dsi_vol1/users/ayal_shvarts/project/'
 mode='train'
-
 
 pydir = os.path.dirname(os.path.abspath(__file__))
 workspace_dir = os.path.dirname(pydir)
 data_dir = os.path.join(workspace_dir, 'data')
 plot_dir = pydir + '/plots/'
 input_data_dir = os.path.join(data_dir, 'simulated_audio')
-output_dir = os.path.join(data_dir, 'dataset', mode)
+output_dir = os.path.join(data_dir, 'dataset', mode + '_tempfortest')
 
 # make sure dirs exist
 os.makedirs(output_dir, exist_ok=True)
@@ -37,10 +36,6 @@ os.makedirs(plot_dir, exist_ok=True)
 
 print('Data root dir:', input_data_dir)
 print('Output root dir:', output_dir)
-
-timing_enabled = True
-if timing_enabled:
-    print('Timing diagnostics enabled: per-sample stage breakdown')
 
 plt.close("all")
 # variens
@@ -57,7 +52,16 @@ frame_before=8
 frame_after = 5 
 frame_threshold=8
 start=1
-idx=0
+
+idx_file_name = output_dir + '/idx.npy'
+
+# Replace `idx = 0` at the top with:
+if os.path.exists(idx_file_name):
+    idx = int(np.load(idx_file_name))
+    idx = 3000
+    print(f"Resuming file numbering from index {idx}")
+else:
+    idx = 0
 threshold_freq=0.3
 threshold=40
 pad=30
@@ -73,7 +77,7 @@ label2_file_name=output_dir+'/label2_'
 idx_file_name=output_dir+'/idx.npy'
 nom_data_sets=2 # number of data sets to process (train1, train2, etc.) - 
 # each data set contains 'lottery' number of files (e.g., 200 files for train1, 200 files for train2, etc.)
-lottery=2 # number of files to process per data set 
+lottery=201 # number of files to process per data set 
 
 
 def stft_z(get_receivers):
@@ -92,8 +96,6 @@ def create_X(l,j):
         Zvv = Zvv+temp_zvv@temp_zvv.conj().T
         sum_win_vad = sum_win_vad+win_vad[10-frame_before+p]
     Zvv=Zvv/sum_win_vad
-    # a=chol_j@z_k[:,j,l-frame_before:(l+frame_after+1)]
-    # Zvv= a@a.conj().T/(frame_before+frame_after+1)
     w,v = LA.eig(Zvv)
     fi=v[:,w.argmax()].reshape(M,1)
     denominator=cholesky_Qvv[j,0,:].reshape(1,M)@fi
@@ -106,450 +108,397 @@ def create_X_total(l):
         create_X)(l,j)for j in range(NUP))            
     return np.asarray(X_temp)[:,1:M] 
 
-def add_stage_time(stage_times, stage_name, stage_start):
-    stage_times[stage_name] = stage_times.get(stage_name, 0.0) + (perf_counter() - stage_start)
 
-def print_sample_timing(index_file, stage_times, total_time):
-    accounted_time = sum(stage_times.values())
-    if total_time > accounted_time:
-        stage_times = dict(stage_times)
-        stage_times['other'] = total_time - accounted_time
-    ordered_stage_times = sorted(stage_times.items(), key=lambda item: item[1], reverse=True)
-    timing_summary = ', '.join(
-        '%s=%.3fs (%.1f%%)' % (stage_name, stage_time, 100.0 * stage_time / total_time)
-        for stage_name, stage_time in ordered_stage_times
-    )
-    print('[Timing] sample %d total=%.3fs | %s' % (index_file, total_time, timing_summary))
-
-def update_timing_history(sample_total_times, stage_time_history, sample_total_time, stage_times):
-    sample_total_times.append(sample_total_time)
-    for stage_name, stage_time in stage_times.items():
-        if stage_name not in stage_time_history:
-            stage_time_history[stage_name] = []
-        stage_time_history[stage_name].append(stage_time)
-
-def print_run_timing_summary(sample_total_times, stage_time_history):
-    if len(sample_total_times) == 0:
-        return
-
-    sample_total_times_arr = np.asarray(sample_total_times, dtype=np.float64)
-    total_runtime = float(sample_total_times_arr.sum())
-    print('[Timing summary] samples=%d total_runtime=%.3fs avg/sample=%.3fs median/sample=%.3fs max/sample=%.3fs' % (
-        len(sample_total_times),
-        total_runtime,
-        float(sample_total_times_arr.mean()),
-        float(np.median(sample_total_times_arr)),
-        float(sample_total_times_arr.max())
-    ))
-
-    stage_rows = []
-    for stage_name, stage_values in stage_time_history.items():
-        stage_values_arr = np.asarray(stage_values, dtype=np.float64)
-        stage_total = float(stage_values_arr.sum())
-        stage_rows.append((
-            stage_name,
-            stage_total,
-            float(stage_values_arr.mean()),
-            float(np.median(stage_values_arr)),
-            float(stage_values_arr.max())
-        ))
-
-    stage_rows.sort(key=lambda item: item[1], reverse=True)
-    for stage_name, stage_total, stage_avg, stage_median, stage_max in stage_rows:
-        share = 0.0 if total_runtime == 0 else 100.0 * stage_total / total_runtime
-        print('[Timing summary] %s total=%.3fs (%.1f%%) avg=%.3fs median=%.3fs max=%.3fs' % (
-            stage_name,
-            stage_total,
-            share,
-            stage_avg,
-            stage_median,
-            stage_max
-        ))
-
-all_sample_total_times = []
-all_stage_time_history = {}
-
-for k in range(1,nom_data_sets):
-    print(k)
-    idx_start_epoch = idx
-    X_total_parts = []
-    L_total_parts = []
-    L2_total_parts = []
-    for i in range(start,lottery):
-        sample_start_time = perf_counter()
-        sample_stage_times = {}
-
-        index_file=i+(lottery-1)*(k-1)
-        print(i)
-
-        stage_start = perf_counter()
-
-        first_file=(input_data_dir+'/%s/first_%d.wav'% (mode, index_file))
-        second_file=(input_data_dir+'/%s/second_%d.wav'% (mode, index_file)) 
-        together_file=(input_data_dir+'/%s/together_%d.wav'% (mode, index_file)) 
-        label_first_location_file=(input_data_dir+'/%s/label_location_first_%d.npy'% (mode, index_file))
-        label_second_location_file=(input_data_dir+'/%s/label_location_second_%d.npy'% (mode, index_file))
-
-
-
-        fs,receiver_first = wavfile.read(first_file)
-        receiver_first = receiver_first[:,indices]
-        fs,receiver_second = wavfile.read(second_file)
-        receiver_second = receiver_second[:,indices]
-        fs,receivers= wavfile.read(together_file)
-        receivers = receivers[:,indices]
-        
-        receiver_first=receiver_first/(abs(receiver_first).max())
-        receiver_second=receiver_second/(abs(receiver_second).max())
-        receivers=receivers/(abs(receivers).max())
-        
-        vad1_location = np.load(label_first_location_file)
-        vad2_location = np.load(label_second_location_file)
-
-        M=len(receiver_first[0,:])
-        index=int(1+np.fix((len(receiver_first[:,1])-wlen)/hop))
-        add_stage_time(sample_stage_times, 'load_and_prepare_inputs', stage_start)
-
-        stage_start = perf_counter()
-        z_k_first=[]
-        z_k_first = Parallel(n_jobs=1, verbose=0)(delayed(
-        stft_z)(receiver_first[:,i])for i in range(M))
-        z_k_first=np.asarray(z_k_first)
-        add_stage_time(sample_stage_times, 'stft_first_signal', stage_start)
-        
-
-        stage_start = perf_counter()
-        z_k=[]
-        z_k = Parallel(n_jobs=1, verbose=0)(delayed(
-        stft_z)(receivers[:,i])for i in range(M))
-        z_k=np.asarray(z_k)
-        add_stage_time(sample_stage_times, 'stft_mixed_signal', stage_start)
-
-        stage_start = perf_counter()
-        cholesky_Qvv=[]
-        cholesky_Qvv = Parallel(n_jobs=num_cores, verbose=0)(delayed(
-        create_cholesky_Qvv)(z_k[:,i,0:pad])for i in range(0,NUP))
-        cholesky_Qvv=np.asarray(cholesky_Qvv) 
-        add_stage_time(sample_stage_times, 'noise_covariance_cholesky', stage_start)
-
-        stage_start = perf_counter()
-        X_temp_total=[]
-        X_temp_total = Parallel(n_jobs=num_cores, verbose=0)(delayed(
-        create_X_total)(l)for l in range(frame_before,index-frame_after))
-        X=np.asarray(X_temp_total)
-        
-        X_T=np.concatenate((X.real,X.imag),axis=2)
-        for b in range(len(X_T)):
-            X_T[b,:,:] = scaler.fit_transform(X_T[b,:,:])
-        
-        
-        z_k_0=z_k[0,:,frame_before:index-frame_after].T
-        z_k_0=np.log(abs(z_k_0))
-        z_k_0_standart = scaler.fit_transform(z_k_0)
-        z_k_0_standart=np.reshape(z_k_0_standart, (z_k_0_standart.shape[0],NUP,1))
-        
-
-        X_T=np.concatenate((X_T,z_k_0_standart),axis=2)
-        add_stage_time(sample_stage_times, 'feature_extraction_and_scaling', stage_start)
-        
-        vad1_temp=abs(z_k_first)
-        vad1_temp = vad1_temp/(vad1_temp.std())
-        vad1_temp = vad1_temp.mean(0)
-        vad1_temp = vad1_temp > threshold_freq
-        vad1_temp=vad1_temp.astype(np.int32)
-        vad1_temp_sum=vad1_temp.sum(axis=0)
-        vad1_temp_sum=vad1_temp_sum.astype(np.int32)
-        vad1_temp_sum1 = vad1_temp_sum > threshold
-        vad1=vad1_temp_sum1.astype(np.int32)
-
-        stage_start = perf_counter()
-        z_k_second=[]
-        z_k_second = Parallel(n_jobs=1, verbose=0)(delayed(
-        stft_z)(receiver_second[:,i])for i in range(M))
-        z_k_second=np.asarray(z_k_second)  
-        add_stage_time(sample_stage_times, 'stft_second_signal', stage_start)
-        
-        stage_start = perf_counter()
-        vad2_temp=abs(z_k_second)
-        vad2_temp = vad2_temp/(vad2_temp.std())
-        vad2_temp = vad2_temp.mean(0)
-        vad2_temp = vad2_temp > threshold_freq
-        vad2_temp=vad2_temp.astype(np.int32)
-        vad2_temp_sum=vad2_temp.sum(axis=0)
-        vad2_temp_sum=vad2_temp_sum.astype(np.int32)
-        vad2_temp_sum1 = vad2_temp_sum > threshold
-        vad2=vad2_temp_sum1.astype(np.int32)
+def process_dataset(verbose=True):
+    global idx
+    global M
+    global z_k
+    global cholesky_Qvv
     
+    run_start_time = time.time()
+    
+    for k in range(1,nom_data_sets):
+        print(k)
+        X_total_parts = []
+        L_total_parts = []
+        L2_total_parts = []
+        for i in range(start,lottery):
+            sample_start_time = time.time()
 
-        check_vad1=np.zeros(index)
-        check_vad2=np.zeros(index)
+            index_file=i+(lottery-1)*(k-1)
+            print(f"Processing file index: {i}")
 
-        for l in range(frame_before,index-frame_after): 
-            check_vad1[l]=vad1[l-1:l+2].sum()
-            check_vad2[l]=vad2[l-1:l+2].sum()
-        
-        for l in range(frame_before,index-frame_after): 
-            if check_vad1[l]==3:
-                vad1[l]=1
-            else:
-                vad1[l]=0
-            if check_vad2[l]==3:
-                vad2[l]=1
-            else:
-                vad2[l]=0
+            stage_start = time.time()
 
-        vad1_location_update = np.squeeze(vad1_location.T*vad1.T)
-        vad2_location_update = np.squeeze(vad2_location.T*vad2.T)
-        L=vad1+vad2
+            first_file=(input_data_dir+'/%s/first_%d.wav'% (mode, index_file))
+            second_file=(input_data_dir+'/%s/second_%d.wav'% (mode, index_file)) 
+            together_file=(input_data_dir+'/%s/together_%d.wav'% (mode, index_file)) 
+            label_first_location_file=(input_data_dir+'/%s/label_location_first_%d.npy'% (mode, index_file))
+            label_second_location_file=(input_data_dir+'/%s/label_location_second_%d.npy'% (mode, index_file))
 
-
-        L= L[frame_before:index-frame_after]
-        L2 = np.squeeze(vad1_location_update+vad2_location_update)   
-        L2= L2[frame_before:index-frame_after]
-        L2=np.where(L!=2, L2,19)
-        add_stage_time(sample_stage_times, 'vad_and_label_update', stage_start)
-        
-        stage_start = perf_counter()
-        if (mode=='train') | (mode == 'val'):
-            X_total_parts.append(X_T)
-            L_total_parts.append(L)
-            L2_total_parts.append(L2)
-        add_stage_time(sample_stage_times, 'dataset_aggregation', stage_start)
-
-        if timing_enabled:
-            sample_total_time = perf_counter() - sample_start_time
-            update_timing_history(all_sample_total_times, all_stage_time_history, sample_total_time, sample_stage_times)
-            print_sample_timing(index_file, sample_stage_times, sample_total_time)
-        
-    if (mode=='test') :
-        X_total=X_T
-        L_total=L
-        L2_total=L2
-        
-        
-    if (mode=='train') | (mode=='val'):
-        if len(X_total_parts) == 0:
-            raise RuntimeError('No train/val samples were accumulated for this run.')
-
-        # Concatenate once after all files to avoid repeated full copies.
-        X_total=np.concatenate(X_total_parts, axis=0)
-        L_total=np.concatenate(L_total_parts, axis=0)
-        L2_total=np.concatenate(L2_total_parts, axis=0)
-        print('[Data] chunk %d aggregated %d files into %d vectors before balancing' % (
-            k,
-            len(X_total_parts),
-            X_total.shape[0]
-        ))
-        
-        x_0=X_total[np.where(L2_total==0)]
-        x_1=X_total[np.where(L2_total==1)]
-        x_2=X_total[np.where(L2_total==2)]
-        x_3=X_total[np.where(L2_total==3)]
-        x_4=X_total[np.where(L2_total==4)]
-        x_5=X_total[np.where(L2_total==5)]
-        x_6=X_total[np.where(L2_total==6)]
-        x_7=X_total[np.where(L2_total==7)]
-        x_8=X_total[np.where(L2_total==8)]
-        x_9=X_total[np.where(L2_total==9)]
-        x_10=X_total[np.where(L2_total==10)]
-        x_11=X_total[np.where(L2_total==11)]
-        x_12=X_total[np.where(L2_total==12)]
-        x_13=X_total[np.where(L2_total==13)]
-        x_14=X_total[np.where(L2_total==14)]
-        x_15=X_total[np.where(L2_total==15)]
-        x_16=X_total[np.where(L2_total==16)]
-        x_17=X_total[np.where(L2_total==17)]
-        x_18=X_total[np.where(L2_total==18)]
-        x_19=X_total[np.where(L2_total==19)]
-
-        
-        
-        l_0=L_total[np.where(L2_total==0)]
-        l_1=L_total[np.where(L2_total==1)]
-        l_2=L_total[np.where(L2_total==2)]
-        l_3=L_total[np.where(L2_total==3)]
-        l_4=L_total[np.where(L2_total==4)]
-        l_5=L_total[np.where(L2_total==5)]
-        l_6=L_total[np.where(L2_total==6)]
-        l_7=L_total[np.where(L2_total==7)]
-        l_8=L_total[np.where(L2_total==8)]
-        l_9=L_total[np.where(L2_total==9)]
-        l_10=L_total[np.where(L2_total==10)]
-        l_11=L_total[np.where(L2_total==11)]
-        l_12=L_total[np.where(L2_total==12)]
-        l_13=L_total[np.where(L2_total==13)]
-        l_14=L_total[np.where(L2_total==14)]
-        l_15=L_total[np.where(L2_total==15)]
-        l_16=L_total[np.where(L2_total==16)]
-        l_17=L_total[np.where(L2_total==17)]
-        l_18=L_total[np.where(L2_total==18)]
-        l_19=L_total[np.where(L2_total==19)]
-        
-        
-        l2_0=L2_total[np.where(L2_total==0)]
-        l2_1=L2_total[np.where(L2_total==1)]
-        l2_2=L2_total[np.where(L2_total==2)]
-        l2_3=L2_total[np.where(L2_total==3)]
-        l2_4=L2_total[np.where(L2_total==4)]
-        l2_5=L2_total[np.where(L2_total==5)]
-        l2_6=L2_total[np.where(L2_total==6)]
-        l2_7=L2_total[np.where(L2_total==7)]
-        l2_8=L2_total[np.where(L2_total==8)]
-        l2_9=L2_total[np.where(L2_total==9)]
-        l2_10=L2_total[np.where(L2_total==10)]
-        l2_11=L2_total[np.where(L2_total==11)]
-        l2_12=L2_total[np.where(L2_total==12)]
-        l2_13=L2_total[np.where(L2_total==13)]
-        l2_14=L2_total[np.where(L2_total==14)]
-        l2_15=L2_total[np.where(L2_total==15)]
-        l2_16=L2_total[np.where(L2_total==16)]
-        l2_17=L2_total[np.where(L2_total==17)]
-        l2_18=L2_total[np.where(L2_total==18)]
-        l2_19=L2_total[np.where(L2_total==19)]
-        
-        if lottery > 20:
-            len_balance=min(len(l2_1),len(l2_2),len(l2_3),len(l2_4),len(l2_5),len(l2_6),len(l2_7),len(l2_8)
-                            ,len(l2_9),len(l2_10),len(l2_11),len(l2_12),len(l2_13),len(l2_14),len(l2_15),
-                            len(l2_16),len(l2_17),len(l2_18))
-            len_balance=min(len_balance,int(len(l2_0)/num_diraction),int(len(l2_19)/num_diraction))
+            fs,receiver_first = wavfile.read(first_file)
+            receiver_first = receiver_first[:,indices]
+            fs,receiver_second = wavfile.read(second_file)
+            receiver_second = receiver_second[:,indices]
+            fs,receivers= wavfile.read(together_file)
+            receivers = receivers[:,indices]
             
-            x_0=x_0[0:num_diraction*len_balance,:,:]
-            x_1=x_1[0:len_balance,:,:]
-            x_2=x_2[0:len_balance,:,:]
-            x_3=x_3[0:len_balance,:,:]
-            x_4=x_4[0:len_balance,:,:]
-            x_5=x_5[0:len_balance,:,:]
-            x_6=x_6[0:len_balance,:,:]
-            x_7=x_7[0:len_balance,:,:]
-            x_8=x_8[0:len_balance,:,:]
-            x_9=x_9[0:len_balance,:,:]
-            x_10=x_10[0:len_balance,:,:]
-            x_11=x_11[0:len_balance,:,:]
-            x_12=x_12[0:len_balance,:,:]
-            x_13=x_13[0:len_balance,:,:]
-            x_14=x_14[0:len_balance,:,:]
-            x_15=x_15[0:len_balance,:,:]
-            x_16=x_16[0:len_balance,:,:]
-            x_17=x_17[0:len_balance,:,:]
-            x_18=x_18[0:len_balance,:,:]
-            x_19=x_19[0:num_diraction*len_balance,:,:]
+            receiver_first=receiver_first/(abs(receiver_first).max())
+            receiver_second=receiver_second/(abs(receiver_second).max())
+            receivers=receivers/(abs(receivers).max())
             
-            l_0=l_0[0:num_diraction*len_balance]
-            l_1=l_1[0:len_balance]
-            l_2=l_2[0:len_balance]
-            l_3=l_3[0:len_balance]
-            l_4=l_4[0:len_balance]
-            l_5=l_5[0:len_balance]
-            l_6=l_6[0:len_balance]
-            l_7=l_7[0:len_balance]
-            l_8=l_8[0:len_balance]
-            l_9=l_9[0:len_balance]
-            l_10=l_10[0:len_balance]
-            l_11=l_11[0:len_balance]
-            l_12=l_12[0:len_balance]
-            l_13=l_13[0:len_balance]
-            l_14=l_14[0:len_balance]
-            l_15=l_15[0:len_balance]
-            l_16=l_16[0:len_balance]
-            l_17=l_17[0:len_balance]
-            l_18=l_18[0:len_balance]
-            l_19=l_19[0:num_diraction*len_balance]
+            vad1_location = np.load(label_first_location_file)
+            vad2_location = np.load(label_second_location_file)
+
+            M=len(receiver_first[0,:])
+            index=int(1+np.fix((len(receiver_first[:,1])-wlen)/hop))
+            if verbose: print(f"  Load and prepare inputs took {time.time() - stage_start:.2f} seconds.")
+
+            stage_start = time.time()
+            z_k_first=[]
+            z_k_first = Parallel(n_jobs=1, verbose=0)(delayed(
+            stft_z)(receiver_first[:,i])for i in range(M))
+            z_k_first=np.asarray(z_k_first)
+            if verbose: print(f"  STFT first signal took {time.time() - stage_start:.2f} seconds.")
             
-            l2_0=l2_0[0:num_diraction*len_balance]
-            l2_1=l2_1[0:len_balance]
-            l2_2=l2_2[0:len_balance]
-            l2_3=l2_3[0:len_balance]
-            l2_4=l2_4[0:len_balance]
-            l2_5=l2_5[0:len_balance]
-            l2_6=l2_6[0:len_balance]
-            l2_7=l2_7[0:len_balance]
-            l2_8=l2_8[0:len_balance]
-            l2_9=l2_9[0:len_balance]
-            l2_10=l2_10[0:len_balance]
-            l2_11=l2_11[0:len_balance]
-            l2_12=l2_12[0:len_balance]
-            l2_13=l2_13[0:len_balance]
-            l2_14=l2_14[0:len_balance]
-            l2_15=l2_15[0:len_balance]
-            l2_16=l2_16[0:len_balance]
-            l2_17=l2_17[0:len_balance]
-            l2_18=l2_18[0:len_balance]
-            l2_19=l2_19[0:num_diraction*len_balance]
+
+            stage_start = time.time()
+            z_k=[]
+            z_k = Parallel(n_jobs=1, verbose=0)(delayed(
+            stft_z)(receivers[:,i])for i in range(M))
+            z_k=np.asarray(z_k)
+            if verbose: print(f"  STFT mixed signal took {time.time() - stage_start:.2f} seconds.")
+
+            stage_start = time.time()
+            cholesky_Qvv=[]
+            cholesky_Qvv = Parallel(n_jobs=num_cores, verbose=0)(delayed(
+            create_cholesky_Qvv)(z_k[:,i,0:pad])for i in range(0,NUP))
+            cholesky_Qvv=np.asarray(cholesky_Qvv) 
+            if verbose: print(f"  Noise covariance cholesky took {time.time() - stage_start:.2f} seconds.")
+
+            stage_start = time.time()
+            X_temp_total=[]
+            X_temp_total = Parallel(n_jobs=num_cores, verbose=0)(delayed(
+            create_X_total)(l)for l in range(frame_before,index-frame_after))
+            X=np.asarray(X_temp_total)
             
-        X_total=np.concatenate((x_0,x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_10,x_11,x_12,x_13,x_14,x_15,x_16,x_17,x_18,x_19))
-        L_total=np.concatenate((l_0,l_1,l_2,l_3,l_4,l_5,l_6,l_7,l_8,l_9,l_10,l_11,l_12,l_13,l_14,l_15,l_16,l_17,l_18,l_19))
-        L2_total=np.concatenate((l2_0,l2_1,l2_2,l2_3,l2_4,l2_5,l2_6,l2_7,l2_8,l2_9,
-                                l2_10,l2_11,l2_12,l2_13,l2_14,l2_15,l2_16,l2_17,l2_18,l2_19))
+            X_T=np.concatenate((X.real,X.imag),axis=2)
+            for b in range(len(X_T)):
+                X_T[b,:,:] = scaler.fit_transform(X_T[b,:,:])
+            
+            z_k_0=z_k[0,:,frame_before:index-frame_after].T
+            z_k_0=np.log(abs(z_k_0))
+            z_k_0_standart = scaler.fit_transform(z_k_0)
+            z_k_0_standart=np.reshape(z_k_0_standart, (z_k_0_standart.shape[0],NUP,1))
+            
+            X_T=np.concatenate((X_T,z_k_0_standart),axis=2)
+            if verbose: print(f"  Feature extraction and scaling took {time.time() - stage_start:.2f} seconds.")
+            
+            vad1_temp=abs(z_k_first)
+            vad1_temp = vad1_temp/(vad1_temp.std())
+            vad1_temp = vad1_temp.mean(0)
+            vad1_temp = vad1_temp > threshold_freq
+            vad1_temp=vad1_temp.astype(np.int32)
+            vad1_temp_sum=vad1_temp.sum(axis=0)
+            vad1_temp_sum=vad1_temp_sum.astype(np.int32)
+            vad1_temp_sum1 = vad1_temp_sum > threshold
+            vad1=vad1_temp_sum1.astype(np.int32)
+
+            stage_start = time.time()
+            z_k_second=[]
+            z_k_second = Parallel(n_jobs=1, verbose=0)(delayed(
+            stft_z)(receiver_second[:,i])for i in range(M))
+            z_k_second=np.asarray(z_k_second)  
+            if verbose: print(f"  STFT second signal took {time.time() - stage_start:.2f} seconds.")
+            
+            stage_start = time.time()
+            vad2_temp=abs(z_k_second)
+            vad2_temp = vad2_temp/(vad2_temp.std())
+            vad2_temp = vad2_temp.mean(0)
+            vad2_temp = vad2_temp > threshold_freq
+            vad2_temp=vad2_temp.astype(np.int32)
+            vad2_temp_sum=vad2_temp.sum(axis=0)
+            vad2_temp_sum=vad2_temp_sum.astype(np.int32)
+            vad2_temp_sum1 = vad2_temp_sum > threshold
+            vad2=vad2_temp_sum1.astype(np.int32)
         
-    for n in range(X_total.shape[0]):    
-        np.save(data_file_name+str(idx)+'.npy' , X_total[n,...])
-        np.save(label_file_name+str(idx)+'.npy' , L_total[n])
-        np.save(label2_file_name+str(idx)+'.npy' , L2_total[n])
-        idx=idx+1
-        
-np.save(idx_file_name,idx)
+            check_vad1=np.zeros(index)
+            check_vad2=np.zeros(index)
 
-if timing_enabled:
-    print_run_timing_summary(all_sample_total_times, all_stage_time_history)
+            for l in range(frame_before,index-frame_after): 
+                check_vad1[l]=vad1[l-1:l+2].sum()
+                check_vad2[l]=vad2[l-1:l+2].sum()
+            
+            for l in range(frame_before,index-frame_after): 
+                if check_vad1[l]==3:
+                    vad1[l]=1
+                else:
+                    vad1[l]=0
+                if check_vad2[l]==3:
+                    vad2[l]=1
+                else:
+                    vad2[l]=0
 
-# -------------------------
-# Diagnostic plotting block
-# -------------------------
-temp = z_k_0.T
+            vad1_location_update = np.squeeze(vad1_location.T*vad1.T)
+            vad2_location_update = np.squeeze(vad2_location.T*vad2.T)
+            L=vad1+vad2
 
-# Figure 1: Input spectrogram + activity/label timelines
-fig, axes = plt.subplots(
-    3,
-    1,
-    figsize=(14, 10),
-    sharex=True,
-    gridspec_kw={'height_ratios': [2.2, 1.0, 1.0]}
-)
+            L= L[frame_before:index-frame_after]
+            L2 = np.squeeze(vad1_location_update+vad2_location_update)   
+            L2= L2[frame_before:index-frame_after]
+            L2=np.where(L!=2, L2,19)
+            if verbose: print(f"  VAD and label update took {time.time() - stage_start:.2f} seconds.")
+            
+            stage_start = time.time()
+            if (mode=='train') | (mode == 'val'):
+                X_total_parts.append(X_T)
+                L_total_parts.append(L)
+                L2_total_parts.append(L2)
+            if verbose: print(f"  Dataset aggregation took {time.time() - stage_start:.2f} seconds.")
 
-ax_spec, ax_vad, ax_lbl = axes
+            if verbose:
+                print(f"Sample {index_file} processing total took {time.time() - sample_start_time:.2f} seconds.\n")
+            
+        if (mode=='test') :
+            X_total=X_T
+            L_total=L
+            L2_total=L2
+            
+            
+        if (mode=='train') | (mode=='val'):
+            if len(X_total_parts) == 0:
+                raise RuntimeError('No train/val samples were accumulated for this run.')
 
-spec_im = ax_spec.imshow(temp[::-1], aspect='auto', origin='lower', cmap='magma')
-ax_spec.set_title('Input STFT log-magnitude (mic 0)')
-ax_spec.set_ylabel('Frequency bin')
-fig.colorbar(spec_im, ax=ax_spec, pad=0.01, label='Log magnitude')
+            # Concatenate once after all files to avoid repeated full copies.
+            X_total=np.concatenate(X_total_parts, axis=0)
+            L_total=np.concatenate(L_total_parts, axis=0)
+            L2_total=np.concatenate(L2_total_parts, axis=0)
+            if verbose:
+                print('[Data] chunk %d aggregated %d files into %d vectors before balancing' % (
+                    k,
+                    len(X_total_parts),
+                    X_total.shape[0]
+                ))
+            
+            x_0=X_total[np.where(L2_total==0)]
+            x_1=X_total[np.where(L2_total==1)]
+            x_2=X_total[np.where(L2_total==2)]
+            x_3=X_total[np.where(L2_total==3)]
+            x_4=X_total[np.where(L2_total==4)]
+            x_5=X_total[np.where(L2_total==5)]
+            x_6=X_total[np.where(L2_total==6)]
+            x_7=X_total[np.where(L2_total==7)]
+            x_8=X_total[np.where(L2_total==8)]
+            x_9=X_total[np.where(L2_total==9)]
+            x_10=X_total[np.where(L2_total==10)]
+            x_11=X_total[np.where(L2_total==11)]
+            x_12=X_total[np.where(L2_total==12)]
+            x_13=X_total[np.where(L2_total==13)]
+            x_14=X_total[np.where(L2_total==14)]
+            x_15=X_total[np.where(L2_total==15)]
+            x_16=X_total[np.where(L2_total==16)]
+            x_17=X_total[np.where(L2_total==17)]
+            x_18=X_total[np.where(L2_total==18)]
+            x_19=X_total[np.where(L2_total==19)]
+            
+            l_0=L_total[np.where(L2_total==0)]
+            l_1=L_total[np.where(L2_total==1)]
+            l_2=L_total[np.where(L2_total==2)]
+            l_3=L_total[np.where(L2_total==3)]
+            l_4=L_total[np.where(L2_total==4)]
+            l_5=L_total[np.where(L2_total==5)]
+            l_6=L_total[np.where(L2_total==6)]
+            l_7=L_total[np.where(L2_total==7)]
+            l_8=L_total[np.where(L2_total==8)]
+            l_9=L_total[np.where(L2_total==9)]
+            l_10=L_total[np.where(L2_total==10)]
+            l_11=L_total[np.where(L2_total==11)]
+            l_12=L_total[np.where(L2_total==12)]
+            l_13=L_total[np.where(L2_total==13)]
+            l_14=L_total[np.where(L2_total==14)]
+            l_15=L_total[np.where(L2_total==15)]
+            l_16=L_total[np.where(L2_total==16)]
+            l_17=L_total[np.where(L2_total==17)]
+            l_18=L_total[np.where(L2_total==18)]
+            l_19=L_total[np.where(L2_total==19)]
+            
+            l2_0=L2_total[np.where(L2_total==0)]
+            l2_1=L2_total[np.where(L2_total==1)]
+            l2_2=L2_total[np.where(L2_total==2)]
+            l2_3=L2_total[np.where(L2_total==3)]
+            l2_4=L2_total[np.where(L2_total==4)]
+            l2_5=L2_total[np.where(L2_total==5)]
+            l2_6=L2_total[np.where(L2_total==6)]
+            l2_7=L2_total[np.where(L2_total==7)]
+            l2_8=L2_total[np.where(L2_total==8)]
+            l2_9=L2_total[np.where(L2_total==9)]
+            l2_10=L2_total[np.where(L2_total==10)]
+            l2_11=L2_total[np.where(L2_total==11)]
+            l2_12=L2_total[np.where(L2_total==12)]
+            l2_13=L2_total[np.where(L2_total==13)]
+            l2_14=L2_total[np.where(L2_total==14)]
+            l2_15=L2_total[np.where(L2_total==15)]
+            l2_16=L2_total[np.where(L2_total==16)]
+            l2_17=L2_total[np.where(L2_total==17)]
+            l2_18=L2_total[np.where(L2_total==18)]
+            l2_19=L2_total[np.where(L2_total==19)]
+            
+            if verbose: print(f"Total frames before balancing: {X_total.shape[0]}")
 
-ax_vad.plot(vad1, label='VAD speaker 1', linewidth=1.0, color='tab:blue')
-ax_vad.plot(vad2, label='VAD speaker 2', linewidth=1.0, color='tab:orange')
-ax_vad.plot(np.clip(L, 0, 2), label='Active speakers count', linewidth=1.2, color='tab:green')
-ax_vad.set_title('Speech activity by frame')
-ax_vad.set_ylabel('Activity')
-ax_vad.set_ylim(-0.1, 2.1)
-ax_vad.grid(alpha=0.25)
-ax_vad.legend(loc='upper right')
+            class_lengths = [len(l) for l in [l2_1, l2_2, l2_3, l2_4, l2_5, l2_6, l2_7, l2_8, l2_9, l2_10, l2_11, l2_12, l2_13, l2_14, l2_15, l2_16, l2_17, l2_18]]
+            if verbose: 
+                print(f"Class frame counts (1-18): {class_lengths}")
+                print(f"Minimum class count (len_balance): {min(class_lengths)}")
+            
+            if lottery > 2000:
+                len_balance=min(len(l2_1),len(l2_2),len(l2_3),len(l2_4),len(l2_5),len(l2_6),len(l2_7),len(l2_8)
+                                ,len(l2_9),len(l2_10),len(l2_11),len(l2_12),len(l2_13),len(l2_14),len(l2_15),
+                                len(l2_16),len(l2_17),len(l2_18))
+                len_balance=min(len_balance,int(len(l2_0)/num_diraction),int(len(l2_19)/num_diraction))
+                
+                x_0=x_0[0:num_diraction*len_balance,:,:]
+                x_1=x_1[0:len_balance,:,:]
+                x_2=x_2[0:len_balance,:,:]
+                x_3=x_3[0:len_balance,:,:]
+                x_4=x_4[0:len_balance,:,:]
+                x_5=x_5[0:len_balance,:,:]
+                x_6=x_6[0:len_balance,:,:]
+                x_7=x_7[0:len_balance,:,:]
+                x_8=x_8[0:len_balance,:,:]
+                x_9=x_9[0:len_balance,:,:]
+                x_10=x_10[0:len_balance,:,:]
+                x_11=x_11[0:len_balance,:,:]
+                x_12=x_12[0:len_balance,:,:]
+                x_13=x_13[0:len_balance,:,:]
+                x_14=x_14[0:len_balance,:,:]
+                x_15=x_15[0:len_balance,:,:]
+                x_16=x_16[0:len_balance,:,:]
+                x_17=x_17[0:len_balance,:,:]
+                x_18=x_18[0:len_balance,:,:]
+                x_19=x_19[0:num_diraction*len_balance,:,:]
+                
+                l_0=l_0[0:num_diraction*len_balance]
+                l_1=l_1[0:len_balance]
+                l_2=l_2[0:len_balance]
+                l_3=l_3[0:len_balance]
+                l_4=l_4[0:len_balance]
+                l_5=l_5[0:len_balance]
+                l_6=l_6[0:len_balance]
+                l_7=l_7[0:len_balance]
+                l_8=l_8[0:len_balance]
+                l_9=l_9[0:len_balance]
+                l_10=l_10[0:len_balance]
+                l_11=l_11[0:len_balance]
+                l_12=l_12[0:len_balance]
+                l_13=l_13[0:len_balance]
+                l_14=l_14[0:len_balance]
+                l_15=l_15[0:len_balance]
+                l_16=l_16[0:len_balance]
+                l_17=l_17[0:len_balance]
+                l_18=l_18[0:len_balance]
+                l_19=l_19[0:num_diraction*len_balance]
+                
+                l2_0=l2_0[0:num_diraction*len_balance]
+                l2_1=l2_1[0:len_balance]
+                l2_2=l2_2[0:len_balance]
+                l2_3=l2_3[0:len_balance]
+                l2_4=l2_4[0:len_balance]
+                l2_5=l2_5[0:len_balance]
+                l2_6=l2_6[0:len_balance]
+                l2_7=l2_7[0:len_balance]
+                l2_8=l2_8[0:len_balance]
+                l2_9=l2_9[0:len_balance]
+                l2_10=l2_10[0:len_balance]
+                l2_11=l2_11[0:len_balance]
+                l2_12=l2_12[0:len_balance]
+                l2_13=l2_13[0:len_balance]
+                l2_14=l2_14[0:len_balance]
+                l2_15=l2_15[0:len_balance]
+                l2_16=l2_16[0:len_balance]
+                l2_17=l2_17[0:len_balance]
+                l2_18=l2_18[0:len_balance]
+                l2_19=l2_19[0:num_diraction*len_balance]
+                
+            X_total=np.concatenate((x_0,x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_10,x_11,x_12,x_13,x_14,x_15,x_16,x_17,x_18,x_19))
+            L_total=np.concatenate((l_0,l_1,l_2,l_3,l_4,l_5,l_6,l_7,l_8,l_9,l_10,l_11,l_12,l_13,l_14,l_15,l_16,l_17,l_18,l_19))
+            L2_total=np.concatenate((l2_0,l2_1,l2_2,l2_3,l2_4,l2_5,l2_6,l2_7,l2_8,l2_9,
+                                    l2_10,l2_11,l2_12,l2_13,l2_14,l2_15,l2_16,l2_17,l2_18,l2_19))
+            
+        for n in range(X_total.shape[0]):    
+            np.save(data_file_name+str(idx)+'.npy' , X_total[n,...])
+            np.save(label_file_name+str(idx)+'.npy' , L_total[n])
+            np.save(label2_file_name+str(idx)+'.npy' , L2_total[n])
+            idx=idx+1
+            
+    np.save(idx_file_name,idx)
 
-ax_lbl.plot(L2, linewidth=1.0, color='tab:purple', label='Direction class (0-19)')
-ax_lbl.set_title('Direction label timeline')
-ax_lbl.set_ylabel('Class')
-ax_lbl.set_xlabel('Frame index')
-ax_lbl.set_ylim(-0.5, 19.5)
-ax_lbl.set_yticks(np.arange(0, 20, 1))
-ax_lbl.grid(alpha=0.25)
-ax_lbl.legend(loc='upper right')
+    if verbose:
+        print(f"\n--- Basic Run Timing Summary ---")
+        print(f"Total processing time: {time.time() - run_start_time:.2f} seconds")
+        print(f"Total batches processed: {(nom_data_sets - 1) * (lottery - start)}")
 
-plt.tight_layout()
-plt.savefig(plot_dir + 'label_prediction.png', dpi=180)
+    # -------------------------
+    # Diagnostic plotting block
+    # -------------------------
+    temp = z_k_0.T
 
-# Figure 2: Label distribution summary
-fig2, axes2 = plt.subplots(1, 2, figsize=(13, 4))
+    # Figure 1: Input spectrogram + activity/label timelines
+    fig, axes = plt.subplots(
+        3,
+        1,
+        figsize=(14, 10),
+        sharex=True,
+        gridspec_kw={'height_ratios': [2.2, 1.0, 1.0]}
+    )
 
-axes2[0].hist(L_total, bins=np.array([-0.5, 0.5, 1.5, 2.5]), edgecolor='black')
-axes2[0].set_title('Distribution of active-speaker count (L_total)')
-axes2[0].set_xlabel('Active speakers')
-axes2[0].set_ylabel('Frames')
-axes2[0].set_xticks([0, 1, 2])
-axes2[0].grid(alpha=0.25)
+    ax_spec, ax_vad, ax_lbl = axes
 
-axes2[1].hist(L2_total, bins=np.arange(-0.5, 20.5, 1), edgecolor='black')
-axes2[1].set_title('Distribution of direction classes (L2_total)')
-axes2[1].set_xlabel('Direction class')
-axes2[1].set_ylabel('Frames')
-axes2[1].set_xticks(np.arange(0, 20, 2))
-axes2[1].grid(alpha=0.25)
+    spec_im = ax_spec.imshow(temp[::-1], aspect='auto', origin='lower', cmap='magma')
+    ax_spec.set_title('Input STFT log-magnitude (mic 0)')
+    ax_spec.set_ylabel('Frequency bin')
+    fig.colorbar(spec_im, ax=ax_spec, pad=0.01, label='Log magnitude')
 
-plt.tight_layout()
-plt.savefig(plot_dir + 'label_histograms.png', dpi=180)
+    ax_vad.plot(vad1, label='VAD speaker 1', linewidth=1.0, color='tab:blue')
+    ax_vad.plot(vad2, label='VAD speaker 2', linewidth=1.0, color='tab:orange')
+    ax_vad.plot(np.clip(L, 0, 2), label='Active speakers count', linewidth=1.2, color='tab:green')
+    ax_vad.set_title('Speech activity by frame')
+    ax_vad.set_ylabel('Activity')
+    ax_vad.set_ylim(-0.1, 2.1)
+    ax_vad.grid(alpha=0.25)
+    ax_vad.legend(loc='upper right')
+
+    ax_lbl.plot(L2, linewidth=1.0, color='tab:purple', label='Direction class (0-19)')
+    ax_lbl.set_title('Direction label timeline')
+    ax_lbl.set_ylabel('Class')
+    ax_lbl.set_xlabel('Frame index')
+    ax_lbl.set_ylim(-0.5, 19.5)
+    ax_lbl.set_yticks(np.arange(0, 20, 1))
+    ax_lbl.grid(alpha=0.25)
+    ax_lbl.legend(loc='upper right')
+
+    plt.tight_layout()
+    plt.savefig(plot_dir + 'label_prediction.png', dpi=180)
+
+    # Figure 2: Label distribution summary
+    fig2, axes2 = plt.subplots(1, 2, figsize=(13, 4))
+
+    axes2[0].hist(L_total, bins=np.array([-0.5, 0.5, 1.5, 2.5]), edgecolor='black')
+    axes2[0].set_title('Distribution of active-speaker count (L_total)')
+    axes2[0].set_xlabel('Active speakers')
+    axes2[0].set_ylabel('Frames')
+    axes2[0].set_xticks([0, 1, 2])
+    axes2[0].grid(alpha=0.25)
+
+    axes2[1].hist(L2_total, bins=np.arange(-0.5, 20.5, 1), edgecolor='black')
+    axes2[1].set_title('Distribution of direction classes (L2_total)')
+    axes2[1].set_xlabel('Direction class')
+    axes2[1].set_ylabel('Frames')
+    axes2[1].set_xticks(np.arange(0, 20, 2))
+    axes2[1].grid(alpha=0.25)
+
+    plt.tight_layout()
+    plt.savefig(plot_dir + 'label_histograms.png', dpi=180)
+
+
+if __name__ == '__main__':
+    process_dataset(verbose=1)

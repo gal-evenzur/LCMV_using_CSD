@@ -1,0 +1,915 @@
+Trajectory processing took 16.23 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 39/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 13.72 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3095268 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 40/200...Position and RIR generation took 0.51 seconds.
+Trajectory processing took 12.53 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.37 seconds.
+Processing sample 41/200...Position and RIR generation took 0.59 seconds.
+Trajectory processing took 12.36 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3052980 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 42/200...Position and RIR generation took 0.61 seconds.
+Trajectory processing took 13.78 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2846792 samples, got 1440768
+Looped audio to length 2881536 samples.
+Diffuse noise generation took 0.27 seconds.
+Processing sample 43/200...Position and RIR generation took 0.65 seconds.
+Trajectory processing took 15.06 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 44/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 13.51 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3085348 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 45/200...Position and RIR generation took 0.62 seconds.
+Trajectory processing took 14.49 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2855200 samples, got 1440768
+Looped audio to length 2881536 samples.
+Diffuse noise generation took 0.26 seconds.
+Processing sample 46/200...Position and RIR generation took 0.47 seconds.
+Trajectory processing took 11.85 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3494120 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.36 seconds.
+Processing sample 47/200...Position and RIR generation took 0.46 seconds.
+Trajectory processing took 11.70 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.33 seconds.
+Processing sample 48/200...Position and RIR generation took 0.59 seconds.
+Trajectory processing took 13.54 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3098552 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 49/200...Position and RIR generation took 0.42 seconds.
+Trajectory processing took 10.33 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3099628 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 50/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 12.06 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3034708 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 51/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 11.27 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.23 seconds.
+Processing sample 52/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 11.40 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.28 seconds.
+Processing sample 53/200...Position and RIR generation took 0.53 seconds.
+Trajectory processing took 12.58 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3269816 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 54/200...Position and RIR generation took 0.56 seconds.
+Trajectory processing took 13.00 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.33 seconds.
+Processing sample 55/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 12.34 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2925244 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 56/200...Position and RIR generation took 0.53 seconds.
+Trajectory processing took 11.93 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2969992 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 57/200...Position and RIR generation took 0.53 seconds.
+Trajectory processing took 12.49 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.25 seconds.
+Processing sample 58/200...Position and RIR generation took 0.62 seconds.
+Trajectory processing took 13.69 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3075208 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 59/200...Position and RIR generation took 0.53 seconds.
+Trajectory processing took 11.85 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.25 seconds.
+Processing sample 60/200...Position and RIR generation took 0.45 seconds.
+Trajectory processing took 10.76 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.32 seconds.
+Processing sample 61/200...Position and RIR generation took 0.71 seconds.
+Trajectory processing took 15.55 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.25 seconds.
+Processing sample 62/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 11.72 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.28 seconds.
+Processing sample 63/200...Position and RIR generation took 0.62 seconds.
+Trajectory processing took 13.60 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.32 seconds.
+Processing sample 64/200...Position and RIR generation took 0.51 seconds.
+Trajectory processing took 12.55 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3226248 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 65/200...Position and RIR generation took 0.44 seconds.
+Trajectory processing took 11.29 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.33 seconds.
+Processing sample 66/200...Position and RIR generation took 0.55 seconds.
+Trajectory processing took 12.61 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3414252 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.34 seconds.
+Processing sample 67/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 13.78 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3256292 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 68/200...Position and RIR generation took 0.72 seconds.
+Trajectory processing took 16.04 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3143916 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.35 seconds.
+Processing sample 69/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 12.09 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 70/200...Position and RIR generation took 0.69 seconds.
+Trajectory processing took 15.74 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.30 seconds.
+Processing sample 71/200...Position and RIR generation took 0.75 seconds.
+Trajectory processing took 16.14 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2765292 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.25 seconds.
+Processing sample 72/200...Position and RIR generation took 0.56 seconds.
+Trajectory processing took 13.58 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3495612 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.34 seconds.
+Processing sample 73/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 12.21 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3442104 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 74/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 12.65 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.25 seconds.
+Processing sample 75/200...Position and RIR generation took 0.69 seconds.
+Trajectory processing took 15.16 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 76/200...Position and RIR generation took 0.70 seconds.
+Trajectory processing took 14.84 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 77/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 12.51 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3196964 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 78/200...Position and RIR generation took 0.46 seconds.
+Trajectory processing took 11.63 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3297152 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 79/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 11.90 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.29 seconds.
+Processing sample 80/200...Position and RIR generation took 0.57 seconds.
+Trajectory processing took 13.39 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3118372 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 81/200...Position and RIR generation took 0.61 seconds.
+Trajectory processing took 13.57 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3038492 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.27 seconds.
+Processing sample 82/200...Position and RIR generation took 0.55 seconds.
+Trajectory processing took 12.71 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.30 seconds.
+Processing sample 83/200...Position and RIR generation took 0.56 seconds.
+Trajectory processing took 13.86 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3169668 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 84/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 12.62 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3105316 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 85/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 12.55 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3462740 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 86/200...Position and RIR generation took 0.61 seconds.
+Trajectory processing took 14.85 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.34 seconds.
+Processing sample 87/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 12.67 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3229924 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 88/200...Position and RIR generation took 0.62 seconds.
+Trajectory processing took 13.85 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 89/200...Position and RIR generation took 0.65 seconds.
+Trajectory processing took 15.19 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.33 seconds.
+Processing sample 90/200...Position and RIR generation took 0.60 seconds.
+Trajectory processing took 13.99 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3196492 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 91/200...Position and RIR generation took 0.69 seconds.
+Trajectory processing took 15.92 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3424440 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.35 seconds.
+Processing sample 92/200...Position and RIR generation took 0.68 seconds.
+Trajectory processing took 14.66 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.22 seconds.
+Processing sample 93/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 12.20 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 94/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 11.50 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3291784 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 95/200...Position and RIR generation took 0.45 seconds.
+Trajectory processing took 10.70 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 96/200...Position and RIR generation took 0.52 seconds.
+Trajectory processing took 12.15 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3225780 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 97/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 12.81 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 2977976 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 98/200...Position and RIR generation took 0.65 seconds.
+Trajectory processing took 14.27 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 99/200...Position and RIR generation took 0.55 seconds.
+Trajectory processing took 14.00 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3878888 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.35 seconds.
+Processing sample 100/200...Position and RIR generation took 0.67 seconds.
+Trajectory processing took 15.21 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3208784 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 101/200...Position and RIR generation took 0.52 seconds.
+Trajectory processing took 12.57 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3219644 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 102/200...Position and RIR generation took 0.51 seconds.
+Trajectory processing took 12.22 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3125532 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 103/200...Position and RIR generation took 0.61 seconds.
+Trajectory processing took 13.18 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2914176 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.27 seconds.
+Processing sample 104/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 12.17 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3162352 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 105/200...Position and RIR generation took 0.74 seconds.
+Trajectory processing took 16.74 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.32 seconds.
+Processing sample 106/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 11.95 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3158664 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 107/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 12.44 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3380660 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.34 seconds.
+Processing sample 108/200...Position and RIR generation took 0.42 seconds.
+Trajectory processing took 10.61 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2945824 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 109/200...Position and RIR generation took 0.67 seconds.
+Trajectory processing took 15.41 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3085852 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 110/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 12.29 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3174224 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 111/200...Position and RIR generation took 0.62 seconds.
+Trajectory processing took 13.27 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.32 seconds.
+Processing sample 112/200...Position and RIR generation took 0.59 seconds.
+Trajectory processing took 12.98 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2794632 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.24 seconds.
+Processing sample 113/200...Position and RIR generation took 0.46 seconds.
+Trajectory processing took 10.98 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2893648 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 114/200...Position and RIR generation took 0.52 seconds.
+Trajectory processing took 12.24 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.25 seconds.
+Processing sample 115/200...Position and RIR generation took 0.63 seconds.
+Trajectory processing took 13.81 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 116/200...Position and RIR generation took 0.56 seconds.
+Trajectory processing took 12.71 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2955704 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 117/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 11.37 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 118/200...Position and RIR generation took 0.62 seconds.
+Trajectory processing took 14.43 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3031480 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 119/200...Position and RIR generation took 0.43 seconds.
+Trajectory processing took 10.46 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.22 seconds.
+Processing sample 120/200...Position and RIR generation took 0.77 seconds.
+Trajectory processing took 16.47 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2882020 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 121/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 10.67 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.24 seconds.
+Processing sample 122/200...Position and RIR generation took 0.38 seconds.
+Trajectory processing took 10.20 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3504872 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.35 seconds.
+Processing sample 123/200...Position and RIR generation took 0.70 seconds.
+Trajectory processing took 15.19 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3142836 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 124/200...Position and RIR generation took 0.53 seconds.
+Trajectory processing took 12.55 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.31 seconds.
+Processing sample 125/200...Position and RIR generation took 0.51 seconds.
+Trajectory processing took 11.35 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2818380 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.25 seconds.
+Processing sample 126/200...Position and RIR generation took 0.55 seconds.
+Trajectory processing took 12.77 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.24 seconds.
+Processing sample 127/200...Position and RIR generation took 0.66 seconds.
+Trajectory processing took 15.15 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3241292 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 128/200...Position and RIR generation took 0.60 seconds.
+Trajectory processing took 13.74 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.24 seconds.
+Processing sample 129/200...Position and RIR generation took 0.68 seconds.
+Trajectory processing took 15.41 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 130/200...Position and RIR generation took 0.41 seconds.
+Trajectory processing took 11.30 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3445264 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 131/200...Position and RIR generation took 0.41 seconds.
+Trajectory processing took 10.98 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3745568 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.35 seconds.
+Processing sample 132/200...Position and RIR generation took 0.56 seconds.
+Trajectory processing took 13.11 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3135520 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 133/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 12.73 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3283844 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 134/200...Position and RIR generation took 0.65 seconds.
+Trajectory processing took 14.64 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2927452 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.27 seconds.
+Processing sample 135/200...Position and RIR generation took 0.78 seconds.
+Trajectory processing took 17.06 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2978284 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 136/200...Position and RIR generation took 0.57 seconds.
+Trajectory processing took 13.31 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3287844 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 137/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 13.67 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.28 seconds.
+Processing sample 138/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 11.67 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3022512 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 139/200...Position and RIR generation took 0.44 seconds.
+Trajectory processing took 10.74 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 140/200...Position and RIR generation took 0.47 seconds.
+Trajectory processing took 11.31 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2798368 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.25 seconds.
+Processing sample 141/200...Position and RIR generation took 0.70 seconds.
+Trajectory processing took 15.21 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 2958616 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 142/200...Position and RIR generation took 0.51 seconds.
+Trajectory processing took 12.35 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3704508 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.34 seconds.
+Processing sample 143/200...Position and RIR generation took 0.61 seconds.
+Trajectory processing took 14.08 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.25 seconds.
+Processing sample 144/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 13.01 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3330336 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 145/200...Position and RIR generation took 0.40 seconds.
+Trajectory processing took 10.64 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.31 seconds.
+Processing sample 146/200...Position and RIR generation took 0.42 seconds.
+Trajectory processing took 10.36 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3094508 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 147/200...Position and RIR generation took 0.47 seconds.
+Trajectory processing took 11.99 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3254656 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 148/200...Position and RIR generation took 0.65 seconds.
+Trajectory processing took 14.64 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2841268 samples, got 1440768
+Looped audio to length 2881536 samples.
+Diffuse noise generation took 0.26 seconds.
+Processing sample 149/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 12.18 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3227012 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 150/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 13.64 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3111300 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.34 seconds.
+Processing sample 151/200...Position and RIR generation took 0.53 seconds.
+Trajectory processing took 12.48 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 152/200...Position and RIR generation took 0.62 seconds.
+Trajectory processing took 14.50 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 2936252 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 153/200...Position and RIR generation took 0.83 seconds.
+Trajectory processing took 17.77 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 2942036 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 154/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 11.45 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2520912 samples, got 1440768
+Looped audio to length 2881536 samples.
+Diffuse noise generation took 0.22 seconds.
+Processing sample 155/200...Position and RIR generation took 0.43 seconds.
+Trajectory processing took 11.21 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.32 seconds.
+Processing sample 156/200...Position and RIR generation took 0.59 seconds.
+Trajectory processing took 13.39 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3067936 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 157/200...Position and RIR generation took 0.66 seconds.
+Trajectory processing took 15.45 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3353120 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 158/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 12.08 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3104032 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 159/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 12.15 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.29 seconds.
+Processing sample 160/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 14.02 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3183648 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 161/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 12.39 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.35 seconds.
+Processing sample 162/200...Position and RIR generation took 0.62 seconds.
+Trajectory processing took 13.86 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 163/200...Position and RIR generation took 0.71 seconds.
+Trajectory processing took 15.30 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.22 seconds.
+Processing sample 164/200...Position and RIR generation took 0.65 seconds.
+Trajectory processing took 14.57 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.30 seconds.
+Processing sample 165/200...Position and RIR generation took 0.67 seconds.
+Trajectory processing took 14.83 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3639072 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.36 seconds.
+Processing sample 166/200...Position and RIR generation took 0.59 seconds.
+Trajectory processing took 13.38 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 167/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 13.69 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3536052 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.36 seconds.
+Processing sample 168/200...Position and RIR generation took 0.60 seconds.
+Trajectory processing took 14.27 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.26 seconds.
+Processing sample 169/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 12.48 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 2976236 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 170/200...Position and RIR generation took 0.61 seconds.
+Trajectory processing took 13.36 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2660992 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.24 seconds.
+Processing sample 171/200...Position and RIR generation took 0.47 seconds.
+Trajectory processing took 11.09 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Diffuse noise generation took 0.27 seconds.
+Processing sample 172/200...Position and RIR generation took 0.52 seconds.
+Trajectory processing took 12.49 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3129780 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 173/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 12.51 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2946548 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 174/200...Position and RIR generation took 0.70 seconds.
+Trajectory processing took 15.31 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2494440 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.21 seconds.
+Processing sample 175/200...Position and RIR generation took 0.41 seconds.
+Trajectory processing took 10.18 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3027032 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.31 seconds.
+Processing sample 176/200...Position and RIR generation took 0.40 seconds.
+Trajectory processing took 10.53 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.29 seconds.
+Processing sample 177/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 12.45 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3045808 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 178/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 12.61 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.30 seconds.
+Processing sample 179/200...Position and RIR generation took 0.65 seconds.
+Trajectory processing took 14.06 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2824020 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 180/200...Position and RIR generation took 0.65 seconds.
+Trajectory processing took 14.19 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Diffuse noise generation took 0.25 seconds.
+Processing sample 181/200...Position and RIR generation took 0.58 seconds.
+Trajectory processing took 13.54 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2893448 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 182/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 11.46 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.29 seconds.
+Processing sample 183/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 13.25 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3121284 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 184/200...Position and RIR generation took 0.47 seconds.
+Trajectory processing took 11.33 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3373852 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 185/200...Position and RIR generation took 0.52 seconds.
+Trajectory processing took 10.30 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2959904 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.29 seconds.
+Processing sample 186/200...Position and RIR generation took 0.72 seconds.
+Trajectory processing took 15.48 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3137924 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 187/200...Position and RIR generation took 0.40 seconds.
+Trajectory processing took 9.95 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2931176 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 188/200...Position and RIR generation took 0.57 seconds.
+Trajectory processing took 13.10 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3231468 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 189/200...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 11.28 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3392124 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 190/200...Position and RIR generation took 0.54 seconds.
+Trajectory processing took 12.70 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 2964816 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 191/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 11.21 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2775688 samples, got 1440768
+Looped audio to length 2881536 samples.
+Diffuse noise generation took 0.24 seconds.
+Processing sample 192/200...Position and RIR generation took 0.46 seconds.
+Trajectory processing took 11.50 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3098344 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.28 seconds.
+Processing sample 193/200...Position and RIR generation took 0.68 seconds.
+Trajectory processing took 15.57 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3126352 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.32 seconds.
+Processing sample 194/200...Position and RIR generation took 0.45 seconds.
+Trajectory processing took 10.86 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 3041928 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.27 seconds.
+Processing sample 195/200...Position and RIR generation took 0.44 seconds.
+Trajectory processing took 10.61 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3288556 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.34 seconds.
+Processing sample 196/200...Position and RIR generation took 0.55 seconds.
+Trajectory processing took 13.09 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2812856 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.25 seconds.
+Processing sample 197/200...Position and RIR generation took 0.48 seconds.
+Trajectory processing took 12.29 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.33 seconds.
+Processing sample 198/200...Position and RIR generation took 0.64 seconds.
+Trajectory processing took 14.76 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3261472 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.30 seconds.
+Processing sample 199/200...Position and RIR generation took 0.53 seconds.
+Trajectory processing took 12.79 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/busy-cafe-ambient-sound-scape-52994.wav
+Audio file too short. Need 3382712 samples, got 2975092
+Looped audio to length 5950184 samples.
+Diffuse noise generation took 0.33 seconds.
+Processing sample 200/200...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 11.27 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2394452 samples, got 1440768
+Looped audio to length 2881536 samples.
+Diffuse noise generation took 0.19 seconds.
+
+
+Database generation complete!
+Files saved to: /home/evenzug/LCMV_using_CSD/data/simulated_audio/train
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ log on [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Kn
+[?2004lbash: log: command not found
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ log on [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Kn
+[?2004lbash: log: command not found
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ 
+[?2004l[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ log on [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Kn
+[?2004lbash: log: command not found
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ log on [K[A[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ log on[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ log on[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ log on[K[K[K[K[K[Ktop
+[?2004l[?1h=[?25l[H[2J(B[mtop - 08:41:36 up 79 days,  3:30,  0 user,  load average: 1.85, 2.00, 1.74(B[m[39;49m(B[m[39;49m[K
+Tasks:(B[m[39;49m[1m 123 (B[m[39;49mtotal,(B[m[39;49m[1m   2 (B[m[39;49mrunning,(B[m[39;49m[1m 121 (B[m[39;49msleeping,(B[m[39;49m[1m   0 (B[m[39;49mstopped,(B[m[39;49m[1m   0 (B[m[39;49mzombie(B[m[39;49m(B[m[39;49m[K
+%Cpu(s):(B[m[39;49m[1m  1.6 (B[m[39;49mus,(B[m[39;49m[1m  0.3 (B[m[39;49msy,(B[m[39;49m[1m  0.0 (B[m[39;49mni,(B[m[39;49m[1m 98.1 (B[m[39;49mid,(B[m[39;49m[1m  0.0 (B[m[39;49mwa,(B[m[39;49m[1m  0.0 (B[m[39;49mhi,(B[m[39;49m[1m  0.0 (B[m[39;49msi,(B[m[39;49m[1m  0.0(B[m[39;49m(B[m[39;49m[K
+MiB Mem :(B[m[39;49m[1m 128036.9 (B[m[39;49mtotal,(B[m[39;49m[1m  50219.5 (B[m[39;49mfree,(B[m[39;49m[1m  39447.8 (B[m[39;49mused,(B[m[39;49m[1m  40069.0 (B[m[39;49mbuff/cache(B[m[39;49m(B[m (B[m[39;49m(B[m[39;49m[K
+MiB Swap:(B[m[39;49m[1m   8192.0 (B[m[39;49mtotal,(B[m[39;49m[1m      0.0 (B[m[39;49mfree,(B[m[39;49m[1m   8192.0 (B[m[39;49mused.(B[m[39;49m[1m  88589.1 (B[m[39;49mavail Mem (B[m[39;49m(B[m[39;49m[K
+[K
+[7m    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ (B[m[39;49m[K
+(B[m[1m2376914 evenzug   20   0   51.9g 696096  64080 R  10.0   0.5   0:23.55 (B[m[39;49m[K
+(B[m[1m2382869 evenzug   20   0    9316   5528   3344 R  10.0   0.0   0:00.01 (B[m[39;49m[K
+(B[m      1 evenzug   20   0    5016    844    580 S   0.0   0.0   0:00.13 (B[m[39;49m[K
+(B[m    424 evenzug   20   0    5028    500     76 S   0.0   0.0   0:00.02 (B[m[39;49m[K
+(B[m    460 evenzug   20   0 1048940  15276   1480 S   0.0   0.0   0:08.42 (B[m[39;49m[K
+(B[m  42591 evenzug   20   0    4752    372     76 S   0.0   0.0   0:00.00 (B[m[39;49m[K
+(B[m  42612 evenzug   20   0 1048928  15232   1504 S   0.0   0.0   0:08.19 (B[m[39;49m[K
+(B[m  42840 evenzug   20   0    4752    348     76 S   0.0   0.0   0:00.01 (B[m[39;49m[K
+(B[m  42861 evenzug   20   0 1048668  15028   1476 S   0.0   0.0   0:08.88 (B[m[39;49m[K[?1l>[17;1H
+[?12l[?25h[K[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ nvidia [K-smi
+[?2004lTue May 12 08:41:42 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 575.57.08              Driver Version: 575.57.08      CUDA Version: 12.9     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 2080 Ti     Off |   00000000:86:00.0 Off |                  N/A |
+| 75%   85C    P2            199W /  250W |    5730MiB /  11264MiB |     82%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA GeForce RTX 2080 Ti     Off |   00000000:AF:00.0 Off |                  N/A |
+| 37%   30C    P8             18W /  250W |    5004MiB /  11264MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
++-----------------------------------------------------------------------------------------+
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ nvidia-smitop[K[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ top[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ top[K[K[Kecit[K[K[Kcit[K[K[Kv[Kxit
+[?2004lexit

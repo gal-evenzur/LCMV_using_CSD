@@ -1,0 +1,26 @@
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ cd LCMV_using_CSD/DataSamples_to_InputVectors/
+[?2004l[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ python3 -[K-m c reate_data_base,[K.py 
+[?2004lData root dir: /home/evenzug/LCMV_using_CSD/data/simulated_audio
+Output root dir: /home/evenzug/LCMV_using_CSD/data/dataset/train_tempfortest
+/usr/bin/python3: Error while finding module specification for 'create_data_base.py' (ModuleNotFoundError: __path__ attribute not found on 'create_data_base' while trying to find 'create_data_base.py'). Try using 'create_data_base' instead of 'create_data_base.py' as the module name.
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ python3 -m create_data_base.py [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cm cre[1P[A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ [C[C[C[C[C[C[C[C[C crea[1P[A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ [C[C[C[C[C[C[C[Ccreat[1P[A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ [C[C[C[C[C[C[C create[1P[A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ [C[C[C[C[C[C
+
+[?2004lData root dir: /home/evenzug/LCMV_using_CSD/data/simulated_audio
+Output root dir: /home/evenzug/LCMV_using_CSD/data/dataset/train_tempfortest
+1
+Processing file index: 1
+  Load and prepare inputs took 0.04 seconds.
+  STFT first signal took 0.19 seconds.
+  STFT mixed signal took 0.19 seconds.
+  Noise covariance cholesky took 1.04 seconds.
+  Feature extraction and scaling took 41.22 seconds.
+  STFT second signal took 0.19 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 1 processing total took 43.01 seconds.
+
+Processing file index: 2
+  Load and prepare inputs took 0.04 seconds.
+  STFT first signal took 0.21 seconds.
+  STFT mixed signal took 0.21 seconds.
+  Noise covariance cholesky took 0.31 seconds.

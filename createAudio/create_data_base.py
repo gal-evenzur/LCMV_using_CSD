@@ -45,7 +45,7 @@ from dataset_funcs import *
 class Config:
     """Configuration parameters for dataset generation."""
 
-    seed = 50
+    seed = 42
     
     # Acoustic parameters
     c = 340                     # Sound velocity (m/s)
@@ -76,11 +76,11 @@ class Config:
     output_path = None          # Will be set at runtime
     
     # Number of samples to generate
-    num_samples = 3
+    num_samples = 200
     start_idx = 1  # Starting index for file naming (e.g., 1 for 'first_1.wav')
 
     # File naming
-    trainORval = 'test'  # 'train' or 'val'
+    trainORval = 'train'  # 'train' or 'val'
     dataset_title = trainORval
 
 

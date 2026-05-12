@@ -278,7 +278,7 @@ def create_locations_18_dynamic(
             vec1 = np.array([pos1_x, pos1_y]) - array_center
             angle_deg_1 = calculate_angle(reference_vec, vec1)
             # Find nearest class index (0-17)
-            label1 = np.argmin(np.abs(angle_classes - angle_deg_1))
+            label1 = np.argmin(np.abs(angle_classes - angle_deg_1)) 
 
             # --- Generate Candidate Position for Speaker 2 ---
             idx2 = np.random.randint(0, angle_resolution // 2)
@@ -288,7 +288,7 @@ def create_locations_18_dynamic(
             
             vec2 = np.array([pos2_x, pos2_y]) - array_center
             angle_deg_2 = calculate_angle(reference_vec, vec2)
-            label2 = np.argmin(np.abs(angle_classes - angle_deg_2))
+            label2 = np.argmin(np.abs(angle_classes - angle_deg_2)) + 1
 
             # --- Validation Checks ---
             
