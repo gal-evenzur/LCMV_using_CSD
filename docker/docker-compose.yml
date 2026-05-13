@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  my_proj_service:
+    build:
+      context: /home/dsi/evenzug/docker
+      dockerfile: /home/dsi/evenzug/docker/Dockerfile
+    image: evenzug/proj_serv:latest
+    container_name: TF_evenzug
+    privileged: true
+    network_mode: "host"
+    shm_size: "24G"
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    user: "41312:2102" # Use your host user
+    volumes:
+      - ${HOME}:/home/workspace/evenzug
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - $HOME/.Xauthority:/home/evenzug/.Xauthority:rw
+      - /etc/resolv.conf:/etc/resolv.conf
+      - /dsi:/dsi
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [ gpu ]
+    stdin_open: true
+    tty: true

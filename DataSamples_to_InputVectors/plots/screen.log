@@ -24,3 +24,2217 @@ Processing file index: 2
   STFT first signal took 0.21 seconds.
   STFT mixed signal took 0.21 seconds.
   Noise covariance cholesky took 0.31 seconds.
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ p[Kcd LCMV_using_CSD/DataSamples_to_InputVectors/
+[?2004l[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ pt[Kython create_data_base.py 
+[?2004lData root dir: /home/evenzug/LCMV_using_CSD/data/simulated_audio
+Output root dir: /home/evenzug/LCMV_using_CSD/data/dataset/train_tempfortest
+1
+Processing file index: 1
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 0.33 seconds.
+  STFT mixed signal took 0.33 seconds.
+  Noise covariance cholesky took 0.98 seconds.
+  Feature extraction and scaling took 50.38 seconds.
+  STFT second signal took 0.47 seconds.
+  VAD and label update took 0.10 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 1 processing total took 52.81 seconds.
+
+Processing file index: 2
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 43.88 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.10 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 2 processing total took 45.41 seconds.
+
+Processing file index: 3
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.40 seconds.
+  STFT mixed signal took 0.36 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 54.51 seconds.
+  STFT second signal took 0.42 seconds.
+  VAD and label update took 0.16 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 3 processing total took 56.41 seconds.
+
+Processing file index: 4
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.35 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.39 seconds.
+  Feature extraction and scaling took 48.41 seconds.
+  STFT second signal took 0.36 seconds.
+  VAD and label update took 0.12 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 4 processing total took 50.07 seconds.
+
+Processing file index: 5
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.35 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.65 seconds.
+  STFT second signal took 0.40 seconds.
+  VAD and label update took 0.14 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 5 processing total took 49.37 seconds.
+
+Processing file index: 6
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.35 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 45.50 seconds.
+  STFT second signal took 0.37 seconds.
+  VAD and label update took 0.14 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 6 processing total took 47.20 seconds.
+
+Processing file index: 7
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.37 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 45.81 seconds.
+  STFT second signal took 0.36 seconds.
+  VAD and label update took 0.13 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 7 processing total took 47.50 seconds.
+
+Processing file index: 8
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 41.78 seconds.
+  STFT second signal took 0.34 seconds.
+  VAD and label update took 0.12 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 8 processing total took 43.32 seconds.
+
+Processing file index: 9
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.37 seconds.
+  STFT mixed signal took 0.34 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.21 seconds.
+  STFT second signal took 0.37 seconds.
+  VAD and label update took 0.14 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 9 processing total took 48.95 seconds.
+
+Processing file index: 10
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.36 seconds.
+  STFT mixed signal took 0.34 seconds.
+  Noise covariance cholesky took 0.33 seconds.
+  Feature extraction and scaling took 48.20 seconds.
+  STFT second signal took 0.40 seconds.
+  VAD and label update took 0.14 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 10 processing total took 49.98 seconds.
+
+Processing file index: 11
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.35 seconds.
+  STFT mixed signal took 0.35 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 45.71 seconds.
+  STFT second signal took 0.36 seconds.
+  VAD and label update took 0.13 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 11 processing total took 47.41 seconds.
+
+Processing file index: 12
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 40.51 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.11 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 12 processing total took 41.98 seconds.
+
+Processing file index: 13
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 0.46 seconds.
+  STFT mixed signal took 0.44 seconds.
+  Noise covariance cholesky took 0.36 seconds.
+  Feature extraction and scaling took 58.15 seconds.
+  STFT second signal took 0.40 seconds.
+  VAD and label update took 0.10 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 13 processing total took 60.16 seconds.
+
+Processing file index: 14
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 0.34 seconds.
+  STFT mixed signal took 0.34 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 50.01 seconds.
+  STFT second signal took 0.41 seconds.
+  VAD and label update took 0.15 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 14 processing total took 51.80 seconds.
+
+Processing file index: 15
+  Load and prepare inputs took 0.10 seconds.
+  STFT first signal took 0.39 seconds.
+  STFT mixed signal took 0.39 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 51.84 seconds.
+  STFT second signal took 0.39 seconds.
+  VAD and label update took 0.12 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 15 processing total took 53.66 seconds.
+
+Processing file index: 16
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.40 seconds.
+  STFT mixed signal took 0.40 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 48.67 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 16 processing total took 50.34 seconds.
+
+Processing file index: 17
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 49.25 seconds.
+  STFT second signal took 0.41 seconds.
+  VAD and label update took 0.15 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 17 processing total took 50.98 seconds.
+
+Processing file index: 18
+  Load and prepare inputs took 0.09 seconds.
+  STFT first signal took 0.35 seconds.
+  STFT mixed signal took 0.34 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 45.85 seconds.
+  STFT second signal took 0.37 seconds.
+  VAD and label update took 0.14 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 18 processing total took 47.59 seconds.
+
+Processing file index: 19
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 41.92 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.12 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 19 processing total took 43.50 seconds.
+
+Processing file index: 20
+  Load and prepare inputs took 0.10 seconds.
+  STFT first signal took 0.50 seconds.
+  STFT mixed signal took 0.51 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 62.18 seconds.
+  STFT second signal took 0.52 seconds.
+  VAD and label update took 0.19 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 20 processing total took 64.52 seconds.
+
+Processing file index: 21
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 0.34 seconds.
+  STFT mixed signal took 0.33 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 49.57 seconds.
+  STFT second signal took 0.35 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 21 processing total took 51.13 seconds.
+
+Processing file index: 22
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 47.17 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 22 processing total took 48.62 seconds.
+
+Processing file index: 23
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.53 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 23 processing total took 50.02 seconds.
+
+Processing file index: 24
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.29 seconds.
+  Noise covariance cholesky took 0.42 seconds.
+  Feature extraction and scaling took 44.59 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 24 processing total took 46.08 seconds.
+
+Processing file index: 25
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 46.52 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 25 processing total took 47.97 seconds.
+
+Processing file index: 26
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.73 seconds.
+  STFT second signal took 0.32 seconds.
+  VAD and label update took 0.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 26 processing total took 50.22 seconds.
+
+Processing file index: 27
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.29 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 43.63 seconds.
+  STFT second signal took 0.28 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 27 processing total took 44.98 seconds.
+
+Processing file index: 28
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.30 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.78 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 28 processing total took 46.18 seconds.
+
+Processing file index: 29
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.29 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 44.70 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 29 processing total took 46.08 seconds.
+
+Processing file index: 30
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.26 seconds.
+  STFT mixed signal took 0.26 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 39.31 seconds.
+  STFT second signal took 0.25 seconds.
+  VAD and label update took 0.06 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 30 processing total took 40.56 seconds.
+
+Processing file index: 31
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.34 seconds.
+  STFT mixed signal took 0.34 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 52.09 seconds.
+  STFT second signal took 0.34 seconds.
+  VAD and label update took 0.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 31 processing total took 53.64 seconds.
+
+Processing file index: 32
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.29 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 43.83 seconds.
+  STFT second signal took 0.28 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 32 processing total took 45.18 seconds.
+
+Processing file index: 33
+  Load and prepare inputs took 0.09 seconds.
+  STFT first signal took 0.41 seconds.
+  STFT mixed signal took 0.42 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 63.53 seconds.
+  STFT second signal took 0.41 seconds.
+  VAD and label update took 0.10 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 33 processing total took 65.37 seconds.
+
+Processing file index: 34
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.07 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 34 processing total took 45.44 seconds.
+
+Processing file index: 35
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.29 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 43.81 seconds.
+  STFT second signal took 0.28 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 35 processing total took 45.17 seconds.
+
+Processing file index: 36
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.67 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 36 processing total took 49.11 seconds.
+
+Processing file index: 37
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.30 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 45.62 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 37 processing total took 47.03 seconds.
+
+Processing file index: 38
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 46.81 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.06 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 38 processing total took 48.23 seconds.
+
+Processing file index: 39
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 47.83 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 39 processing total took 49.29 seconds.
+
+Processing file index: 40
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.30 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 45.20 seconds.
+  STFT second signal took 0.30 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 40 processing total took 46.58 seconds.
+
+Processing file index: 41
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 42.57 seconds.
+  STFT second signal took 0.28 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 41 processing total took 43.90 seconds.
+
+Processing file index: 42
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.30 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.91 seconds.
+  STFT second signal took 0.30 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 42 processing total took 46.32 seconds.
+
+Processing file index: 43
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.39 seconds.
+  STFT mixed signal took 0.38 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 57.12 seconds.
+  STFT second signal took 0.73 seconds.
+  VAD and label update took 0.52 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 43 processing total took 59.82 seconds.
+
+Processing file index: 44
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.30 seconds.
+  STFT second signal took 0.32 seconds.
+  VAD and label update took 0.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 44 processing total took 49.79 seconds.
+
+Processing file index: 45
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.25 seconds.
+  STFT mixed signal took 0.25 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 38.26 seconds.
+  STFT second signal took 0.25 seconds.
+  VAD and label update took 0.05 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 45 processing total took 39.48 seconds.
+
+Processing file index: 46
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 43.52 seconds.
+  STFT second signal took 0.30 seconds.
+  VAD and label update took 0.14 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 46 processing total took 45.03 seconds.
+
+Processing file index: 47
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 0.42 seconds.
+  STFT mixed signal took 0.37 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 55.63 seconds.
+  STFT second signal took 0.37 seconds.
+  VAD and label update took 0.12 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 47 processing total took 57.41 seconds.
+
+Processing file index: 48
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.30 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 44.36 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 48 processing total took 45.76 seconds.
+
+Processing file index: 49
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.37 seconds.
+  Feature extraction and scaling took 47.71 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 49 processing total took 49.26 seconds.
+
+Processing file index: 50
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 47.21 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.14 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 50 processing total took 48.80 seconds.
+
+Processing file index: 51
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 0.48 seconds.
+  STFT mixed signal took 0.41 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 58.01 seconds.
+  STFT second signal took 0.38 seconds.
+  VAD and label update took 0.13 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 51 processing total took 59.92 seconds.
+
+Processing file index: 52
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 47.63 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 52 processing total took 49.10 seconds.
+
+Processing file index: 53
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.52 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.12 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 53 processing total took 45.99 seconds.
+
+Processing file index: 54
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.35 seconds.
+  STFT mixed signal took 0.35 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 50.23 seconds.
+  STFT second signal took 0.35 seconds.
+  VAD and label update took 0.10 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 54 processing total took 52.05 seconds.
+
+Processing file index: 55
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.39 seconds.
+  STFT second signal took 0.34 seconds.
+  VAD and label update took 0.10 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 55 processing total took 51.12 seconds.
+
+Processing file index: 56
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 42.91 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 56 processing total took 44.26 seconds.
+
+Processing file index: 57
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 46.91 seconds.
+  STFT second signal took 0.32 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 57 processing total took 48.61 seconds.
+
+Processing file index: 58
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 43.38 seconds.
+  STFT second signal took 0.28 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 58 processing total took 44.73 seconds.
+
+Processing file index: 59
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.33 seconds.
+  STFT mixed signal took 0.33 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 51.90 seconds.
+  STFT second signal took 0.38 seconds.
+  VAD and label update took 0.11 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 59 processing total took 53.59 seconds.
+
+Processing file index: 60
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.33 seconds.
+  STFT mixed signal took 0.33 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.99 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.25 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 60 processing total took 51.73 seconds.
+
+Processing file index: 61
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.33 seconds.
+  STFT mixed signal took 0.33 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 50.06 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.22 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 61 processing total took 51.77 seconds.
+
+Processing file index: 62
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.70 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.30 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 62 processing total took 51.66 seconds.
+
+Processing file index: 63
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.34 seconds.
+  STFT mixed signal took 0.34 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 51.62 seconds.
+  STFT second signal took 0.40 seconds.
+  VAD and label update took 0.28 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 63 processing total took 53.72 seconds.
+
+Processing file index: 64
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.28 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 42.03 seconds.
+  STFT second signal took 0.28 seconds.
+  VAD and label update took 0.19 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 64 processing total took 43.73 seconds.
+
+Processing file index: 65
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.35 seconds.
+  STFT mixed signal took 0.29 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.25 seconds.
+  STFT second signal took 0.51 seconds.
+  VAD and label update took 0.40 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 65 processing total took 46.76 seconds.
+
+Processing file index: 66
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.26 seconds.
+  STFT mixed signal took 0.26 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 38.91 seconds.
+  STFT second signal took 0.44 seconds.
+  VAD and label update took 0.06 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 66 processing total took 41.12 seconds.
+
+Processing file index: 67
+  Load and prepare inputs took 0.46 seconds.
+  STFT first signal took 1.18 seconds.
+  STFT mixed signal took 0.48 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 55.30 seconds.
+  STFT second signal took 0.67 seconds.
+  VAD and label update took 0.28 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 67 processing total took 58.98 seconds.
+
+Processing file index: 68
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 0.79 seconds.
+  STFT mixed signal took 0.60 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 53.90 seconds.
+  STFT second signal took 0.67 seconds.
+  VAD and label update took 0.30 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 68 processing total took 56.94 seconds.
+
+Processing file index: 69
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.54 seconds.
+  STFT mixed signal took 0.42 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 46.47 seconds.
+  STFT second signal took 0.52 seconds.
+  VAD and label update took 0.09 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 69 processing total took 48.58 seconds.
+
+Processing file index: 70
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.52 seconds.
+  STFT mixed signal took 0.68 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 50.45 seconds.
+  STFT second signal took 0.52 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 70 processing total took 53.20 seconds.
+
+Processing file index: 71
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.42 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.82 seconds.
+  STFT second signal took 0.44 seconds.
+  VAD and label update took 0.15 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 71 processing total took 46.69 seconds.
+
+Processing file index: 72
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.50 seconds.
+  STFT mixed signal took 0.53 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.62 seconds.
+  STFT second signal took 0.55 seconds.
+  VAD and label update took 0.38 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 72 processing total took 52.47 seconds.
+
+Processing file index: 73
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.37 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.29 seconds.
+  STFT second signal took 0.72 seconds.
+  VAD and label update took 0.26 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 73 processing total took 46.63 seconds.
+
+Processing file index: 74
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.40 seconds.
+  STFT mixed signal took 0.49 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 46.91 seconds.
+  STFT second signal took 0.59 seconds.
+  VAD and label update took 0.29 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 74 processing total took 49.34 seconds.
+
+Processing file index: 75
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.28 seconds.
+  STFT mixed signal took 0.50 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 44.08 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.45 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 75 processing total took 46.14 seconds.
+
+Processing file index: 76
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.52 seconds.
+  STFT mixed signal took 0.71 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 49.18 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.37 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 76 processing total took 51.80 seconds.
+
+Processing file index: 77
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.51 seconds.
+  STFT mixed signal took 0.52 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 46.97 seconds.
+  STFT second signal took 0.31 seconds.
+  VAD and label update took 0.37 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 77 processing total took 49.35 seconds.
+
+Processing file index: 78
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.72 seconds.
+  STFT mixed signal took 0.55 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 51.74 seconds.
+  STFT second signal took 0.53 seconds.
+  VAD and label update took 0.28 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 78 processing total took 54.48 seconds.
+
+Processing file index: 79
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.56 seconds.
+  STFT mixed signal took 0.73 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 52.86 seconds.
+  STFT second signal took 0.48 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 79 processing total took 55.60 seconds.
+
+Processing file index: 80
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.53 seconds.
+  STFT mixed signal took 0.57 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.80 seconds.
+  STFT second signal took 0.51 seconds.
+  VAD and label update took 0.31 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 80 processing total took 51.37 seconds.
+
+Processing file index: 81
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.54 seconds.
+  STFT mixed signal took 0.68 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 51.90 seconds.
+  STFT second signal took 0.57 seconds.
+  VAD and label update took 0.36 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 81 processing total took 54.85 seconds.
+
+Processing file index: 82
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.55 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 44.71 seconds.
+  STFT second signal took 0.55 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 82 processing total took 46.99 seconds.
+
+Processing file index: 83
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.60 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 45.67 seconds.
+  STFT second signal took 0.62 seconds.
+  VAD and label update took 0.25 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 83 processing total took 48.09 seconds.
+
+Processing file index: 84
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.39 seconds.
+  STFT mixed signal took 0.54 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.18 seconds.
+  STFT second signal took 0.68 seconds.
+  VAD and label update took 0.29 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 84 processing total took 49.85 seconds.
+
+Processing file index: 85
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.30 seconds.
+  STFT mixed signal took 0.68 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 46.95 seconds.
+  STFT second signal took 0.62 seconds.
+  VAD and label update took 0.26 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 85 processing total took 49.31 seconds.
+
+Processing file index: 86
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.29 seconds.
+  STFT mixed signal took 0.54 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 44.83 seconds.
+  STFT second signal took 0.57 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 86 processing total took 47.03 seconds.
+
+Processing file index: 87
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.54 seconds.
+  STFT mixed signal took 0.57 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 51.13 seconds.
+  STFT second signal took 0.88 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 87 processing total took 54.03 seconds.
+
+Processing file index: 88
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.55 seconds.
+  STFT mixed signal took 0.54 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 48.39 seconds.
+  STFT second signal took 0.67 seconds.
+  VAD and label update took 0.28 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 88 processing total took 51.08 seconds.
+
+Processing file index: 89
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.40 seconds.
+  STFT mixed signal took 0.52 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 45.57 seconds.
+  STFT second signal took 0.67 seconds.
+  VAD and label update took 0.25 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 89 processing total took 48.18 seconds.
+
+Processing file index: 90
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.26 seconds.
+  STFT mixed signal took 0.47 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 40.65 seconds.
+  STFT second signal took 0.52 seconds.
+  VAD and label update took 0.37 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 90 processing total took 42.92 seconds.
+
+Processing file index: 91
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.51 seconds.
+  STFT mixed signal took 0.63 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 47.33 seconds.
+  STFT second signal took 0.59 seconds.
+  VAD and label update took 0.25 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 91 processing total took 49.97 seconds.
+
+Processing file index: 92
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.63 seconds.
+  STFT mixed signal took 0.52 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 47.77 seconds.
+  STFT second signal took 0.39 seconds.
+  VAD and label update took 0.26 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 92 processing total took 50.30 seconds.
+
+Processing file index: 93
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.78 seconds.
+  STFT mixed signal took 0.69 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.94 seconds.
+  STFT second signal took 0.45 seconds.
+  VAD and label update took 0.33 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 93 processing total took 52.91 seconds.
+
+Processing file index: 94
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.66 seconds.
+  STFT mixed signal took 0.56 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.24 seconds.
+  STFT second signal took 0.51 seconds.
+  VAD and label update took 0.14 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 94 processing total took 50.68 seconds.
+
+Processing file index: 95
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.82 seconds.
+  STFT mixed signal took 0.82 seconds.
+  Noise covariance cholesky took 0.29 seconds.
+  Feature extraction and scaling took 52.79 seconds.
+  STFT second signal took 0.50 seconds.
+  VAD and label update took 0.31 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 95 processing total took 56.01 seconds.
+
+Processing file index: 96
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.50 seconds.
+  STFT mixed signal took 0.66 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 44.62 seconds.
+  STFT second signal took 0.53 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 96 processing total took 47.33 seconds.
+
+Processing file index: 97
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.84 seconds.
+  STFT mixed signal took 0.80 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 53.29 seconds.
+  STFT second signal took 0.75 seconds.
+  VAD and label update took 0.20 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 97 processing total took 56.67 seconds.
+
+Processing file index: 98
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.57 seconds.
+  STFT mixed signal took 0.66 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 42.88 seconds.
+  STFT second signal took 0.61 seconds.
+  VAD and label update took 0.29 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 98 processing total took 45.43 seconds.
+
+Processing file index: 99
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 0.99 seconds.
+  STFT mixed signal took 0.91 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 56.52 seconds.
+  STFT second signal took 1.02 seconds.
+  VAD and label update took 0.60 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 99 processing total took 61.15 seconds.
+
+Processing file index: 100
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.42 seconds.
+  STFT mixed signal took 0.84 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.44 seconds.
+  STFT second signal took 0.88 seconds.
+  VAD and label update took 0.40 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 100 processing total took 50.75 seconds.
+
+Processing file index: 101
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.74 seconds.
+  STFT mixed signal took 0.95 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 50.72 seconds.
+  STFT second signal took 0.84 seconds.
+  VAD and label update took 0.56 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 101 processing total took 54.50 seconds.
+
+Processing file index: 102
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.77 seconds.
+  STFT mixed signal took 0.90 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.78 seconds.
+  STFT second signal took 0.83 seconds.
+  VAD and label update took 0.37 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 102 processing total took 53.31 seconds.
+
+Processing file index: 103
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.57 seconds.
+  STFT mixed signal took 0.79 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 48.12 seconds.
+  STFT second signal took 0.78 seconds.
+  VAD and label update took 0.50 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 103 processing total took 51.63 seconds.
+
+Processing file index: 104
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.95 seconds.
+  STFT mixed signal took 0.91 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 50.39 seconds.
+  STFT second signal took 0.69 seconds.
+  VAD and label update took 0.29 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 104 processing total took 53.92 seconds.
+
+Processing file index: 105
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.75 seconds.
+  STFT mixed signal took 0.70 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 49.18 seconds.
+  STFT second signal took 0.67 seconds.
+  VAD and label update took 0.22 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 105 processing total took 52.57 seconds.
+
+Processing file index: 106
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.62 seconds.
+  STFT mixed signal took 0.74 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 46.95 seconds.
+  STFT second signal took 0.67 seconds.
+  VAD and label update took 0.28 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 106 processing total took 49.93 seconds.
+
+Processing file index: 107
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.58 seconds.
+  STFT mixed signal took 0.52 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 45.43 seconds.
+  STFT second signal took 0.67 seconds.
+  VAD and label update took 0.28 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 107 processing total took 48.14 seconds.
+
+Processing file index: 108
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.81 seconds.
+  STFT mixed signal took 0.63 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 50.49 seconds.
+  STFT second signal took 0.94 seconds.
+  VAD and label update took 0.51 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 108 processing total took 54.10 seconds.
+
+Processing file index: 109
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.93 seconds.
+  STFT mixed signal took 1.01 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 51.31 seconds.
+  STFT second signal took 0.69 seconds.
+  VAD and label update took 0.28 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 109 processing total took 55.00 seconds.
+
+Processing file index: 110
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.63 seconds.
+  STFT mixed signal took 0.76 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 45.12 seconds.
+  STFT second signal took 0.71 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 110 processing total took 48.27 seconds.
+
+Processing file index: 111
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.70 seconds.
+  STFT mixed signal took 0.78 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 48.17 seconds.
+  STFT second signal took 0.74 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 111 processing total took 51.43 seconds.
+
+Processing file index: 112
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.57 seconds.
+  STFT mixed signal took 0.53 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 43.13 seconds.
+  STFT second signal took 0.66 seconds.
+  VAD and label update took 0.50 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 112 processing total took 46.07 seconds.
+
+Processing file index: 113
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.41 seconds.
+  STFT mixed signal took 0.76 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 41.39 seconds.
+  STFT second signal took 0.72 seconds.
+  VAD and label update took 0.13 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 113 processing total took 43.91 seconds.
+
+Processing file index: 114
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.71 seconds.
+  STFT mixed signal took 0.64 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 43.48 seconds.
+  STFT second signal took 0.51 seconds.
+  VAD and label update took 0.27 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 114 processing total took 46.26 seconds.
+
+Processing file index: 115
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.76 seconds.
+  STFT mixed signal took 0.73 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 45.57 seconds.
+  STFT second signal took 0.83 seconds.
+  VAD and label update took 0.29 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 115 processing total took 48.96 seconds.
+
+Processing file index: 116
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.81 seconds.
+  STFT mixed signal took 0.88 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 46.75 seconds.
+  STFT second signal took 0.78 seconds.
+  VAD and label update took 0.38 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 116 processing total took 50.42 seconds.
+
+Processing file index: 117
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.64 seconds.
+  STFT mixed signal took 0.77 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.08 seconds.
+  STFT second signal took 0.94 seconds.
+  VAD and label update took 0.61 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 117 processing total took 50.93 seconds.
+
+Processing file index: 118
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.73 seconds.
+  STFT mixed signal took 0.63 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 40.62 seconds.
+  STFT second signal took 0.74 seconds.
+  VAD and label update took 0.36 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 118 processing total took 43.63 seconds.
+
+Processing file index: 119
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.79 seconds.
+  STFT mixed signal took 0.89 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 48.15 seconds.
+  STFT second signal took 0.70 seconds.
+  VAD and label update took 0.38 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 119 processing total took 51.77 seconds.
+
+Processing file index: 120
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.86 seconds.
+  STFT mixed signal took 0.65 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 46.53 seconds.
+  STFT second signal took 0.91 seconds.
+  VAD and label update took 0.34 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 120 processing total took 50.19 seconds.
+
+Processing file index: 121
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.75 seconds.
+  STFT mixed signal took 0.89 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.00 seconds.
+  STFT second signal took 0.88 seconds.
+  VAD and label update took 0.51 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 121 processing total took 52.84 seconds.
+
+Processing file index: 122
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.89 seconds.
+  STFT mixed signal took 0.83 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 50.80 seconds.
+  STFT second signal took 0.74 seconds.
+  VAD and label update took 0.40 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 122 processing total took 54.57 seconds.
+
+Processing file index: 123
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.59 seconds.
+  STFT mixed signal took 0.71 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 42.13 seconds.
+  STFT second signal took 0.85 seconds.
+  VAD and label update took 0.42 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 123 processing total took 45.42 seconds.
+
+Processing file index: 124
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.39 seconds.
+  STFT mixed signal took 1.17 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 57.89 seconds.
+  STFT second signal took 0.92 seconds.
+  VAD and label update took 0.59 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 124 processing total took 62.87 seconds.
+
+Processing file index: 125
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.78 seconds.
+  STFT mixed signal took 0.95 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 50.61 seconds.
+  STFT second signal took 1.05 seconds.
+  VAD and label update took 0.39 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 125 processing total took 54.79 seconds.
+
+Processing file index: 126
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.79 seconds.
+  STFT mixed signal took 0.64 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 41.06 seconds.
+  STFT second signal took 0.79 seconds.
+  VAD and label update took 0.29 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 126 processing total took 44.29 seconds.
+
+Processing file index: 127
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.88 seconds.
+  STFT mixed signal took 1.10 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 47.54 seconds.
+  STFT second signal took 0.68 seconds.
+  VAD and label update took 0.30 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 127 processing total took 51.18 seconds.
+
+Processing file index: 128
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.61 seconds.
+  STFT mixed signal took 0.63 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 43.64 seconds.
+  STFT second signal took 0.75 seconds.
+  VAD and label update took 0.38 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 128 processing total took 46.88 seconds.
+
+Processing file index: 129
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.18 seconds.
+  STFT mixed signal took 1.25 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 54.35 seconds.
+  STFT second signal took 0.92 seconds.
+  VAD and label update took 0.59 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 129 processing total took 59.08 seconds.
+
+Processing file index: 130
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.80 seconds.
+  STFT mixed signal took 0.80 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 48.49 seconds.
+  STFT second signal took 0.92 seconds.
+  VAD and label update took 0.60 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 130 processing total took 52.59 seconds.
+
+Processing file index: 131
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.00 seconds.
+  STFT mixed signal took 1.03 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.57 seconds.
+  STFT second signal took 0.77 seconds.
+  VAD and label update took 0.37 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 131 processing total took 53.54 seconds.
+
+Processing file index: 132
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.18 seconds.
+  STFT mixed signal took 0.92 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 56.09 seconds.
+  STFT second signal took 1.21 seconds.
+  VAD and label update took 0.74 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 132 processing total took 61.16 seconds.
+
+Processing file index: 133
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.77 seconds.
+  STFT mixed signal took 0.72 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 46.97 seconds.
+  STFT second signal took 0.85 seconds.
+  VAD and label update took 0.52 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 133 processing total took 50.82 seconds.
+
+Processing file index: 134
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 1.54 seconds.
+  STFT mixed signal took 1.40 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 65.04 seconds.
+  STFT second signal took 1.22 seconds.
+  VAD and label update took 0.77 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 134 processing total took 71.09 seconds.
+
+Processing file index: 135
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.94 seconds.
+  STFT mixed signal took 0.91 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 48.35 seconds.
+  STFT second signal took 0.80 seconds.
+  VAD and label update took 0.37 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 135 processing total took 52.11 seconds.
+
+Processing file index: 136
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.84 seconds.
+  STFT mixed signal took 0.64 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 46.32 seconds.
+  STFT second signal took 1.03 seconds.
+  VAD and label update took 0.59 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 136 processing total took 50.29 seconds.
+
+Processing file index: 137
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.65 seconds.
+  STFT mixed signal took 0.92 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 42.99 seconds.
+  STFT second signal took 0.67 seconds.
+  VAD and label update took 0.39 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 137 processing total took 46.29 seconds.
+
+Processing file index: 138
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.84 seconds.
+  STFT mixed signal took 0.86 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 45.20 seconds.
+  STFT second signal took 0.79 seconds.
+  VAD and label update took 0.40 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 138 processing total took 48.73 seconds.
+
+Processing file index: 139
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.30 seconds.
+  STFT mixed signal took 1.20 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 55.74 seconds.
+  STFT second signal took 0.96 seconds.
+  VAD and label update took 0.63 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 139 processing total took 60.83 seconds.
+
+Processing file index: 140
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.75 seconds.
+  STFT mixed signal took 0.78 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 47.35 seconds.
+  STFT second signal took 1.05 seconds.
+  VAD and label update took 0.58 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 140 processing total took 51.50 seconds.
+
+Processing file index: 141
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.99 seconds.
+  STFT mixed signal took 0.91 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 49.68 seconds.
+  STFT second signal took 0.66 seconds.
+  VAD and label update took 0.50 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 141 processing total took 53.63 seconds.
+
+Processing file index: 142
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.89 seconds.
+  STFT mixed signal took 0.75 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 50.48 seconds.
+  STFT second signal took 0.84 seconds.
+  VAD and label update took 0.49 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 142 processing total took 54.43 seconds.
+
+Processing file index: 143
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.97 seconds.
+  STFT mixed signal took 0.95 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 52.12 seconds.
+  STFT second signal took 0.85 seconds.
+  VAD and label update took 0.48 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 143 processing total took 56.22 seconds.
+
+Processing file index: 144
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.58 seconds.
+  STFT mixed signal took 0.64 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 41.73 seconds.
+  STFT second signal took 0.79 seconds.
+  VAD and label update took 0.48 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 144 processing total took 44.96 seconds.
+
+Processing file index: 145
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.13 seconds.
+  STFT mixed signal took 1.03 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 51.76 seconds.
+  STFT second signal took 0.77 seconds.
+  VAD and label update took 0.40 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 145 processing total took 55.90 seconds.
+
+Processing file index: 146
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.62 seconds.
+  STFT mixed signal took 0.78 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 47.01 seconds.
+  STFT second signal took 0.89 seconds.
+  VAD and label update took 0.63 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 146 processing total took 51.00 seconds.
+
+Processing file index: 147
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.81 seconds.
+  STFT mixed signal took 0.83 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.84 seconds.
+  STFT second signal took 0.86 seconds.
+  VAD and label update took 0.30 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 147 processing total took 48.32 seconds.
+
+Processing file index: 148
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.86 seconds.
+  STFT mixed signal took 0.87 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.67 seconds.
+  STFT second signal took 1.61 seconds.
+  VAD and label update took 1.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 148 processing total took 55.15 seconds.
+
+Processing file index: 149
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.90 seconds.
+  STFT mixed signal took 0.78 seconds.
+  Noise covariance cholesky took 0.33 seconds.
+  Feature extraction and scaling took 44.78 seconds.
+  STFT second signal took 0.69 seconds.
+  VAD and label update took 0.36 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 149 processing total took 48.29 seconds.
+
+Processing file index: 150
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.74 seconds.
+  STFT mixed signal took 0.87 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.47 seconds.
+  STFT second signal took 0.95 seconds.
+  VAD and label update took 0.59 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 150 processing total took 52.58 seconds.
+
+Processing file index: 151
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.96 seconds.
+  STFT mixed signal took 0.79 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 44.82 seconds.
+  STFT second signal took 0.58 seconds.
+  VAD and label update took 0.36 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 151 processing total took 48.19 seconds.
+
+Processing file index: 152
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.00 seconds.
+  STFT mixed signal took 0.98 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 55.93 seconds.
+  STFT second signal took 1.04 seconds.
+  VAD and label update took 0.70 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 152 processing total took 60.78 seconds.
+
+Processing file index: 153
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.72 seconds.
+  STFT mixed signal took 0.66 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 38.40 seconds.
+  STFT second signal took 0.77 seconds.
+  VAD and label update took 0.33 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 153 processing total took 41.71 seconds.
+
+Processing file index: 154
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.67 seconds.
+  STFT mixed signal took 0.69 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 42.49 seconds.
+  STFT second signal took 0.70 seconds.
+  VAD and label update took 0.36 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 154 processing total took 45.64 seconds.
+
+Processing file index: 155
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.78 seconds.
+  STFT mixed signal took 1.09 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.55 seconds.
+  STFT second signal took 0.76 seconds.
+  VAD and label update took 0.06 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 155 processing total took 51.97 seconds.
+
+Processing file index: 156
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.84 seconds.
+  STFT mixed signal took 0.95 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 51.57 seconds.
+  STFT second signal took 0.99 seconds.
+  VAD and label update took 0.70 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 156 processing total took 56.15 seconds.
+
+Processing file index: 157
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.84 seconds.
+  STFT mixed signal took 0.74 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 47.13 seconds.
+  STFT second signal took 0.83 seconds.
+  VAD and label update took 0.49 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 157 processing total took 51.00 seconds.
+
+Processing file index: 158
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.81 seconds.
+  STFT mixed signal took 0.81 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 43.71 seconds.
+  STFT second signal took 0.74 seconds.
+  VAD and label update took 0.48 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 158 processing total took 47.38 seconds.
+
+Processing file index: 159
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.62 seconds.
+  STFT mixed signal took 0.74 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 41.86 seconds.
+  STFT second signal took 0.75 seconds.
+  VAD and label update took 0.36 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 159 processing total took 45.07 seconds.
+
+Processing file index: 160
+  Load and prepare inputs took 0.26 seconds.
+  STFT first signal took 0.75 seconds.
+  STFT mixed signal took 1.05 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 45.07 seconds.
+  STFT second signal took 0.62 seconds.
+  VAD and label update took 0.48 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 160 processing total took 49.09 seconds.
+
+Processing file index: 161
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.87 seconds.
+  STFT mixed signal took 0.96 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.44 seconds.
+  STFT second signal took 0.83 seconds.
+  VAD and label update took 0.46 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 161 processing total took 51.62 seconds.
+
+Processing file index: 162
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 1.03 seconds.
+  STFT mixed signal took 0.85 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 50.34 seconds.
+  STFT second signal took 0.81 seconds.
+  VAD and label update took 0.54 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 162 processing total took 54.68 seconds.
+
+Processing file index: 163
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.84 seconds.
+  STFT mixed signal took 0.81 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 48.42 seconds.
+  STFT second signal took 0.86 seconds.
+  VAD and label update took 0.63 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 163 processing total took 52.51 seconds.
+
+Processing file index: 164
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 1.04 seconds.
+  STFT mixed signal took 0.83 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 50.85 seconds.
+  STFT second signal took 0.92 seconds.
+  VAD and label update took 0.65 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 164 processing total took 55.25 seconds.
+
+Processing file index: 165
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.92 seconds.
+  STFT mixed signal took 0.82 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.35 seconds.
+  STFT second signal took 0.82 seconds.
+  VAD and label update took 0.47 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 165 processing total took 51.38 seconds.
+
+Processing file index: 166
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.82 seconds.
+  STFT mixed signal took 0.84 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 46.14 seconds.
+  STFT second signal took 0.93 seconds.
+  VAD and label update took 0.55 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 166 processing total took 50.25 seconds.
+
+Processing file index: 167
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.89 seconds.
+  STFT mixed signal took 0.87 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.83 seconds.
+  STFT second signal took 1.05 seconds.
+  VAD and label update took 0.57 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 167 processing total took 52.08 seconds.
+
+Processing file index: 168
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.06 seconds.
+  STFT mixed signal took 0.90 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 52.13 seconds.
+  STFT second signal took 0.86 seconds.
+  VAD and label update took 0.80 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 168 processing total took 56.78 seconds.
+
+Processing file index: 169
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.10 seconds.
+  STFT mixed signal took 0.99 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 53.21 seconds.
+  STFT second signal took 1.14 seconds.
+  VAD and label update took 0.59 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 169 processing total took 58.00 seconds.
+
+Processing file index: 170
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.84 seconds.
+  STFT mixed signal took 0.96 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.95 seconds.
+  STFT second signal took 0.94 seconds.
+  VAD and label update took 0.55 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 170 processing total took 53.26 seconds.
+
+Processing file index: 171
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.55 seconds.
+  STFT mixed signal took 0.57 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 42.06 seconds.
+  STFT second signal took 1.10 seconds.
+  VAD and label update took 0.46 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 171 processing total took 45.70 seconds.
+
+Processing file index: 172
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 1.01 seconds.
+  STFT mixed signal took 0.75 seconds.
+  Noise covariance cholesky took 0.29 seconds.
+  Feature extraction and scaling took 41.16 seconds.
+  STFT second signal took 0.57 seconds.
+  VAD and label update took 0.47 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 172 processing total took 44.55 seconds.
+
+Processing file index: 173
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.88 seconds.
+  STFT mixed signal took 0.85 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.22 seconds.
+  STFT second signal took 0.84 seconds.
+  VAD and label update took 0.37 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 173 processing total took 51.09 seconds.
+
+Processing file index: 174
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.77 seconds.
+  STFT mixed signal took 0.82 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 44.85 seconds.
+  STFT second signal took 0.88 seconds.
+  VAD and label update took 0.54 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 174 processing total took 48.80 seconds.
+
+Processing file index: 175
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.93 seconds.
+  STFT mixed signal took 0.90 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.47 seconds.
+  STFT second signal took 1.02 seconds.
+  VAD and label update took 0.54 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 175 processing total took 53.74 seconds.
+
+Processing file index: 176
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.94 seconds.
+  STFT mixed signal took 0.95 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 49.01 seconds.
+  STFT second signal took 1.04 seconds.
+  VAD and label update took 0.52 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 176 processing total took 53.45 seconds.
+
+Processing file index: 177
+  Load and prepare inputs took 0.08 seconds.
+  STFT first signal took 1.16 seconds.
+  STFT mixed signal took 0.95 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 52.95 seconds.
+  STFT second signal took 0.95 seconds.
+  VAD and label update took 0.67 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 177 processing total took 57.73 seconds.
+
+Processing file index: 178
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.00 seconds.
+  STFT mixed signal took 0.86 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.19 seconds.
+  STFT second signal took 0.80 seconds.
+  VAD and label update took 0.36 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 178 processing total took 51.25 seconds.
+
+Processing file index: 179
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 1.06 seconds.
+  STFT mixed signal took 0.85 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 52.76 seconds.
+  STFT second signal took 1.04 seconds.
+  VAD and label update took 0.57 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 179 processing total took 57.37 seconds.
+
+Processing file index: 180
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.05 seconds.
+  STFT mixed signal took 0.82 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.14 seconds.
+  STFT second signal took 0.96 seconds.
+  VAD and label update took 0.46 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 180 processing total took 51.31 seconds.
+
+Processing file index: 181
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.80 seconds.
+  STFT mixed signal took 0.48 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 41.02 seconds.
+  STFT second signal took 0.78 seconds.
+  VAD and label update took 0.36 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 181 processing total took 44.27 seconds.
+
+Processing file index: 182
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 1.25 seconds.
+  STFT mixed signal took 0.85 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 41.53 seconds.
+  STFT second signal took 0.55 seconds.
+  VAD and label update took 0.33 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 182 processing total took 45.26 seconds.
+
+Processing file index: 183
+  Load and prepare inputs took 0.11 seconds.
+  STFT first signal took 0.85 seconds.
+  STFT mixed signal took 0.79 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 43.30 seconds.
+  STFT second signal took 0.83 seconds.
+  VAD and label update took 0.34 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 183 processing total took 47.00 seconds.
+
+Processing file index: 184
+  Load and prepare inputs took 0.30 seconds.
+  STFT first signal took 0.85 seconds.
+  STFT mixed signal took 1.05 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 48.61 seconds.
+  STFT second signal took 0.81 seconds.
+  VAD and label update took 0.35 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 184 processing total took 52.86 seconds.
+
+Processing file index: 185
+  Load and prepare inputs took 0.14 seconds.
+  STFT first signal took 1.21 seconds.
+  STFT mixed signal took 0.96 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 52.78 seconds.
+  STFT second signal took 1.06 seconds.
+  VAD and label update took 0.68 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 185 processing total took 57.82 seconds.
+
+Processing file index: 186
+  Load and prepare inputs took 0.13 seconds.
+  STFT first signal took 0.97 seconds.
+  STFT mixed signal took 0.98 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 49.88 seconds.
+  STFT second signal took 0.95 seconds.
+  VAD and label update took 0.56 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 186 processing total took 54.43 seconds.
+
+Processing file index: 187
+  Load and prepare inputs took 0.11 seconds.
+  STFT first signal took 0.78 seconds.
+  STFT mixed signal took 0.83 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 45.51 seconds.
+  STFT second signal took 0.79 seconds.
+  VAD and label update took 0.49 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 187 processing total took 49.28 seconds.
+
+Processing file index: 188
+  Load and prepare inputs took 0.12 seconds.
+  STFT first signal took 0.78 seconds.
+  STFT mixed signal took 1.05 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.56 seconds.
+  STFT second signal took 1.07 seconds.
+  VAD and label update took 0.62 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 188 processing total took 54.08 seconds.
+
+Processing file index: 189
+  Load and prepare inputs took 0.14 seconds.
+  STFT first signal took 1.07 seconds.
+  STFT mixed signal took 1.14 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 54.42 seconds.
+  STFT second signal took 0.88 seconds.
+  VAD and label update took 0.64 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 189 processing total took 59.41 seconds.
+
+Processing file index: 190
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 0.99 seconds.
+  STFT mixed signal took 1.12 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 50.47 seconds.
+  STFT second signal took 1.06 seconds.
+  VAD and label update took 0.54 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 190 processing total took 55.10 seconds.
+
+Processing file index: 191
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.01 seconds.
+  STFT mixed signal took 0.93 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 49.77 seconds.
+  STFT second signal took 0.85 seconds.
+  VAD and label update took 0.56 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 191 processing total took 54.06 seconds.
+
+Processing file index: 192
+  Load and prepare inputs took 0.07 seconds.
+  STFT first signal took 1.01 seconds.
+  STFT mixed signal took 1.06 seconds.
+  Noise covariance cholesky took 0.32 seconds.
+  Feature extraction and scaling took 51.86 seconds.
+  STFT second signal took 0.91 seconds.
+  VAD and label update took 0.56 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 192 processing total took 56.45 seconds.
+
+Processing file index: 193
+  Load and prepare inputs took 0.14 seconds.
+  STFT first signal took 1.18 seconds.
+  STFT mixed signal took 0.98 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 55.23 seconds.
+  STFT second signal took 0.97 seconds.
+  VAD and label update took 0.68 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 193 processing total took 60.23 seconds.
+
+Processing file index: 194
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.73 seconds.
+  STFT mixed signal took 0.85 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 45.62 seconds.
+  STFT second signal took 0.85 seconds.
+  VAD and label update took 0.58 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 194 processing total took 49.38 seconds.
+
+Processing file index: 195
+  Load and prepare inputs took 0.05 seconds.
+  STFT first signal took 0.75 seconds.
+  STFT mixed signal took 0.77 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 45.53 seconds.
+  STFT second signal took 0.81 seconds.
+  VAD and label update took 0.56 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 195 processing total took 49.33 seconds.
+
+Processing file index: 196
+  Load and prepare inputs took 0.24 seconds.
+  STFT first signal took 1.01 seconds.
+  STFT mixed signal took 0.95 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 52.77 seconds.
+  STFT second signal took 0.97 seconds.
+  VAD and label update took 0.53 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 196 processing total took 57.35 seconds.
+
+Processing file index: 197
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.80 seconds.
+  STFT mixed signal took 0.74 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 44.71 seconds.
+  STFT second signal took 0.82 seconds.
+  VAD and label update took 0.54 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 197 processing total took 48.52 seconds.
+
+Processing file index: 198
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 1.00 seconds.
+  STFT mixed signal took 0.84 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 49.56 seconds.
+  STFT second signal took 0.80 seconds.
+  VAD and label update took 0.54 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 198 processing total took 53.65 seconds.
+
+Processing file index: 199
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.91 seconds.
+  STFT mixed signal took 0.95 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 48.38 seconds.
+  STFT second signal took 0.85 seconds.
+  VAD and label update took 0.47 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 199 processing total took 52.49 seconds.
+
+Processing file index: 200
+  Load and prepare inputs took 0.06 seconds.
+  STFT first signal took 0.89 seconds.
+  STFT mixed signal took 0.88 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 45.95 seconds.
+  STFT second signal took 0.90 seconds.
+  VAD and label update took 0.54 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 200 processing total took 49.99 seconds.
+
+[Data] chunk 1 aggregated 200 files into 293207 vectors before balancing
+Total frames before balancing: 293207
+Class frame counts (1-18): [7895, 7917, 7108, 7272, 7537, 7182, 7400, 6885, 7599, 7265, 8004, 8496, 8189, 8096, 7310, 7686, 7834, 5828]
+Minimum class count (len_balance): 5828
+
+--- Basic Run Timing Summary ---
+Total processing time: 10406.02 seconds
+Total batches processed: 200
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ 
