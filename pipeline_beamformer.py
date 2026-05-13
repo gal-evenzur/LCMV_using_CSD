@@ -1,5 +1,12 @@
 from pipeline_ofer_funcs import *
 import time
+import os
+import numpy as np
+import numpy.linalg as LA
+from scipy.io import wavfile
+import mir_eval
+from librosa.core import stft, istft
+
 """
 =========================================================================================
 SPATIAL AUDIO SEPARATION PIPELINE
@@ -15,7 +22,7 @@ Algorithm Overview:
    matrix (Qvv).
 3. Speaker Fingerprinting: Uses single-speaker periods (CSD=1) and their DOA labels to 
    estimate the Relative Transfer Function (RTF) via Generalized Eigenvalue Decomposition 
-   (GEVD). This creates a spatial "fingerprint" (G) for each speaker.
+   (GEVD) or Subspace Tracking (PASTd). This creates a spatial "fingerprint" (G) for each speaker.
 4. Beamforming: Applies Minimum Variance Distortionless Response (MVDR) for single speakers, 
    or Linearly Constrained Minimum Variance (LCMV) beamforming for overlapping speakers, 
    actively suppressing noise and cross-talk.
@@ -52,7 +59,7 @@ class SpatialSeparationPipeline:
        Stitches the separated frequency frames back into listenable .wav files. If reference 
        files were provided, it automatically calculates BSS Eval (SDR/SIR) and SI-SDR metrics.
     """
-    def __init__(self, run_idx, p_stft, p_tracking, p_beamforming, folder_to_test_data, folder_to_results, M=4, num_speech=2, verbose=1):
+    def __init__(self, run_idx, p_stft, p_tracking, p_beamforming, folder_to_test_data, folder_to_results, M=4, num_speech=2, verbose=1, use_pastd=False):
         """
         Initializes the spatial separation pipeline.
         Args:
@@ -65,6 +72,7 @@ class SpatialSeparationPipeline:
             M (int): Number of microphone channels to process.
             num_speech (int): Number of simultaneous speakers to separate.
             verbose (int): Level of logging detail (0: none, 1: key steps, 2: detailed).
+            use_pastd (bool): Flag to switch between GEVD (False) and PASTd (True) for RTF estimation.
         """
         self.run_idx = run_idx
         self.p_stft = p_stft
@@ -75,6 +83,9 @@ class SpatialSeparationPipeline:
         self.M = M
         self.num_speech = num_speech
         self.verbose = verbose
+        
+        # Flag for PASTd toggle
+        self.use_pastd = use_pastd
 
         # Audio & Labels
         self.fs = None
@@ -102,6 +113,13 @@ class SpatialSeparationPipeline:
         self.PSD_matrix_per_DOA = np.zeros((18, self.NUP, self.M, self.M), dtype=complex)
         self.total_frame_per_DOA = np.zeros(18)
         self.stand_z = np.empty((0, self.NUP, self.M), dtype=complex)
+
+        # PASTd State Initialization
+        # Shape: 18 DOAs, NUP frequencies, M mics, 1 vector
+        self.w_pastd = np.random.randn(18, self.NUP, self.M, 1) + 1j * np.random.randn(18, self.NUP, self.M, 1)
+        self.w_pastd /= LA.norm(self.w_pastd, axis=2, keepdims=True)
+        self.d_pastd = np.full((18, self.NUP, 1, 1), 1e-3, dtype=float)
+        self.beta_pastd = self.p_beamforming.get('beta_pastd', 0.95)
 
         # Frame classification system layout:
         # row 0 -> [active_DOA_slot_0, active_DOA_slot_1, candidate_DOA]
@@ -274,38 +292,63 @@ class SpatialSeparationPipeline:
         # 1. Assemble Batched Signal Matrix
         # Current frame: (NUP, M, 1)
         z_frame = self.z_k[l, :, :, np.newaxis] 
-        if len(curr_frames) > 0:
-            # Transpose history from (Frames, NUP, M) -> (NUP, M, Frames)
-            history_trans = curr_frames.transpose(1, 2, 0)
-            # Concatenate along the frame axis -> (NUP, M, Frames + 1)
-            all_frames = np.concatenate((z_frame, history_trans), axis=2)
-        else:
-            all_frames = z_frame
-
+        
         # 2. Batched Cholesky and Inversion
         chol_Qvv = LA.cholesky(self.Qvv) # (NUP, M, M)
         norm_chol = LA.norm(chol_Qvv, axis=(1, 2), keepdims=True)
         chol_inv = LA.inv(chol_Qvv + epsilon * norm_chol * np.eye(self.M))
-        
-        # 3. Batched Whitening and Covariance
-        # (NUP, M, M) @ (NUP, M, Frames+1) -> (NUP, M, Frames+1)
-        a = chol_inv @ all_frames 
-        # Outer product across the frame axis -> (NUP, M, M)
-        Zvv_temp = a @ a.conj().transpose(0, 2, 1) 
-        
-        # Smooth PSD matrix
-        self.PSD_matrix_per_DOA[y2_prob - 1] = (1 - alfa_G) * self.PSD_matrix_per_DOA[y2_prob - 1] + (alfa_G) * Zvv_temp
-        
-        # 4. Batched Eigendecomposition
-        w, v = LA.eig(self.PSD_matrix_per_DOA[y2_prob - 1])
-        
-        # Find index of max REAL eigenvalue for each frequency bin -> shape (NUP,)
-        max_idx = np.argmax(w.real, axis=1)
-        
-        # Fancy indexing: extract the dominant eigenvector for each frequency
-        # v[np.arange(self.NUP), :, max_idx] -> (NUP, M). Then add axis -> (NUP, M, 1)
-        phi = v[np.arange(self.NUP), :, max_idx][:, :, np.newaxis]
-        
+
+        if not self.use_pastd:
+            # --- GEVD METHOD ---
+            if len(curr_frames) > 0:
+                # Transpose history from (Frames, NUP, M) -> (NUP, M, Frames)
+                history_trans = curr_frames.transpose(1, 2, 0)
+                # Concatenate along the frame axis -> (NUP, M, Frames + 1)
+                all_frames = np.concatenate((z_frame, history_trans), axis=2)
+            else:
+                all_frames = z_frame
+
+            # 3. Batched Whitening and Covariance
+            # (NUP, M, M) @ (NUP, M, Frames+1) -> (NUP, M, Frames+1)
+            a = chol_inv @ all_frames 
+            # Outer product across the frame axis -> (NUP, M, M)
+            Zvv_temp = a @ a.conj().transpose(0, 2, 1) 
+            
+            # Smooth PSD matrix
+            self.PSD_matrix_per_DOA[y2_prob - 1] = (1 - alfa_G) * self.PSD_matrix_per_DOA[y2_prob - 1] + (alfa_G) * Zvv_temp
+            
+            # 4. Batched Eigendecomposition
+            w_eig, v_eig = LA.eig(self.PSD_matrix_per_DOA[y2_prob - 1])
+            
+            # Find index of max REAL eigenvalue for each frequency bin -> shape (NUP,)
+            max_idx = np.argmax(w_eig.real, axis=1)
+            
+            # Fancy indexing: extract the dominant eigenvector for each frequency
+            # v[np.arange(self.NUP), :, max_idx] -> (NUP, M). Then add axis -> (NUP, M, 1)
+            phi = v_eig[np.arange(self.NUP), :, max_idx][:, :, np.newaxis]
+            
+        else:
+            # --- PASTd METHOD ---
+            doa_idx = y2_prob - 1
+            x_t = chol_inv @ z_frame  # Whiten current frame: (NUP, M, 1)
+            
+            w_p = self.w_pastd[doa_idx]
+            d_p = self.d_pastd[doa_idx]
+            
+            # Subspace tracking update
+            y_proj = w_p.conj().transpose(0, 2, 1) @ x_t     # (NUP, 1, 1)
+            d_p = self.beta_pastd * d_p + np.abs(y_proj)**2    # (NUP, 1, 1)
+            gain = y_proj.conj() / d_p                       # (NUP, 1, 1)
+            residual = x_t - w_p * y_proj                    # (NUP, M, 1)
+            w_p = w_p + gain * residual
+            w_p = w_p / LA.norm(w_p, axis=1, keepdims=True)      # Normalize
+            
+            # Save state
+            self.w_pastd[doa_idx] = w_p
+            self.d_pastd[doa_idx] = d_p
+            
+            phi = w_p  # The tracked principal eigenvector
+
         # 5. Batched Recolor and Normalize
         numerator = chol_Qvv @ phi  # (NUP, M, 1)
         # Denominator: Isolate reference mic (row 0) -> (NUP, 1, M) @ (NUP, M, 1) -> (NUP, 1, 1)
@@ -336,16 +379,35 @@ class SpatialSeparationPipeline:
             # 2. Transpose stand_z buffer -> (NUP, M, thresh)
             stand_z_trans = self.stand_z.transpose(1, 2, 0)
             
-            # 3. Batched Whitening and Covariance
-            # (NUP, M, M) @ (NUP, M, thresh) -> (NUP, M, thresh)
-            a = chol_inv @ stand_z_trans
-            # Outer product -> (NUP, M, M)
-            Zvv_temp = (a @ a.conj().transpose(0, 2, 1)) / thresh
-            
-            # Update PSD
-            temp_alfa = self.total_frame_per_DOA[y2_prob - 1] + thresh
-            self.PSD_matrix_per_DOA[y2_prob - 1] = (self.total_frame_per_DOA[y2_prob - 1] / temp_alfa) * self.PSD_matrix_per_DOA[y2_prob - 1] + (thresh / temp_alfa) * Zvv_temp
-            
+            if not self.use_pastd:
+                # --- GEVD METHOD ---
+                # 3. Batched Whitening and Covariance
+                # (NUP, M, M) @ (NUP, M, thresh) -> (NUP, M, thresh)
+                a = chol_inv @ stand_z_trans
+                # Outer product -> (NUP, M, M)
+                Zvv_temp = (a @ a.conj().transpose(0, 2, 1)) / thresh
+                
+                # Update PSD
+                temp_alfa = self.total_frame_per_DOA[y2_prob - 1] + thresh
+                self.PSD_matrix_per_DOA[y2_prob - 1] = (self.total_frame_per_DOA[y2_prob - 1] / temp_alfa) * self.PSD_matrix_per_DOA[y2_prob - 1] + (thresh / temp_alfa) * Zvv_temp
+            else:
+                # --- PASTd METHOD ---
+                # Rapidly iterate over the accumulated threshold frames to adapt subspace
+                doa_idx = y2_prob - 1
+                w_p = self.w_pastd[doa_idx]
+                d_p = self.d_pastd[doa_idx]
+                
+                for t in range(thresh):
+                    x_t = chol_inv @ stand_z_trans[:, :, t:t+1]
+                    y_proj = w_p.conj().transpose(0, 2, 1) @ x_t
+                    d_p = self.beta_pastd * d_p + np.abs(y_proj)**2
+                    gain = y_proj.conj() / d_p
+                    w_p = w_p + gain * (x_t - w_p * y_proj)
+                    w_p = w_p / LA.norm(w_p, axis=1, keepdims=True)
+                    
+                self.w_pastd[doa_idx] = w_p
+                self.d_pastd[doa_idx] = d_p
+
             # 4. Slot assignment policy (Scalar state machine logic, unchanged)
             fc = self.Frame_classification_system
             if fc[1, 0] == 0:
@@ -354,7 +416,7 @@ class SpatialSeparationPipeline:
                 to_change = 0
             elif fc[1, 1] == 0: 
                 to_change = 1
-            else:     
+            else:    
                 to_change = np.argmin(np.abs(np.array((y2_prob, y2_prob)) - fc[0, 0:2]))
                 min1, min2 = np.abs(np.array((y2_prob, y2_prob)) - fc[0, 0:2])
                 if (min1 > (thresh - 2)) and (min2 > (thresh - 2)):
@@ -394,7 +456,7 @@ class SpatialSeparationPipeline:
             norm_Qvv = LA.norm(self.Qvv, axis=(1, 2), keepdims=True)
             reg_matrix = e * norm_Qvv * np.eye(self.M)
             
-            # Batch invert all 1,025 matrices: (NUP, M, M)
+            # Batch invert all matrices: (NUP, M, M)
             inv_Qvv = LA.inv(self.Qvv + reg_matrix)
 
             # Case B: One slot -> MVDR
@@ -480,7 +542,6 @@ class SpatialSeparationPipeline:
         if self.verbose: print("--- Reconstructing Audio (ISTFT) ---")
 
         win = self.p_stft['win']
-        
         hop = self.p_stft['hop']
         nfft = self.p_stft['nfft']
 
@@ -592,7 +653,7 @@ if __name__ == "__main__":
     # Define where the tracking pipeline saved its labels, and where we will save the separated audio
     folder_to_results = os.path.join(workspace_folder, 'plots')
 
-    # Configuration objects (same as before)
+    # Configuration objects
     p_stft = {
         'nfft': 2048,
         'wlen': 2048,
@@ -615,7 +676,8 @@ if __name__ == "__main__":
         'epsilon': 0.01,
         'alfa_Qvv_init': 0.99,
         'alfa_Qvv_run': 0.05,
-        'buffer_size': 32
+        'buffer_size': 32,
+        'beta_pastd': 0.95  # Added for PASTd forgetting factor
     }
 
     # Instantiate and run
@@ -627,7 +689,8 @@ if __name__ == "__main__":
         folder_to_test_data=folder_to_test_data,
         folder_to_results=folder_to_results,
         M=4,
-        verbose=2
+        verbose=2,
+        use_pastd=True  # Set to False to run the original GEVD method
     )
 
     pipeline.run()
