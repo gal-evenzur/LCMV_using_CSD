@@ -1,0 +1,208 @@
+
+[K
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ 
+[K
+[A[K
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ ./create-complete-data.sh 5 1
+[?2004l
+========================================
+ Generating TRAIN dataset... 
+========================================
+1. Generating simulated audio for TRAIN (num_samples=5)
+Scanning TIMIT database...
+  Found 438 male speakers
+  Found 192 female speakers
+
+Generating 5 samples...
+Output directory: /home/evenzug/LCMV_using_CSD/data/simulated_audio/train
+------------------------------------------------------------
+
+Processing sample 1/5...Position and RIR generation took 0.56 seconds.
+Trajectory processing took 12.07 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2682196 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.25 seconds.
+
+Processing sample 2/5...Position and RIR generation took 0.50 seconds.
+Trajectory processing took 12.12 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2996304 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.26 seconds.
+
+Processing sample 3/5...Position and RIR generation took 0.44 seconds.
+Trajectory processing took 11.36 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/cafe-ambience-1-61765.wav
+Audio file too short. Need 3410516 samples, got 2896896
+Looped audio to length 5793792 samples.
+Diffuse noise generation took 0.29 seconds.
+
+Processing sample 4/5...Position and RIR generation took 0.43 seconds.
+Trajectory processing took 10.02 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Diffuse noise generation took 0.26 seconds.
+
+Processing sample 5/5...Position and RIR generation took 0.49 seconds.
+Trajectory processing took 11.26 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 3068956 samples, got 1440768
+Looped audio to length 4322304 samples.
+Diffuse noise generation took 0.25 seconds.
+
+
+Database generation complete!
+Files saved to: /home/evenzug/LCMV_using_CSD/data/simulated_audio/train
+2. Converting DataSamples to Input vectors for TRAIN
+Data root dir: /home/evenzug/LCMV_using_CSD/data/simulated_audio
+Output root dir: /home/evenzug/LCMV_using_CSD/data/dataset/train
+1
+Processing file index: 1
+  Load and prepare inputs took 0.04 seconds.
+  STFT first signal took 0.26 seconds.
+  STFT mixed signal took 0.26 seconds.
+  Noise covariance cholesky took 0.98 seconds.
+  Feature extraction and scaling took 41.66 seconds.
+  STFT second signal took 0.28 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 1 processing total took 43.61 seconds.
+
+Processing file index: 2
+  Load and prepare inputs took 0.04 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 46.36 seconds.
+  STFT second signal took 0.29 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 2 processing total took 47.75 seconds.
+
+Processing file index: 3
+  Load and prepare inputs took 0.04 seconds.
+  STFT first signal took 0.33 seconds.
+  STFT mixed signal took 0.33 seconds.
+  Noise covariance cholesky took 0.30 seconds.
+  Feature extraction and scaling took 52.91 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 3 processing total took 54.40 seconds.
+
+Processing file index: 4
+  Load and prepare inputs took 0.04 seconds.
+  STFT first signal took 0.31 seconds.
+  STFT mixed signal took 0.31 seconds.
+  Noise covariance cholesky took 0.36 seconds.
+  Feature extraction and scaling took 49.21 seconds.
+  STFT second signal took 0.33 seconds.
+  VAD and label update took 0.08 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 4 processing total took 50.70 seconds.
+
+Processing file index: 5
+  Load and prepare inputs took 0.04 seconds.
+  STFT first signal took 0.32 seconds.
+  STFT mixed signal took 0.32 seconds.
+  Noise covariance cholesky took 0.31 seconds.
+  Feature extraction and scaling took 47.54 seconds.
+  STFT second signal took 0.30 seconds.
+  VAD and label update took 0.07 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 5 processing total took 48.96 seconds.
+
+[Data] chunk 1 aggregated 5 files into 7399 vectors before balancing
+Total frames before balancing: 7399
+Class frame counts (1-18): [123, 225, 198, 197, 203, 116, 215, 233, 199, 130, 137, 242, 138, 216, 195, 228, 202, 147]
+Minimum class count (len_balance): 116
+
+--- Basic Run Timing Summary ---
+Total processing time: 248.45 seconds
+Total batches processed: 5
+
+========================================
+ Generating VAL dataset... 
+========================================
+1. Generating simulated audio for VAL (num_samples=1)
+Scanning TIMIT database...
+  Found 438 male speakers
+  Found 192 female speakers
+
+Generating 1 samples...
+Output directory: /home/evenzug/LCMV_using_CSD/data/simulated_audio/val
+------------------------------------------------------------
+
+Processing sample 1/1...Position and RIR generation took 0.52 seconds.
+Trajectory processing took 11.31 seconds.
+Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2682196 samples, got 2004480
+Looped audio to length 4008960 samples.
+Diffuse noise generation took 0.24 seconds.
+
+
+Database generation complete!
+Files saved to: /home/evenzug/LCMV_using_CSD/data/simulated_audio/val
+2. Converting DataSamples to Input vectors for VAL
+Data root dir: /home/evenzug/LCMV_using_CSD/data/simulated_audio
+Output root dir: /home/evenzug/LCMV_using_CSD/data/dataset/val
+1
+Processing file index: 1
+  Load and prepare inputs took 0.04 seconds.
+  STFT first signal took 0.26 seconds.
+  STFT mixed signal took 0.26 seconds.
+  Noise covariance cholesky took 0.99 seconds.
+  Feature extraction and scaling took 41.41 seconds.
+  STFT second signal took 0.26 seconds.
+  VAD and label update took 0.06 seconds.
+  Dataset aggregation took 0.00 seconds.
+Sample 1 processing total took 43.35 seconds.
+
+[Data] chunk 1 aggregated 1 files into 1293 vectors before balancing
+Total frames before balancing: 1293
+Class frame counts (1-18): [5, 41, 63, 27, 42, 0, 34, 71, 53, 12, 52, 66, 27, 60, 34, 38, 16, 0]
+Minimum class count (len_balance): 0
+
+--- Basic Run Timing Summary ---
+Total processing time: 43.95 seconds
+Total batches processed: 1
+
+========================================
+ Done generating complete datasets! 
+========================================
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ 
+[K
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ 
+[K
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ 
+[K
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ 
+[K
+[A[K
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ 
+[K
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ 
+[K
+[A[K
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ git status
+[?2004lOn branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	[31mmodified:   ../DataSamples_to_InputVectors/create_data_base.py[m
+	[31mmodified:   ../DataSamples_to_InputVectors/plots/label_histograms.png[m
+	[31mmodified:   ../DataSamples_to_InputVectors/plots/label_prediction.png[m
+	[31mmodified:   ../createAudio/Results/screen.log[m
+	[31mmodified:   ../createAudio/Results/test_diffuse_noise.png[m
+	[31mmodified:   ../createAudio/create_data_base.py[m
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	[31mcreate-complete-data.sh[m
+	[31mscreen.log[m
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/data[00m$ git add .status./create-complete-data.sh 5 1[19Pgit status[1Padd .
