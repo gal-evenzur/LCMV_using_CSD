@@ -23,7 +23,7 @@ echo "========================================"
 echo " Generating TRAIN dataset... "
 echo "========================================"
 echo "1. Generating simulated audio for TRAIN (num_samples=$N_TRAIN)"
-python3 "$WORKSPACE_DIR/createAudio/create_data_base.py" --num_samples $N_TRAIN --start_idx $START_IDX_TRAIN --trainORval train
+# python3 "$WORKSPACE_DIR/createAudio/create_data_base.py" --num_samples $N_TRAIN --start_idx $START_IDX_TRAIN --trainORval train
 
 echo "2. Converting DataSamples to Input vectors for TRAIN"
 python3 "$WORKSPACE_DIR/DataSamples_to_InputVectors/create_data_base.py" --mode train --nom_data_sets 2 --lottery $LOTTERY_TRAIN

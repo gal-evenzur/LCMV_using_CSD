@@ -18,24 +18,20 @@ import scipy.io as sio
 from sklearn.preprocessing import StandardScaler
 import os
 import time
+import argparse
 
 #root_dir = '/home/dsi/shvarta3/data_sets/'
 #data_root_dir = '/mnt/dsi_vol1/users/ayal_shvarts/project/'
-mode='train'
+#mode='train'
 
 pydir = os.path.dirname(os.path.abspath(__file__))
 workspace_dir = os.path.dirname(pydir)
 data_dir = os.path.join(workspace_dir, 'data')
 plot_dir = pydir + '/plots/'
 input_data_dir = os.path.join(data_dir, 'simulated_audio')
-output_dir = os.path.join(data_dir, 'dataset', mode + '_tempfortest')
 
-# make sure dirs exist
-os.makedirs(output_dir, exist_ok=True)
-os.makedirs(plot_dir, exist_ok=True)
-
-print('Data root dir:', input_data_dir)
-print('Output root dir:', output_dir)
+mode = None
+output_dir = None
 
 plt.close("all")
 # variens
@@ -53,15 +49,6 @@ frame_after = 5
 frame_threshold=8
 start=1
 
-idx_file_name = output_dir + '/idx.npy'
-
-# Replace `idx = 0` at the top with:
-if os.path.exists(idx_file_name):
-    idx = int(np.load(idx_file_name))
-    idx = 3000
-    print(f"Resuming file numbering from index {idx}")
-else:
-    idx = 0
 threshold_freq=0.3
 threshold=40
 pad=30
@@ -71,13 +58,13 @@ class_wieght=np.zeros(3)
 scaler = StandardScaler()
 num_diraction=18
 
-data_file_name=output_dir+'/feature_vector_'
-label_file_name=output_dir+'/label_'
-label2_file_name=output_dir+'/label2_'
-idx_file_name=output_dir+'/idx.npy'
-nom_data_sets=2 # number of data sets to process (train1, train2, etc.) - 
-# each data set contains 'lottery' number of files (e.g., 200 files for train1, 200 files for train2, etc.)
-lottery=201 # number of files to process per data set 
+data_file_name=None
+label_file_name=None
+label2_file_name=None
+idx_file_name=None
+mode = None
+nom_data_sets = None
+lottery = None
 
 
 def stft_z(get_receivers):
@@ -501,4 +488,39 @@ def process_dataset(verbose=True):
 
 
 if __name__ == '__main__':
+    try:
+        parser = argparse.ArgumentParser(description="Data samples to input vectors")
+        parser.add_argument("--mode", type=str, default="train", help="Mode (train or val)")
+        parser.add_argument("--nom_data_sets", type=int, default=2, help="Number of datasets to process")
+        parser.add_argument("--lottery", type=int, default=201, help="Number of files to process per dataset")
+        args = parser.parse_args()
+
+        mode = args.mode
+        nom_data_sets = args.nom_data_sets
+        lottery = args.lottery
+    except Exception as e:
+        print(f"Error parsing arguments: {e}")
+        print("Using default values: mode='train', nom_data_sets=2, lottery=201")
+        mode = 'train'
+        nom_data_sets = 2
+        lottery = 201
+
+    output_dir = os.path.join(data_dir, 'dataset', mode)
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(plot_dir, exist_ok=True)
+    
+    print('Data root dir:', input_data_dir)
+    print('Output root dir:', output_dir)
+    
+    idx_file_name = output_dir + '/idx.npy'
+    if os.path.exists(idx_file_name):
+        idx = int(np.load(idx_file_name))
+        print(f"Resuming file numbering from index {idx}")
+    else:
+        idx = 0
+        
+    data_file_name=output_dir+'/feature_vector_'
+    label_file_name=output_dir+'/label_'
+    label2_file_name=output_dir+'/label2_'
+
     process_dataset(verbose=1)

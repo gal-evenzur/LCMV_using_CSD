@@ -25,6 +25,8 @@ import os
 import glob
 from typing import Tuple, List, Optional
 
+import time
+import argparse
 import rir_generator as rir
 
 # Import from dataset_funcs
@@ -611,5 +613,22 @@ def create_database(config: Config):
     print(f"\n\nDatabase generation complete!")
     print(f"Files saved to: {output_path}")
 
+if __name__ == "__main__":
+    try: 
+        parser = argparse.ArgumentParser(description="Create Database")
+        parser.add_argument("--num_samples", type=int, default=200, help="Number of samples to generate")
+        parser.add_argument("--start_idx", type=int, default=1, help="Starting index")
+        parser.add_argument("--trainORval", type=str, default="train", help="'train' or 'val'")
+        args = parser.parse_args()
+        
+        config = Config()
+        config.num_samples = args.num_samples
+        config.start_idx = args.start_idx
+        config.trainORval = args.trainORval
+        config.dataset_title = args.trainORval
 
-create_database(config = Config())
+    except Exception as e:
+        print(f"Error parsing arguments: {e}")
+        print("Using default configuration.")
+        config = Config()
+    create_database(config=config)
