@@ -886,4 +886,292 @@ W0000 00:00:1779214831.721177 2186155 gpu_timer.cc:114] Skipping the delay kerne
 W0000 00:00:1779214831.721381 2186155 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
 W0000 00:00:1779214831.721971 2186155 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
 W0000 00:00:1779214831.722400 2186155 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
-^[[B^[[B^[[B^[[B^[[B
+^[[B^[[B^[[B^[[B^[[B4736/4736 - 163s - loss: 1.9010 - out_speaker_count_loss: 0.5086 - out_angle_loss: 0.6962 - out_speaker_count_accuracy: 0.8084 - out_angle_accuracy: 0.2083 - val_loss: 1.2198 - val_out_speaker_count_loss: 0.3601 - val_out_angle_loss: 0.4299 - val_out_speaker_count_accuracy: 0.8849 - val_out_angle_accuracy: 0.2465 - 163s/epoch - 34ms/step
+Epoch 2/20
+4736/4736 - 149s - loss: 1.3894 - out_speaker_count_loss: 0.4101 - out_angle_loss: 0.4897 - out_speaker_count_accuracy: 0.8579 - out_angle_accuracy: 0.2459 - val_loss: 1.0798 - val_out_speaker_count_loss: 0.3191 - val_out_angle_loss: 0.3803 - val_out_speaker_count_accuracy: 0.8974 - val_out_angle_accuracy: 0.2617 - 149s/epoch - 32ms/step
+Epoch 3/20
+4736/4736 - 145s - loss: 1.2812 - out_speaker_count_loss: 0.3779 - out_angle_loss: 0.4516 - out_speaker_count_accuracy: 0.8708 - out_angle_accuracy: 0.2545 - val_loss: 1.0000 - val_out_speaker_count_loss: 0.2893 - val_out_angle_loss: 0.3553 - val_out_speaker_count_accuracy: 0.9093 - val_out_angle_accuracy: 0.2709 - 145s/epoch - 31ms/step
+Epoch 4/20
+4736/4736 - 146s - loss: 1.2224 - out_speaker_count_loss: 0.3590 - out_angle_loss: 0.4317 - out_speaker_count_accuracy: 0.8783 - out_angle_accuracy: 0.2622 - val_loss: 0.9142 - val_out_speaker_count_loss: 0.2653 - val_out_angle_loss: 0.3244 - val_out_speaker_count_accuracy: 0.9149 - val_out_angle_accuracy: 0.3036 - 146s/epoch - 31ms/step
+Epoch 5/20
+4736/4736 - 145s - loss: 1.1791 - out_speaker_count_loss: 0.3480 - out_angle_loss: 0.4156 - out_speaker_count_accuracy: 0.8827 - out_angle_accuracy: 0.2699 - val_loss: 0.8866 - val_out_speaker_count_loss: 0.2487 - val_out_angle_loss: 0.3190 - val_out_speaker_count_accuracy: 0.9182 - val_out_angle_accuracy: 0.2860 - 145s/epoch - 31ms/step
+Epoch 6/20
+4736/4736 - 145s - loss: 1.1411 - out_speaker_count_loss: 0.3368 - out_angle_loss: 0.4021 - out_speaker_count_accuracy: 0.8862 - out_angle_accuracy: 0.2781 - val_loss: 0.8397 - val_out_speaker_count_loss: 0.2456 - val_out_angle_loss: 0.2971 - val_out_speaker_count_accuracy: 0.9170 - val_out_angle_accuracy: 0.3177 - 145s/epoch - 31ms/step
+Epoch 7/20
+4736/4736 - 141s - loss: 1.1119 - out_speaker_count_loss: 0.3317 - out_angle_loss: 0.3901 - out_speaker_count_accuracy: 0.8879 - out_angle_accuracy: 0.2866 - val_loss: 0.7961 - val_out_speaker_count_loss: 0.2312 - val_out_angle_loss: 0.2825 - val_out_speaker_count_accuracy: 0.9222 - val_out_angle_accuracy: 0.3276 - 141s/epoch - 30ms/step
+Epoch 8/20
+4736/4736 - 146s - loss: 1.0837 - out_speaker_count_loss: 0.3275 - out_angle_loss: 0.3781 - out_speaker_count_accuracy: 0.8897 - out_angle_accuracy: 0.2944 - val_loss: 0.7618 - val_out_speaker_count_loss: 0.2365 - val_out_angle_loss: 0.2626 - val_out_speaker_count_accuracy: 0.9222 - val_out_angle_accuracy: 0.3414 - 146s/epoch - 31ms/step
+Epoch 9/20
+4736/4736 - 146s - loss: 1.0655 - out_speaker_count_loss: 0.3255 - out_angle_loss: 0.3700 - out_speaker_count_accuracy: 0.8897 - out_angle_accuracy: 0.3016 - val_loss: 0.7341 - val_out_speaker_count_loss: 0.2296 - val_out_angle_loss: 0.2522 - val_out_speaker_count_accuracy: 0.9279 - val_out_angle_accuracy: 0.3433 - 146s/epoch - 31ms/step
+Epoch 10/20
+4736/4736 - 145s - loss: 1.0431 - out_speaker_count_loss: 0.3203 - out_angle_loss: 0.3614 - out_speaker_count_accuracy: 0.8917 - out_angle_accuracy: 0.3073 - val_loss: 0.6908 - val_out_speaker_count_loss: 0.2175 - val_out_angle_loss: 0.2367 - val_out_speaker_count_accuracy: 0.9276 - val_out_angle_accuracy: 0.3580 - 145s/epoch - 31ms/step
+Epoch 11/20
+4736/4736 - 146s - loss: 1.0231 - out_speaker_count_loss: 0.3193 - out_angle_loss: 0.3519 - out_speaker_count_accuracy: 0.8920 - out_angle_accuracy: 0.3136 - val_loss: 0.6726 - val_out_speaker_count_loss: 0.2203 - val_out_angle_loss: 0.2261 - val_out_speaker_count_accuracy: 0.9283 - val_out_angle_accuracy: 0.3620 - 146s/epoch - 31ms/step
+Epoch 12/20
+4736/4736 - 145s - loss: 1.0101 - out_speaker_count_loss: 0.3178 - out_angle_loss: 0.3462 - out_speaker_count_accuracy: 0.8921 - out_angle_accuracy: 0.3189 - val_loss: 0.6455 - val_out_speaker_count_loss: 0.2178 - val_out_angle_loss: 0.2139 - val_out_speaker_count_accuracy: 0.9308 - val_out_angle_accuracy: 0.3661 - 145s/epoch - 31ms/step
+Epoch 13/20
+4736/4736 - 144s - loss: 0.9927 - out_speaker_count_loss: 0.3146 - out_angle_loss: 0.3391 - out_speaker_count_accuracy: 0.8937 - out_angle_accuracy: 0.3232 - val_loss: 0.6243 - val_out_speaker_count_loss: 0.2163 - val_out_angle_loss: 0.2040 - val_out_speaker_count_accuracy: 0.9246 - val_out_angle_accuracy: 0.3757 - 144s/epoch - 30ms/step
+Epoch 14/20
+4736/4736 - 145s - loss: 0.9793 - out_speaker_count_loss: 0.3130 - out_angle_loss: 0.3332 - out_speaker_count_accuracy: 0.8940 - out_angle_accuracy: 0.3272 - val_loss: 0.6013 - val_out_speaker_count_loss: 0.2145 - val_out_angle_loss: 0.1934 - val_out_speaker_count_accuracy: 0.9320 - val_out_angle_accuracy: 0.3807 - 145s/epoch - 31ms/step
+Epoch 15/20
+4736/4736 - 146s - loss: 0.9650 - out_speaker_count_loss: 0.3109 - out_angle_loss: 0.3270 - out_speaker_count_accuracy: 0.8946 - out_angle_accuracy: 0.3313 - val_loss: 0.6083 - val_out_speaker_count_loss: 0.2368 - val_out_angle_loss: 0.1857 - val_out_speaker_count_accuracy: 0.9279 - val_out_angle_accuracy: 0.3847 - 146s/epoch - 31ms/step
+Epoch 16/20
+4736/4736 - 137s - loss: 0.9518 - out_speaker_count_loss: 0.3106 - out_angle_loss: 0.3206 - out_speaker_count_accuracy: 0.8944 - out_angle_accuracy: 0.3352 - val_loss: 0.5632 - val_out_speaker_count_loss: 0.2184 - val_out_angle_loss: 0.1724 - val_out_speaker_count_accuracy: 0.9328 - val_out_angle_accuracy: 0.3947 - 137s/epoch - 29ms/step
+Epoch 17/20
+4736/4736 - 135s - loss: 0.9457 - out_speaker_count_loss: 0.3085 - out_angle_loss: 0.3186 - out_speaker_count_accuracy: 0.8948 - out_angle_accuracy: 0.3368 - val_loss: 0.5526 - val_out_speaker_count_loss: 0.2080 - val_out_angle_loss: 0.1723 - val_out_speaker_count_accuracy: 0.9319 - val_out_angle_accuracy: 0.3934 - 135s/epoch - 29ms/step
+Epoch 18/20
+4736/4736 - 137s - loss: 0.9281 - out_speaker_count_loss: 0.3083 - out_angle_loss: 0.3099 - out_speaker_count_accuracy: 0.8955 - out_angle_accuracy: 0.3416 - val_loss: 0.5381 - val_out_speaker_count_loss: 0.2050 - val_out_angle_loss: 0.1665 - val_out_speaker_count_accuracy: 0.9356 - val_out_angle_accuracy: 0.3953 - 137s/epoch - 29ms/step
+Epoch 19/20
+4736/4736 - 143s - loss: 0.9238 - out_speaker_count_loss: 0.3092 - out_angle_loss: 0.3073 - out_speaker_count_accuracy: 0.8954 - out_angle_accuracy: 0.3431 - val_loss: 0.5236 - val_out_speaker_count_loss: 0.2041 - val_out_angle_loss: 0.1597 - val_out_speaker_count_accuracy: 0.9346 - val_out_angle_accuracy: 0.3996 - 143s/epoch - 30ms/step
+Epoch 20/20
+4736/4736 - 152s - loss: 0.9145 - out_speaker_count_loss: 0.3057 - out_angle_loss: 0.3044 - out_speaker_count_accuracy: 0.8956 - out_angle_accuracy: 0.3453 - val_loss: 0.5104 - val_out_speaker_count_loss: 0.2068 - val_out_angle_loss: 0.1518 - val_out_speaker_count_accuracy: 0.9287 - val_out_angle_accuracy: 0.4023 - 152s/epoch - 32ms/step
+/usr/local/lib/python3.12/dist-packages/tf_keras/src/engine/training.py:3098: UserWarning: You are saving your model as an HDF5 file via `model.save()`. This file format is considered legacy. We recommend using instead the native TF-Keras format, e.g. `model.save('my_model.keras')`.
+  saving_api.save_model(
+WARNING:tensorflow:Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+/usr/local/lib/python3.12/dist-packages/tf_keras/src/constraints.py:365: UserWarning: The `keras.constraints.serialize()` API should only be used for objects of type `keras.constraints.Constraint`. Found an instance of type <class 'keras.src.constraints.constraints.MaxNorm'>, which may lead to improper serialization.
+  warnings.warn(
+WARNING:tensorflow:Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+W0000 00:00:1779217740.772451 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.772608 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.772682 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.772754 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.772821 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.772911 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.775428 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.775533 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.775609 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.775715 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.775813 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.775902 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.775976 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.776056 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.776164 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.776258 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.776489 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.776585 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779190 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779269 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779347 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779418 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779483 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779547 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779616 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779683 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779764 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779839 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.779924 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.780049 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782369 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782434 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782498 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782557 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782613 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782666 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782727 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782786 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782853 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782912 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.782977 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.783041 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+  1/964 [..............................] - ETA: 2:56W0000 00:00:1779217740.786796 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.786892 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.786956 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.787019 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.787079 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.787147 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.789212 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.789325 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.789413 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.789511 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.789616 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.789719 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.789807 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.789895 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.790013 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.790135 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.790295 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.790408 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796109 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796235 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796321 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796395 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796463 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796528 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796602 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796671 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796760 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796835 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.796920 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.797047 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799498 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799563 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799628 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799687 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799741 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799793 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799855 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799914 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.799982 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.800048 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.800113 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.800170 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.804605 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.804685 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.804760 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.804830 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.804894 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.804958 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.805028 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.805095 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.805173 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.805244 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.805327 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.805449 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.809451 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.809527 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.809602 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.809671 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.809734 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.809796 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.809862 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.809925 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.810006 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.810078 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.810161 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.810283 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.814578 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.814664 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.814743 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.814815 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.814881 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.814945 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.815018 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.815084 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.815165 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.815239 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.815324 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.815449 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819431 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819506 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819581 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819651 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819714 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819776 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819842 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819906 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.819992 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.820065 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.820147 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.820269 2186163 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824115 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824192 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824268 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824340 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824404 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824468 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824536 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824602 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824681 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824753 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824835 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.824959 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.828825 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.828901 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.828975 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829050 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829115 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829179 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829246 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829311 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829390 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829463 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829547 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217740.829670 2186157 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+ 11/964 [..............................] - ETA: 4s   44/964 [>.............................] - ETA: 2s 76/964 [=>............................] - ETA: 1s107/964 [==>...........................] - ETA: 1s138/964 [===>..........................] - ETA: 1s169/964 [====>.........................] - ETA: 1s200/964 [=====>........................] - ETA: 1s231/964 [======>.......................] - ETA: 1s263/964 [=======>......................] - ETA: 1s294/964 [========>.....................] - ETA: 1s325/964 [=========>....................] - ETA: 1s356/964 [==========>...................] - ETA: 1s388/964 [===========>..................] - ETA: 0s419/964 [============>.................] - ETA: 0s450/964 [=============>................] - ETA: 0s481/964 [=============>................] - ETA: 0s512/964 [==============>...............] - ETA: 0s543/964 [===============>..............] - ETA: 0s574/964 [================>.............] - ETA: 0s605/964 [=================>............] - ETA: 0s636/964 [==================>...........] - ETA: 0s667/964 [===================>..........] - ETA: 0s698/964 [====================>.........] - ETA: 0s729/964 [=====================>........] - ETA: 0s760/964 [======================>.......] - ETA: 0s791/964 [=======================>......] - ETA: 0s821/964 [========================>.....] - ETA: 0s850/964 [=========================>....] - ETA: 0s880/964 [==========================>...] - ETA: 0s911/964 [===========================>..] - ETA: 0s940/964 [============================>.] - ETA: 0sW0000 00:00:1779217742.397978 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.398116 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.398182 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.398244 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.398304 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.398373 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.400585 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.400681 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.400753 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.400844 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.400936 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.401023 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.401096 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.401168 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.401260 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.401349 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.401509 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.401599 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404040 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404115 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404190 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404259 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404323 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404384 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404450 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404514 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404594 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404665 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404747 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.404869 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407024 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407086 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407148 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407207 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407259 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407310 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407370 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407428 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407493 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407550 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407612 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217742.407668 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+964/964 [==============================] - ETA: 0s964/964 [==============================] - 2s 2ms/step
+  1/964 [..............................] - ETA: 2:24 27/964 [..............................] - ETA: 1s   57/964 [>.............................] - ETA: 1s 87/964 [=>............................] - ETA: 1s117/964 [==>...........................] - ETA: 1s147/964 [===>..........................] - ETA: 1s177/964 [====>.........................] - ETA: 1s207/964 [=====>........................] - ETA: 1s237/964 [======>.......................] - ETA: 1s268/964 [=======>......................] - ETA: 1s298/964 [========>.....................] - ETA: 1s328/964 [=========>....................] - ETA: 1s358/964 [==========>...................] - ETA: 1s388/964 [===========>..................] - ETA: 0s418/964 [============>.................] - ETA: 0s448/964 [============>.................] - ETA: 0s478/964 [=============>................] - ETA: 0s509/964 [==============>...............] - ETA: 0s539/964 [===============>..............] - ETA: 0s570/964 [================>.............] - ETA: 0s600/964 [=================>............] - ETA: 0s629/964 [==================>...........] - ETA: 0s661/964 [===================>..........] - ETA: 0s693/964 [====================>.........] - ETA: 0s725/964 [=====================>........] - ETA: 0s757/964 [======================>.......] - ETA: 0s789/964 [=======================>......] - ETA: 0s821/964 [========================>.....] - ETA: 0s853/964 [=========================>....] - ETA: 0s885/964 [==========================>...] - ETA: 0s917/964 [===========================>..] - ETA: 0s950/964 [============================>.] - ETA: 0sW0000 00:00:1779217749.415227 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.415357 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.415423 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.415485 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.415545 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.415615 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.417770 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.417897 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.417973 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418089 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418184 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418272 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418346 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418419 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418522 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418614 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418771 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.418862 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421351 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421427 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421501 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421570 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421633 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421695 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421763 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421827 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421906 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.421977 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.422067 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.422190 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424426 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424490 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424554 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424612 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424666 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424717 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424785 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424843 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424910 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.424969 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.425040 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+W0000 00:00:1779217749.425097 2186150 gpu_timer.cc:114] Skipping the delay kernel, measurement accuracy will be reduced
+964/964 [==============================] - 2s 2ms/step
+Loss graph saved to: /home/evenzug/LCMV_using_CSD/plots/training_loss_graph.png
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/DataSamples_to_InputVectors[00m$ 
