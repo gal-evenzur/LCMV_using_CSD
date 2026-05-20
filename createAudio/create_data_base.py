@@ -45,7 +45,8 @@ from dataset_funcs import *
 # =============================================================================
 
 class Config:
-    """Configuration parameters for dataset generation."""
+    """Configuration parameters for dataset generation.
+    """
 
     seed = 42
     
@@ -308,13 +309,9 @@ def create_database_sample(
     
     # --- Generate speaker and mic positions ---
     pos_and_rir_time = time.time()
-    (s_first, label_first, s_second, label_second, 
-     s_noise, mic_positions) = create_locations_18_dynamic(
-        room_dim=room_dim.tolist(),
-        speaker_radius=config.R,
-        radius_noise=config.noise_R,
-        num_jumps=config.num_jumps
-    )
+    simulator = AcousticTrajectorySimulator(room_dim.tolist(), config.R, config.noise_R, config.num_jumps)
+    s_first, label_first, s_second, label_second, s_noise, mic_positions = simulator.generate()
+
     
     # --- Generate RIR for noise source ---
     h_noise = generate_rir(
