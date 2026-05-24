@@ -17,7 +17,7 @@ np.random.seed(42)
 # Run the generation first
 print("Generating locations...")
 
-simulator = AcousticTrajectorySimulator(room_dimensions=[6, 6, 3], speaker_radius=1.3, radius_noise=0.5, num_jumps=4, plot_name='test_locations')
+simulator = AcousticTrajectorySimulator(room_dim=[6, 6, 3], speaker_radius=1.3, radius_noise=0.5, num_jumps=4, plot_name='test_locations')
 s_first, label_first, s_second, label_second, s_noise, mic_positions = simulator.generate()
 
 # =============================================================================

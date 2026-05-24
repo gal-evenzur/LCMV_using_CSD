@@ -145,6 +145,50 @@ def calculate_angle(v1, v2):
     return np.degrees(np.arccos(np.clip(dot_product, -1.0, 1.0)))
 
 
+def create_semicircular_mic_array(center, radius, height, angle_resolution=360, selected_indices=[0, 54, 119, 179]):
+    """
+    Creates a semi-circular microphone array with random rotation.
+    
+    Parameters
+    ----------
+    center : array-like
+        [x, y] coordinates of the array center.
+    radius : float
+        Radius of the microphone circle.
+    height : float
+        Z-coordinate (height) of the microphones.
+    angle_resolution : int
+        Number of points in a full circle.
+    selected_indices : list
+        Indices of the microphones to pick from the 180-degree arc.
+        
+    Returns
+    -------
+    mic_array_coords : np.ndarray
+        M x 3 array of microphone coordinates.
+    active_angles : np.ndarray
+        The angles used for the semi-circular arc.
+    mic_x_all : np.ndarray
+        X coordinates for all points in the arc.
+    mic_y_all : np.ndarray
+        Y coordinates for all points in the arc.
+    """
+    center_x, center_y = center
+    rotation_offset_idx = np.random.randint(1, angle_resolution + 1)
+    
+    angles = np.linspace(-np.pi, 2 * np.pi, angle_resolution + (angle_resolution // 2))
+    active_angles = angles[rotation_offset_idx - 1 : rotation_offset_idx - 1 + (angle_resolution // 2)]
+    
+    mic_x_all = radius * np.sin(active_angles) + center_x
+    mic_y_all = radius * np.cos(active_angles) + center_y
+    
+    mic_array_coords = np.array([
+        [mic_x_all[i], mic_y_all[i], height] for i in selected_indices if i < len(mic_x_all)
+    ])
+    
+    return mic_array_coords, active_angles, mic_x_all, mic_y_all
+
+
 class AcousticTrajectorySimulator:
     """
     Generates dynamic trajectories for two speakers and a static noise source in a simulated room.
@@ -195,22 +239,14 @@ class AcousticTrajectorySimulator:
 
     def _calculate_geometry(self):
         """Sets up microphone positions, rotation, and speaker reference angles."""
-        center_x, center_y = self.array_center
-        rotation_offset_idx = np.random.randint(1, self.angle_resolution + 1)
-        
-        angles = np.linspace(-np.pi, 2 * np.pi, self.angle_resolution + self.angle_resolution // 2)
-        active_angles = angles[rotation_offset_idx - 1 : rotation_offset_idx - 1 + self.angle_resolution // 2]
-        
-        # Microphones
-        self.mic_x_all = self.mic_radius * np.sin(active_angles) + center_x
-        self.mic_y_all = self.mic_radius * np.cos(active_angles) + center_y
         selected_mic_indices = [0, 54, 119, 179]
-        
-        self.mic_array_coords = np.array([
-            [self.mic_x_all[i], self.mic_y_all[i], self.mic_height] for i in selected_mic_indices
-        ])
+        self.mic_array_coords, active_angles, self.mic_x_all, self.mic_y_all = create_semicircular_mic_array(
+            self.array_center, self.mic_radius, self.mic_height, 
+            self.angle_resolution, selected_mic_indices
+        )
 
         # Speakers
+        center_x, center_y = self.array_center
         self.speaker_ref_x = self.speaker_radius * np.sin(active_angles) + center_x
         self.speaker_ref_y = self.speaker_radius * np.cos(active_angles) + center_y
         
