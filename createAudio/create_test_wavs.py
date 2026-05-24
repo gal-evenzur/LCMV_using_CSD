@@ -71,7 +71,7 @@ def create_test_sample_static(
     speech_1_together = load_speech(get_random_speech_file(speaker1_dir), config.fs)
     speech_2_together = load_speech(get_random_speech_file(speaker2_dir), config.fs)
     
-    silence_gap = np.zeros(int(config.fs * 1)) 
+    silence_gap = np.zeros((int(config.fs * 1), config.M)) 
 
     # --- Process first speaker alone ---
     h_first = generate_rir(
@@ -251,11 +251,11 @@ class Config:
     output_path = None          # Will be set at runtime
     
     # Number of samples to generate
-    num_samples = 200
+    num_samples = 3
     start_idx = 1  # Starting index for file naming (e.g., 1 for 'first_1.wav')
 
     # File naming
-    trainORval = 'test'  # 'train' or 'val'
+    trainORval = 'test/static'  # 'train' or 'val'
     dataset_title = trainORval
 
 
@@ -271,6 +271,7 @@ if __name__ == "__main__":
     config : Config
         Configuration object with all parameters
     """
+    config = Config()
     np.random.seed(config.seed)
 
     dataset_title = config.dataset_title
@@ -315,49 +316,44 @@ if __name__ == "__main__":
     for i in range(start_idx, start_idx + num_samples):
         print(f"\rProcessing sample {i}/{start_idx + num_samples - 1}...", end="", flush=True)
         
-        try:
-            # Generate sample
-            result = create_test_sample_static(i, config, male_speakers, female_speakers)
-            
-            # Save audio files
-            sf.write(
-                os.path.join(output_path, f'first_{i}.wav'),
-                result['first_speaker'],
-                config.fs
-            )
-            sf.write(
-                os.path.join(output_path, f'second_{i}.wav'),
-                result['second_speaker'],
-                config.fs
-            )
-            sf.write(
-                os.path.join(output_path, f'together_{i}.wav'),
-                result['receivers'],
-                config.fs
-            )
-            
-            # Save labels as numpy files
-            np.save(
-                os.path.join(output_path, f'label_location_first_{i}.npy'),
-                result['vad_first']
-            )
-            np.save(
-                os.path.join(output_path, f'label_location_second_{i}.npy'),
-                result['vad_second']
-            )
-            
-            # Save metadata
-            np.savez(
-                os.path.join(output_path, f'metadata_{i}.npz'),
-                room_dim=result['room_dim'],
-                T60=result['T60'],
-                SNR_diffuse=result['SNR_diffuse'],
-                mic_positions=result['mic_positions']
-            )
-            
-        except Exception as e:
-            print(f"\n  Error on sample {i}: {e}")
-            continue
+        # Generate sample
+        result = create_test_sample_static(i, config, male_speakers, female_speakers)
+        
+        # Save audio files
+        sf.write(
+            os.path.join(output_path, f'first_{i}.wav'),
+            result['first_speaker'],
+            config.fs
+        )
+        sf.write(
+            os.path.join(output_path, f'second_{i}.wav'),
+            result['second_speaker'],
+            config.fs
+        )
+        sf.write(
+            os.path.join(output_path, f'together_{i}.wav'),
+            result['receivers'],
+            config.fs
+        )
+        
+        # Save labels as numpy files
+        np.save(
+            os.path.join(output_path, f'label_location_first_{i}.npy'),
+            result['vad_first']
+        )
+        np.save(
+            os.path.join(output_path, f'label_location_second_{i}.npy'),
+            result['vad_second']
+        )
+        
+        # Save metadata
+        np.savez(
+            os.path.join(output_path, f'metadata_{i}.npz'),
+            room_dim=result['room_dim'],
+            T60=result['T60'],
+            SNR_diffuse=result['SNR_diffuse'],
+            mic_positions=result['mic_positions']
+        )
     
     print(f"\n\nDatabase generation complete!")
     print(f"Files saved to: {output_path}")

@@ -1,10 +1,6 @@
 from pipeline_ofer_funcs import * # Assumes this is available in your environment
 
 print("-----------------STARTING LCMV PIPELINE-----------------")
-py_folder = os.path.dirname(os.path.realpath(__file__))
-workspace_folder = py_folder
-folder_to_all_data = os.path.join(workspace_folder, 'data')
-folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test')
 
 class SpatialTrackingPipeline:
     def __init__(self, run_idx, config, folder_to_test_data, n_mics=4, verbose=1):
@@ -329,12 +325,18 @@ class SpatialTrackingPipeline:
 # ==========================================
 # CONFIGURATION
 # ==========================================
+
+py_folder = os.path.dirname(os.path.realpath(__file__))
+workspace_folder = py_folder
+folder_to_all_data = os.path.join(workspace_folder, 'data')
+folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
+
 models_folder = os.path.join(workspace_folder, 'models')
 
 pipeline_config = {
     # --- Models Config ---
-    'csd_path': os.path.join(models_folder, 'model3_GEVD_30_3.h5'),
-    'doa_path': os.path.join(models_folder, 'model18_GEVD_30_3.h5'),
+    'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_19_05.h5'),
+    'doa_path': os.path.join(models_folder, 'model_angle_GEVD_19_05.h5'),
 
     # --- STFT Config ---
     'n_fft': 2048,
