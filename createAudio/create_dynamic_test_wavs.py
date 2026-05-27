@@ -1,95 +1,95 @@
 from create_data_base import *
+from abc import ABC, abstractmethod
 
-
-def generate_circular_trajectory(config: Config, room_dim: np.ndarray, mic_positions: np.ndarray,
-                                 start_angle: float, end_angle: float, vel: float, s_R: float,
-                                 sentence_duration: float = 0, num_updates: int = 0) -> np.ndarray:
-    # generate coordinates for a circular trajectory from start_angle to end_angle
-    if sentence_duration > 0:
-        num_updates = int(np.ceil(sentence_duration / config.spatial_update_rate))
-    elif num_updates > 0:
-        num_updates = num_updates
-    else:
-        raise ValueError("Either sentence_duration or num_updates must be provided.")
-    angles = np.linspace(start_angle, end_angle, num_updates)
-    radius = s_R
-    center = np.array([room_dim[0] / 2, room_dim[1] / 2])
-    trajectory = np.zeros((3, num_updates)) 
-    trajectory[0, :] = center[0] + radius * np.cos(np.radians(angles))
-    trajectory[1, :] = center[1] + radius * np.sin(np.radians(angles))
-    trajectory[2, :] = 1  # Fixed height of 1.5 m
+class TrajectoryGenerator(ABC):
+    """Base class for all acoustic speaker trajectories."""
     
+    def __init__(self, config, room_dim: np.ndarray, s_R: float):
+        self.config = config
+        self.room_dim = room_dim
+        self.s_R = s_R
+        # Calculate center once during initialization
+        self.center = np.array([room_dim[0] / 2, room_dim[1] / 2])
+
+    def _calculate_num_updates(self, sentence_duration: float = 0, num_updates: int = 0) -> int:
+        """Centralized logic for determining trajectory length."""
+        if sentence_duration > 0:
+            return int(np.ceil(sentence_duration / self.config.spatial_update_rate))
+        elif num_updates > 0:
+            return num_updates
+        else:
+            raise ValueError("Either sentence_duration or num_updates must be provided.")
+
+    @abstractmethod
+    def generate(self, **kwargs) -> np.ndarray:
+        """Must be implemented by subclasses to generate the 3D coordinates."""
+        pass
+
+
+
+
+class CircularTrajectory(TrajectoryGenerator):
+    def generate(self, start_angle: float, end_angle: float, 
+                 sentence_duration: float = 0, num_updates: int = 0, height: float = 1.5) -> np.ndarray:
+        
+        num_updates = self._calculate_num_updates(sentence_duration, num_updates)
+        angles = np.linspace(start_angle, end_angle, num_updates)
+        
+        trajectory = np.zeros((3, num_updates))
+        trajectory[0, :] = self.center[0] + self.s_R * np.cos(np.radians(angles))
+        trajectory[1, :] = self.center[1] + self.s_R * np.sin(np.radians(angles))
+        trajectory[2, :] = height
+        
+        return trajectory
+
+
+class StaticTrajectory(TrajectoryGenerator):
+    def generate(self, angle: float, 
+                 sentence_duration: float = 0, num_updates: int = 0, height: float = 1.0) -> np.ndarray:
+        
+        num_updates = self._calculate_num_updates(sentence_duration, num_updates)
+        
+        trajectory = np.zeros((3, num_updates))
+        trajectory[0, :] = self.center[0] + self.s_R * np.cos(np.radians(angle))
+        trajectory[1, :] = self.center[1] + self.s_R * np.sin(np.radians(angle))
+        trajectory[2, :] = height
+        
+        return trajectory
+
+
+class StopWaitGoTrajectory(TrajectoryGenerator):
+    def generate(self, start_angle: float, pause_angle: float, end_angle: float, 
+                 vel: float, sentence_duration: float, height: float = 1.5) -> tuple:
+        
+        target_total_updates = self._calculate_num_updates(sentence_duration=sentence_duration)
+        
+        # Calculate distances and times
+        distance_move1 = np.radians(abs(pause_angle - start_angle)) * self.s_R
+        distance_move2 = np.radians(abs(end_angle - pause_angle)) * self.s_R
+        
+        time_move1 = distance_move1 / vel
+        time_move2 = distance_move2 / vel
+        
+        num_updates_move1 = self._calculate_num_updates(sentence_duration=time_move1)
+        num_updates_move2 = self._calculate_num_updates(sentence_duration=time_move2)
+        num_updates_pause = target_total_updates - num_updates_move1 - num_updates_move2
+        
+        if num_updates_pause < 0:
+            raise ValueError("Sentence duration is too short for the given velocities and angle distances.")
+
+        # Re-use the sibling classes to generate the segments
+        circular_gen = CircularTrajectory(self.config, self.room_dim, self.s_R)
+        static_gen = StaticTrajectory(self.config, self.room_dim, self.s_R)
+
+        traj_part1 = circular_gen.generate(start_angle, pause_angle, num_updates=num_updates_move1, height=height)
+        traj_part2 = static_gen.generate(pause_angle, num_updates=num_updates_pause, height=height)
+        traj_part3 = circular_gen.generate(pause_angle, end_angle, num_updates=num_updates_move2, height=height)
+
+        # Stitch them together
+        full_trajectory = np.concatenate([traj_part1, traj_part2, traj_part3], axis=1)
+
+        return full_trajectory
     
-    return trajectory
-
-def generate_static_trajectory(config: Config, room_dim: np.ndarray, mic_positions: np.ndarray,
-                               angle: float, s_R: float, 
-                               sentence_duration: float = 0, num_updates: int = 0) -> np.ndarray:
-    # generate coordinates for a static trajectory at a fixed angle
-    if sentence_duration > 0:
-        num_updates = int(np.ceil(sentence_duration / config.spatial_update_rate))
-    elif num_updates > 0:
-        num_updates = num_updates
-    else:
-        raise ValueError("Either sentence_duration or num_updates must be provided.")
-    radius = s_R
-
-    center = np.array([room_dim[0] / 2, room_dim[1] / 2])
-    trajectory = np.zeros((3, num_updates))
-    trajectory[0, :] = center[0] + radius * np.cos(np.radians(angle))
-    trajectory[1, :] = center[1] + radius * np.sin(np.radians(angle))
-    trajectory[2, :] = 1  # Fixed height of 1 m
-
-    return trajectory
-
-
-
-
-def generate_stop_wait_go_trajectory(config: Config, room_dim: np.ndarray, mic_positions: np.ndarray,
-                            sentence_duration: float, 
-                            start_angle: float, pause_angle: float, end_angle: float, vel: float, s_R: float) -> np.ndarray:
-    # generate coordinates for a stop-and-go trajectory: start_angle -> stop_angle -> end_angle
-    # Use generate_circular_trajectory for the first and last segments, and a static trajectory for the middle segment
-
-    num_updates = int(np.ceil(sentence_duration / config.spatial_update_rate))
-    # calculate using vel and distance between angles to determine how many updates for each segment
-    # Split to 3 segments: move from start_angle to pause_angle, stay at pause_angle, then move from pause_angle to end_angle
-    distance_move1 = np.radians(abs(pause_angle - start_angle)) * s_R
-    distance_move2 = np.radians(abs(end_angle - pause_angle)) * s_R
-    time_move1 = distance_move1 / vel
-    time_move2 = distance_move2 / vel
-    num_updates_move1 = int(np.ceil(time_move1 / config.spatial_update_rate))
-    num_updates_move2 = int(np.ceil(time_move2 / config.spatial_update_rate))
-    num_updates_pause = num_updates - num_updates_move1 - num_updates_move2
-    if num_updates_pause < 0:
-        raise ValueError("Sentence duration is too short for the given velocities and angle distances.")
-
-    time_stop = num_updates_pause * config.spatial_update_rate
-    print(f"Stop-and-go trajectory: move1={num_updates_move1} updates, pause={num_updates_pause} updates, move2={num_updates_move2} updates")
-    print(f"Total updates: {num_updates_move1 + num_updates_pause + num_updates_move2}, expected: {num_updates}")
-    # print times
-    print(f"Times: move1={time_move1:.2f} s, pause={time_stop:.2f} s, move2={time_move2:.2f} s")
-    print(f"Total time: {time_move1 + time_stop + time_move2:.2f} s, expected: {sentence_duration:.2f} s")
-    while (time_move1 + time_stop + time_move2) < sentence_duration:
-        # If total time is less than sentence_duration, add more pause time
-        extra_time = sentence_duration - (time_move1 + time_stop + time_move2)
-        extra_updates = int(np.ceil(extra_time / config.spatial_update_rate))
-        num_updates_pause += extra_updates
-        time_stop += extra_time
-        print(f"Added extra pause time: {extra_time:.2f} s ({extra_updates} updates)")
-    num_updates = num_updates_move1 + num_updates_pause + num_updates_move2
-
-    trajectory = np.zeros((3, num_updates))
-    # First segment: start_angle to pause_angle
-    trajectory[:, :num_updates_move1] = generate_circular_trajectory(config, room_dim, mic_positions, start_angle, pause_angle, vel, s_R, sentence_duration= time_move1)
-    # Middle segment: stay at pause_angle
-    trajectory[:, num_updates_move1:num_updates_move1 + num_updates_pause] = generate_static_trajectory(config, room_dim, mic_positions, pause_angle, s_R, num_updates= num_updates_pause)
-    # Last segment: pause_angle to end_angle
-    trajectory[:, num_updates_move1 + num_updates_pause:] = generate_circular_trajectory(config, room_dim, mic_positions, pause_angle, end_angle, vel, s_R, sentence_duration= time_move2)
-
-    return trajectory, num_updates_move1, num_updates_pause, num_updates_move2
-
-
 def plot_trajectory(trajectory: np.ndarray, mic_positions: np.ndarray, room_dim: np.ndarray, config: Config, name: str = 'trajectory_plot.png'):
     plt.figure(figsize=(6, 6))
     plt.plot(trajectory[0, :], trajectory[1, :], label='Speaker Trajectory', marker='o')
@@ -117,7 +117,7 @@ def plot_trajectory(trajectory: np.ndarray, mic_positions: np.ndarray, room_dim:
     plt.savefig(os.path.join(config.plot_path, name))
 
 
-    # 
+
 
     
 
@@ -340,7 +340,7 @@ class Config:
     """Configuration parameters for dataset generation.
     """
 
-    seed = 20
+    seed = 31
     
     # Acoustic parameters
     c = 340                     # Sound velocity (m/s)
@@ -388,7 +388,7 @@ class Config:
     
 
     # -> Linear
-    vel = 0.5
+    vel = 2
     
 
 
@@ -436,9 +436,22 @@ if __name__ == "__main__":
 
     s_R = config.R + config.noise_R * (np.random.rand() - 0.5)  # Add some noise to the radius for variability
     print("Generating circular trajectory for test sample...")
-    tragectory = generate_circular_trajectory(config, room_dim=room_dim, mic_positions=mic_positions, sentence_duration=5.0, start_angle=config.start_angle, end_angle=config.end_angle, vel=config.vel, s_R=s_R)
-    plot_trajectory(tragectory, mic_positions, room_dim, config)
+    trajectory_gen = CircularTrajectory(config, room_dim, s_R)
+    trajectory = trajectory_gen.generate(
+        start_angle=config.start_angle,
+        end_angle=config.end_angle,
+        sentence_duration=5.0,  # 5 seconds duration for the test sample
+        height=1.5
+    )
+    plot_trajectory(trajectory, mic_positions, room_dim, config, name='circular_trajectory.png')
 
-
-    tragectory = generate_stop_wait_go_trajectory(config, room_dim=room_dim, mic_positions=mic_positions, sentence_duration=10.0, start_angle=config.start_angle, pause_angle=config.pause_angle, end_angle=config.end_angle, vel=config.vel, s_R=s_R)
-    plot_trajectory(tragectory[0], mic_positions, room_dim, config, name='stop_wait_go_trajectory_plot.png')
+    trajectory_gen = StopWaitGoTrajectory(config, room_dim, s_R)
+    trajectory = trajectory_gen.generate(
+            start_angle=config.start_angle,
+            pause_angle=config.pause_angle,
+            end_angle=config.end_angle,
+            vel=config.vel,
+            sentence_duration=10.0,  # 10 seconds duration for the test sample
+            height=1.5
+        )
+    plot_trajectory(trajectory, mic_positions, room_dim, config, name='stop_wait_go_trajectory.png')
