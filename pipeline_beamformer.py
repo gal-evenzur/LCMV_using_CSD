@@ -558,6 +558,171 @@ class SpatialSeparationPipeline:
             print("\n--- Evaluation Results ---")
             print(f"SDR: {sdr.mean():.2f} dB | SIR: {sir.mean():.2f} dB")
 
+    def investigate_geometry(self):
+        """
+        Diagnoses the acoustic geometry of the current audio file.
+        1. Extracts the physical DOA index for each speaker.
+        2. Calculates the spatial correlation between the dominant noise direction
+           and each speaker's spatial fingerprint.
+        """
+        print("\n" + "="*55)
+        print(" ACOUSTIC GEOMETRY INVESTIGATION")
+        print("="*55)
+        
+        # ---------------------------------------------------------
+        # 1. Speaker Direction of Arrival (DOA) Indices
+        # ---------------------------------------------------------
+        print("\n[1] Microphone Array Geometry (DOA Sectors per Speaker):")
+        
+        # Extract frames where only one speaker is active (CSD=1)
+        single_frames_idx = np.where(self.y_prob_stat_mf == 1)[0]
+        doas_single = self.y2_prob_stat_mf[single_frames_idx]
+        
+        # Measure output energy to know WHICH speaker was active in those frames
+        power_0 = np.mean(np.abs(self.s_hat_total[single_frames_idx, :, 0])**2, axis=1)
+        power_1 = np.mean(np.abs(self.s_hat_total[single_frames_idx, :, 1])**2, axis=1)
+        
+        # Assign DOAs to Speaker 0 when its output energy is significantly higher
+        doas_spk0 = doas_single[power_0 > power_1 * 10]
+        # Assign DOAs to Speaker 1 when its output energy is significantly higher
+        doas_spk1 = doas_single[power_1 > power_0 * 10]
+        
+        unique_doas_0 = np.unique(doas_spk0[doas_spk0 > 0]).astype(int)
+        unique_doas_1 = np.unique(doas_spk1[doas_spk1 > 0]).astype(int)
+        
+        print(f"    Speaker 0 is moving through sectors: {unique_doas_0}")
+        print(f"    Speaker 1 is moving through sectors: {unique_doas_1}")
+        print("    -> Note: The array spans 180 degrees (Indices 1 to 18).")
+        print("    -> 'Broadside' (Optimal separation) is around index 9.")
+        print("    -> 'Endfire' (Poor separation) is near index 1 or 18.")
+        
+        # ---------------------------------------------------------
+        # 2. Spatial Correlation with Directional Noise
+        # ---------------------------------------------------------
+        print("\n[2] Spatial Overlap (Speaker vs. Background Noise):")
+        correlation_scores = np.zeros(self.num_speech)
+        
+        for p in range(self.num_speech):
+            corr_per_freq = np.zeros(self.NUP)
+            
+            for f in range(self.NUP):
+                # Target spatial fingerprint
+                g_f = self.G[f, :, p]
+                
+                # Eigendecomposition of the noise matrix
+                w, v = np.linalg.eig(self.Qvv[f, :, :])
+                
+                # Dominant noise direction is the eigenvector of the largest eigenvalue
+                noise_vector = v[:, np.argmax(w.real)]
+                
+                # Complex Cosine Similarity
+                numerator = np.abs(np.vdot(g_f, noise_vector))**2
+                denominator = (np.linalg.norm(g_f)**2) * (np.linalg.norm(noise_vector)**2)
+                corr_per_freq[f] = numerator / (denominator + 1e-15)
+                
+            correlation_scores[p] = np.mean(corr_per_freq)
+            print(f"    Speaker {p} Spatial Overlap: {correlation_scores[p]:.4f}")
+            
+        print("\n    -> Score Guide: 0.0 means completely orthogonal (perfect).")
+        print("    -> Score Guide: 1.0 means exact same direction (impossible to separate).")
+        print("="*55 + "\n")
+
+    def compute_noise_reduction(self):
+        """
+        Calculates the quantitative Noise Reduction (NR) in dB.
+        1. Calculates the true final target NR using shared late valid frames.
+        2. Uses a moving average over early frames to find when Speaker 0 hits 95% of its target.
+        3. Compares the average of all valid frames vs the converged frames.
+        """
+        if self.verbose: print("\n--- Computing Noise Reduction Metrics ---")
+        
+        noise_frames_idx = np.where(self.y_prob_stat_mf == 0)[0]
+        
+        if len(noise_frames_idx) == 0:
+            if self.verbose: print("No pure noise frames found to evaluate.")
+            return
+
+        # Energy per frame for input (Mic 0) and outputs
+        power_in_frames = np.mean(np.abs(self.z_k[noise_frames_idx, :, 0])**2, axis=1)
+        power_out_frames = np.zeros((self.num_speech, len(noise_frames_idx)))
+        for p in range(self.num_speech):
+            power_out_frames[p, :] = np.mean(np.abs(self.s_hat_total[noise_frames_idx, :, p])**2, axis=1)
+
+        valid_idx_0 = np.where(power_out_frames[0, :] > 1e-18)[0]
+        valid_idx_1 = np.where(power_out_frames[1, :] > 1e-18)[0]
+
+        # ---------------------------------------------------------
+        # Part 1: Fair "Apples-to-Apples" NR Comparison (The Target)
+        # ---------------------------------------------------------
+        shared_valid_idx = np.intersect1d(valid_idx_0, valid_idx_1)
+        
+        target_nr = [0.0, 0.0]
+        
+        if len(shared_valid_idx) > 0:
+            if self.verbose: print(f"\n[1] Fair Noise Attenuation (Over {len(shared_valid_idx)} shared valid frames):")
+            mean_power_in_shared = np.mean(power_in_frames[shared_valid_idx])
+            
+            for p in range(self.num_speech):
+                mean_power_out_shared = np.mean(power_out_frames[p, shared_valid_idx])
+                target_nr[p] = 10 * np.log10(mean_power_in_shared / (mean_power_out_shared + 1e-15))
+                if self.verbose: print(f"    - Speaker {p} Channel: Final target NR = {target_nr[p]:.2f} dB")
+        else:
+            print("    - No shared valid frames found. Cannot compute target NR.")
+            return
+
+        # ---------------------------------------------------------
+        # Part 2: Empirical Convergence Time (Speaker 0)
+        # ---------------------------------------------------------
+        # We look at the frames for Speaker 0 before Speaker 1 became valid
+        early_frames_0 = np.setdiff1d(valid_idx_0, shared_valid_idx)
+        
+        if len(early_frames_0) > 0 and target_nr[0] > 0:
+            if self.verbose: print("\n[2] Empirical Convergence Analysis (Speaker 0):")
+            
+            # The target is 95% of the final stable NR calculated in Part 1
+            threshold_db = target_nr[0] * 0.95
+            print(f"    - Target NR: {target_nr[0]:.2f} dB (95% Threshold: {threshold_db:.2f} dB)")
+            
+            # Use a moving average window to smooth frame-to-frame variance
+            window_size = 10
+            convergence_frame_count = 0
+            converged = False
+            
+            for i in range(len(early_frames_0) - window_size):
+                window_idx = early_frames_0[i:i+window_size]
+                
+                # Mean energy over the sliding window
+                win_power_in = np.mean(power_in_frames[window_idx])
+                win_power_out = np.mean(power_out_frames[0, window_idx])
+                win_nr_db = 10 * np.log10(win_power_in / (win_power_out + 1e-15))
+                
+                if win_nr_db >= threshold_db:
+                    # Plus window_size/2 to approximate the center of the window
+                    convergence_frame_count = i + (window_size // 2)
+                    converged = True
+                    break
+                    
+            if converged:
+                print(f"    - Frames to reach 95% convergence: ~{convergence_frame_count} frames")
+            else:
+                print("    - Speaker 0 did not clearly hit the 95% threshold before the shared phase.")
+
+        # ---------------------------------------------------------
+        # Part 3: Final Sanity Check (All frames vs. Converged)
+        # ---------------------------------------------------------
+        if len(early_frames_0) > 0 and len(shared_valid_idx) > 0:
+            if self.verbose: print("\n[3] Sanity Check: All Frames vs Converged Frames (Speaker 0):")
+            
+            # Combine early frames and shared valid frames
+            all_valid_idx = np.union1d(early_frames_0, shared_valid_idx)
+            
+            mean_power_in_all = np.mean(power_in_frames[all_valid_idx])
+            mean_power_out_all = np.mean(power_out_frames[0, all_valid_idx])
+            nr_all_db = 10 * np.log10(mean_power_in_all / (mean_power_out_all + 1e-15))
+            
+            print(f"    - NR for Speaker 0 (All valid frames): {nr_all_db:.2f} dB")
+            print(f"    - NR for Speaker 0 (Converged frames only): {target_nr[0]:.2f} dB")
+
     def run(self):
         """Orchestrates the separation pipeline with timing."""
         print(f"\n{'='*55}")
@@ -605,6 +770,9 @@ class SpatialSeparationPipeline:
         print(f"{'-'*55}")
         print(f" TOTAL EXECUTION TIME:             {total_time:>6.2f} seconds")
         print(f"{'='*55}\n")
+
+        self.investigate_geometry()
+        self.compute_noise_reduction()
         
         return self
 
