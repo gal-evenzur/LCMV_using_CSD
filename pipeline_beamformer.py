@@ -397,9 +397,9 @@ class SpatialSeparationPipeline:
             # Batch invert all 1,025 matrices: (NUP, M, M)
             inv_Qvv = LA.inv(self.Qvv + reg_matrix)
 
-            # Case B: One slot -> MVDR
+            # Case B1: Only Slot 0 active (Speaker 1 only)
             if fc[0, 0] != 0 and fc[0, 1] == 0:
-                # Isolate target spatial fingerprint: (NUP, M, 1)
+                # Isolate target spatial fingerprint for Speaker 1: (NUP, M, 1)
                 g = self.G[:, :, 0:1] 
                 g_conj = g.conj().transpose(0, 2, 1) # (NUP, 1, M)
                 
@@ -408,15 +408,41 @@ class SpatialSeparationPipeline:
                 inv_temp = (g_conj @ c) + epsilon      # (NUP, 1, 1)
                 w = c / inv_temp                       # (NUP, M, 1)
                 
-                # Save weights and apply filter
+                # Save weights
                 w_flat = np.squeeze(w, axis=2)
                 self.W[l, :, :, 0] = w_flat
-                self.W[l, :, :, 1] = w_flat
+                self.W[l, :, :, 1] = 0  # Zero out weights for the inactive speaker
                 
-                # Apply filter to signal: (NUP, 1, M) @ (NUP, M, 1) -> (NUP, 1, 1)
+                # Apply filter to signal
                 s_hat_j = w.conj().transpose(0, 2, 1) @ z_frame
                 s_hat_flat = np.squeeze(s_hat_j)
+                
+                # Route to Speaker 1 and mute Speaker 2
                 s_hat[0, :] = s_hat_flat
+                s_hat[1, :] = 1e-10
+
+            # Case B2: Only Slot 1 active (Speaker 2 only)
+            elif fc[0, 0] == 0 and fc[0, 1] != 0:
+                # Isolate target spatial fingerprint for Speaker 2: (NUP, M, 1)
+                g = self.G[:, :, 1:2] 
+                g_conj = g.conj().transpose(0, 2, 1) # (NUP, 1, M)
+                
+                # Batched MVDR formula
+                c = inv_Qvv @ g                        # (NUP, M, 1)
+                inv_temp = (g_conj @ c) + epsilon      # (NUP, 1, 1)
+                w = c / inv_temp                       # (NUP, M, 1)
+                
+                # Save weights
+                w_flat = np.squeeze(w, axis=2)
+                self.W[l, :, :, 0] = 0
+                self.W[l, :, :, 1] = w_flat
+                
+                # Apply filter to signal
+                s_hat_j = w.conj().transpose(0, 2, 1) @ z_frame
+                s_hat_flat = np.squeeze(s_hat_j)
+                
+                # Mute Speaker 1 and route to Speaker 2
+                s_hat[0, :] = 1e-10
                 s_hat[1, :] = s_hat_flat
 
             # Case C: Two slots -> LCMV
