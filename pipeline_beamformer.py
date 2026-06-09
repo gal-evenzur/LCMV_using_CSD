@@ -555,8 +555,11 @@ class SpatialSeparationPipeline:
         sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(ref_sources.T + 1e-9, est_sources.T, compute_permutation=True)
 
         if self.verbose:
-            print("\n--- Evaluation Results ---")
-            print(f"SDR: {sdr.mean():.2f} dB | SIR: {sir.mean():.2f} dB")
+            print("\n--- Evaluation Results (During Overlap) ---")
+            print(f"Speaker 0 -> SDR: {sdr[0]:.2f} dB | SIR: {sir[0]:.2f} dB | SAR: {sar[0]:.2f} dB")
+            print(f"Speaker 1 -> SDR: {sdr[1]:.2f} dB | SIR: {sir[1]:.2f} dB | SAR: {sar[1]:.2f} dB")
+            print("-" * 45)
+            print(f"Average   -> SDR: {sdr.mean():.2f} dB | SIR: {sir.mean():.2f} dB | SAR: {sar.mean():.2f} dB")
 
     def investigate_geometry(self):
         """
