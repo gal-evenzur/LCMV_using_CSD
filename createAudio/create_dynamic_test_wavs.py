@@ -1,6 +1,7 @@
 from create_data_base import *
+import scipy
 from abc import ABC, abstractmethod
-
+# I FUCKING WASTED MY TIME HEREE
 class TrajectoryGenerator(ABC):
     """Base class for all acoustic speaker trajectories."""
     
@@ -119,7 +120,49 @@ def plot_trajectory(trajectory: np.ndarray, mic_positions: np.ndarray, room_dim:
 
 
 
+def dynamic_convolve(dry_signal: np.ndarray, trajectory: np.ndarray, mic_positions: np.ndarray,
+                      config: Config) -> np.ndarray:
+    """
+    Applies dynamic RIRs to a moving source using Overlap-Add.
+    """
+    frame_length = int(config.fs * config.frame_size_sec)
+    hop_length = frame_length // 2  # 50% overlap is standard
     
+    # Initialize output array (needs to be longer than input to accommodate RIR tail)
+    out_length = len(dry_signal) + config.n_rir_samples - 1
+    output_signal = np.zeros((out_length, config.M)) # M is num microphones
+    
+    window = np.hanning(frame_length)
+    
+    for i, start_idx in enumerate(range(0, len(dry_signal) - frame_length, hop_length)):
+        end_idx = start_idx + frame_length
+        
+        # 1. Extract and window the dry frame
+        frame = dry_signal[start_idx:end_idx] * window
+        
+        # 2. Get the current spatial coordinate
+        current_pos = trajectory[i]
+        
+        # 3. Generate the instantaneous RIR
+        h_inst = rir.generate(
+            c=config.c,
+            fs=config.fs,
+            r=mic_positions.tolist(),
+            s=current_pos,
+            L=config.room_dim,
+            beta=config.T60,
+            ns=config.n_rir_samples
+        )
+        
+        # 4. Convolve frame with instantaneous RIR (using FFT convolution for speed)
+        # h_inst shape: (n_rir_samples, M)
+        convolved_frame = scipy.signal.fftconvolve(frame[:, None], h_inst, axes=0)
+        
+        # 5. Overlap-Add into the master output array
+        conv_len = len(convolved_frame)
+        output_signal[start_idx:start_idx + conv_len, :] += convolved_frame
+        
+    return output_signal
 
 
 def create_test_sample_dynamic(
@@ -143,6 +186,16 @@ def create_test_sample_dynamic(
     
     # --- Generate speaker and mic positions ---
     pos_and_rir_time = time.time()
+    trajectory_gen = CircularTrajectory(config, room_dim, config.R)
+    trajectory = trajectory_gen.generate(
+        start_angle=config.start_angle,
+        end_angle=config.end_angle,
+        sentence_duration=10.0,  # 10 seconds duration for the test sample
+        height=1.5
+    )
+    mic_positions, *_ = create_semicircular_mic_array(center=np.array([room_dim[0] / 2, room_dim[1] / 2]), 
+                                                      radius=0.1, height=1.5, angle_resolution=360, selected_indices=[0, 54, 119, 179])
+
     simulator = AcousticTrajectorySimulator(room_dim.tolist(), config.R, config.noise_R, num_jumps=1)
     s_first, label_first, s_second, label_second, s_noise, mic_positions = simulator.generate()
     # dim(s_first) = (3, num_jumps), label_first = (num_jumps,), etc.
