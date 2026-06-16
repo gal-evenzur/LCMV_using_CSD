@@ -560,6 +560,9 @@ class SpatialSeparationPipeline:
             print(f"Speaker 1 -> SDR: {sdr[1]:.2f} dB | SIR: {sir[1]:.2f} dB | SAR: {sar[1]:.2f} dB")
             print("-" * 45)
             print(f"Average   -> SDR: {sdr.mean():.2f} dB | SIR: {sir.mean():.2f} dB | SAR: {sar.mean():.2f} dB")
+            
+        # Return the mean evaluation metrics for external tracking
+        return sdr.mean(), sir.mean(), sar.mean()
 
     def investigate_geometry(self):
         """
@@ -643,7 +646,7 @@ class SpatialSeparationPipeline:
         
         if len(noise_frames_idx) == 0:
             if self.verbose: print("No pure noise frames found to evaluate.")
-            return
+            return None, None
 
         # Energy per frame for input (Mic 0) and outputs
         power_in_frames = np.mean(np.abs(self.z_k[noise_frames_idx, :, 0])**2, axis=1)
@@ -671,7 +674,7 @@ class SpatialSeparationPipeline:
                 if self.verbose: print(f"    - Speaker {p} Channel: Final target NR = {target_nr[p]:.2f} dB")
         else:
             print("    - No shared valid frames found. Cannot compute target NR.")
-            return
+            return None, None
 
         # ---------------------------------------------------------
         # Part 2: Empirical Convergence Time (Speaker 0)
@@ -726,6 +729,9 @@ class SpatialSeparationPipeline:
             print(f"    - NR for Speaker 0 (All valid frames): {nr_all_db:.2f} dB")
             print(f"    - NR for Speaker 0 (Converged frames only): {target_nr[0]:.2f} dB")
 
+        # Return the target noise reduction for both speakers
+        return target_nr[0], target_nr[1]
+
     def run(self):
         """Orchestrates the separation pipeline with timing."""
         print(f"\n{'='*55}")
@@ -751,7 +757,8 @@ class SpatialSeparationPipeline:
         self.run_online_separation()
         t_sep = time.time() - step_start
         print(f"[⏱] 3. Run Online Separation:      {t_sep:>6.2f} seconds")
-        # print time per frame for the online separation step
+        
+        # Print time per frame for the online separation step
         if self.verbose > 1:
             num_frames = len(self.y2_prob_stat_mf)
             time_per_frame = t_sep / num_frames
@@ -765,7 +772,14 @@ class SpatialSeparationPipeline:
 
         # 5. Evaluate and Save
         step_start = time.time()
-        self.evaluate_and_save()
+        
+        # Capture the returned metrics if evaluation is possible
+        if self.evaluate:
+            sdr_avg, sir_avg, sar_avg = self.evaluate_and_save()
+        else:
+            self.evaluate_and_save()
+            sdr_avg, sir_avg, sar_avg = None, None, None
+            
         t_eval = time.time() - step_start
         print(f"[⏱] 5. Evaluate and Save:          {t_eval:>6.2f} seconds")
 
@@ -775,9 +789,12 @@ class SpatialSeparationPipeline:
         print(f"{'='*55}\n")
 
         self.investigate_geometry()
-        self.compute_noise_reduction()
         
-        return self
+        # Capture NR metrics
+        nr_0, nr_1 = self.compute_noise_reduction()
+        
+        # Return all 5 metrics to the orchestrator script
+        return sdr_avg, sir_avg, sar_avg, nr_0, nr_1
 
 if __name__ == "__main__":
     # Dynamically locate the workspace
