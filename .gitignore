@@ -5,3 +5,4 @@ TIMIT/
 *.wav
 *.npy
 *.npz
+.audio-env/

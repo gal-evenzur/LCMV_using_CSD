@@ -1,0 +1,252 @@
+from pathlib import Path
+from typing import Tuple
+from typing import Optional
+import argparse
+import numpy as np
+from scipy.spatial.transform import Rotation as R
+from scipy.io import wavfile
+import matplotlib.pyplot as plt
+import das_generator as generator
+import soundfile as sf
+import os
+
+
+def load_audio(file_path: Path, num_repeats: int = 1) -> Tuple[int, np.ndarray]:
+    """Load audio file and optionally repeat it to increase length"""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Audio file '{file_path}' not found")
+
+    audio_data, fs = sf.read(file_path)
+    # Make sure fs is an integer and audio_data is a 1D array
+    if not isinstance(fs, int):
+        raise ValueError(f"Sample rate must be an integer, got {type(fs), fs}")
+    if audio_data.ndim > 1:
+        audio_data = audio_data[:, 0]  # Use only the first channel if stereo
+    audio_data = np.repeat(audio_data, num_repeats).astype(np.float64)
+
+    return fs, audio_data
+
+def generate_source_path(
+    movement_type: str,
+    len_source_signal: int,
+    hop: int,
+    source_position: Optional[np.ndarray] = None,
+    center: Optional[np.ndarray] = None,
+    radius: Optional[float] = None,
+    start_angle: float = 0.0,
+    end_angle: float = 2 * np.pi,
+) -> np.ndarray:
+    """
+    Generate source path.
+
+    Parameters:
+    -----------
+    movement_type : str
+        Type of movement ('line', 'circle', 'arc', or 'semi_circle')
+    len_source_signal : int
+        Length of the source signal
+    hop : int
+        Number of samples between position updates
+    source_position : np.ndarray, optional
+        Initial source position (Required for 'line' movement)
+    center : np.ndarray, optional
+        Center position for movements (Required for all movements)
+    radius : float, optional
+        Radius of the arc (Required for 'circle'/'arc' movements)
+    start_angle : float, optional
+        Absolute starting angle in radians (Default: 0.0)
+    end_angle : float, optional
+        Absolute ending angle in radians (Default: 2*pi)
+
+    Returns:
+    --------
+    sp_path : np.ndarray
+        Source path array of shape (3, len_source_signal)
+    """
+
+    # Initialize source path array
+    sp_path = np.zeros((3, len_source_signal))
+    movement = movement_type.lower()
+
+    # --- Phase 1 & 2: Initialization and Validation ---
+    if movement == "line":
+        if source_position is None or center is None:
+            raise ValueError("For 'line' movement, 'source_position' and 'center' must be provided.")
+        start_x, start_y, start_z = source_position
+        stop_x, stop_y = center[0] - 1.0, center[1] - 1.0
+        
+    elif movement in ["circle", "arc", "semi_circle"]:
+        if center is None or radius is None:
+            raise ValueError("For circle/arc movements, 'center' and 'radius' must be provided.")
+        # Calculate the total angular sweep
+        total_sweep = end_angle - start_angle
+        
+    else:
+        raise ValueError(f"Unsupported movement type: {movement_type}")
+
+    # --- Phase 3 & 4: Path Generation Loop ---
+    for ii in range(0, len_source_signal, hop):
+        # Calculate the progress fraction (0.0 to almost 1.0)
+        progress = ii / len_source_signal
+
+        if movement == "line":
+            # Calculate new source position (linear interpolation)
+            x_tmp = start_x + (progress * (stop_x - start_x))
+            y_tmp = start_y + (progress * (stop_y - start_y))
+            z_tmp = start_z  # Assuming flat line movement on Z
+
+            sp_new = np.array([x_tmp, y_tmp, z_tmp])
+
+        elif movement in ["circle", "arc", "semi_circle"]:
+            # Interpolate the current angle based on progress
+            current_angle = start_angle + (progress * total_sweep)
+
+            # Construct the coordinates directly in global space
+            x_tmp = center[0] + radius * np.cos(current_angle)
+            y_tmp = center[1] + radius * np.sin(current_angle)
+            z_tmp = center[2]  # Rests perfectly flat at the center's Z-height
+
+            sp_new = np.array([x_tmp, y_tmp, z_tmp])
+
+        # Store source path
+        end_idx = min(ii + hop, len_source_signal)
+        sp_path[:, ii:end_idx] = sp_new[:, np.newaxis]
+
+    return sp_path
+
+
+def main():
+    # Parse command line arguments
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    plots_dir = os.path.join(current_dir, "Results")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    parser = argparse.ArgumentParser(description="DAS Generator Example")
+    parser.add_argument(
+        "--audio", type=str, default="female_speech.wav", help="Path to audio file"
+    )
+    parser.add_argument(
+        "--repeats", type=int, default=1, help="Number of times to repeat the audio"
+    )
+    args = parser.parse_args()
+
+    # Load source signal
+    audio_path = Path(args.audio)
+    fs, source_signal = load_audio(audio_path, args.repeats)
+    len_source_signal = len(source_signal)
+
+    # Room dimensions
+    room_dimensions = np.array([5.0, 4.0, 3.5])  # (m)
+
+    # Receiver type
+    receiver_type = generator.mic_type.omnidirectional
+
+    # Receiver positions
+    # receiver_positions = np.array([[2.6, 2.1, 1.5]])
+    receiver_positions = np.array([[2.6, 2.1, 1.5], [2.6, 2.3, 1.5]])
+
+    print(f"Audio loaded: {len_source_signal} samples at {fs}Hz")
+    print(f"Room dimensions: {room_dimensions}")
+
+    # Calculate the center of gravity (centroid) of the receiver positions
+    center = np.mean(receiver_positions, axis=0)
+
+    
+    # Generate source path (moving) receiver paths (static)
+    movement_type = "circle"  # Source movement 'line' or 'circle'
+    hop = (
+        32  # Number of samples between each position update (reduces computation time)
+    )
+    sp_path = generate_source_path(
+        movement_type, len_source_signal, hop, center=center, radius=0.75, start_angle=np.deg2rad(50), end_angle=np.deg2rad(160)
+    )
+
+    # Plot 3D source path and receiver positions
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    for mm in range(receiver_positions.shape[0]):
+        ax.plot(
+            receiver_positions[mm, 0],
+            receiver_positions[mm, 1],
+            receiver_positions[mm, 2],
+            "x",
+            label=f"Receiver {mm + 1}",
+        )
+    ax.plot(sp_path[0, :], sp_path[1, :], sp_path[2, :], "r.", label="Source Path")
+    ax.set_xlim([0, room_dimensions[0]])
+    ax.set_ylim([0, room_dimensions[1]])
+    ax.set_zlim([0, room_dimensions[2]])
+    ax.set_xlabel("X Axis")
+    ax.set_ylabel("Y Axis")
+    ax.set_zlabel("Z Axis")
+    ax.grid(True)
+    ax.set_box_aspect(
+        [room_dimensions[0], room_dimensions[1], room_dimensions[2]]
+    )  # Aspect ratio according to room dimensions
+    plt.legend()
+    plt.title("3D Source Path and Receiver Positions")
+    plt.savefig(os.path.join(plots_dir, "source_path_and_receivers.png"))
+
+    # Plot 2D source path and receiver positions
+    plt.figure()
+    for mm in range(receiver_positions.shape[0]):
+        plt.plot(
+            receiver_positions[mm, 0],
+            receiver_positions[mm, 1],
+            "x",
+            label=f"Receiver {mm + 1}",
+        )
+    plt.plot(sp_path[0, :], sp_path[1, :], "r.", label="Source Path")
+    plt.xlim([0, room_dimensions[0]])
+    plt.ylim([0, room_dimensions[1]])
+    plt.xlabel("X Axis")
+    plt.ylabel("Y Axis")
+    plt.grid(True)
+    plt.gca().set_aspect("equal", adjustable="box")
+    plt.legend()
+    plt.title("2D Source Path and Receiver Positions (X-Y Plane)")
+    plt.savefig(os.path.join(plots_dir, "source_path_and_receivers_2d.png"))
+
+    receiver_signals = generator.generate(
+        source_signal,  # Source signal
+        c=340,  # Sound velocity (m/s)
+        fs=fs,  # Sample frequency (samples/s)
+        rp_path=receiver_positions,  # Static receiver positions
+        sp_path=sp_path,  # Source positions for each sample
+        L=room_dimensions,  # Room dimensions [x y z] (m)
+        reverberation_time=0,  # Reverberation time (s)
+        nRIR=1024,  # Number of output samples
+        mtypes=receiver_type,  # Receiver type
+        orientation=[0, 0],  # Orientation of the receiver
+    )
+
+    # Check dimensions of input and output signals
+    print("Shape source_signal: ", source_signal.shape)
+    print("Shape receiver_signals: ", receiver_signals.shape)
+
+    # Plot input and output signals
+    t = np.linspace(0, (len(source_signal) - 1) / fs, len(source_signal))
+
+    plt.figure()
+    plt.subplot(211)
+    plt.plot(t, source_signal)
+    plt.title("in(n)")
+    plt.xlabel("Time [Seconds]")
+    plt.ylabel("Amplitude")
+
+    plt.subplot(212)
+    plt.plot(t, receiver_signals)
+    plt.title("out(n)")
+    plt.xlabel("Time [Seconds]")
+    plt.ylabel("Amplitude")
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(plots_dir, "dynamic_signals.png"))
+
+    # Save output signals to a WAV file
+    wavfile.write(os.path.join(plots_dir, "dynamic_receiver_signals.wav"), fs, receiver_signals)
+
+
+if __name__ == "__main__":
+    main()
