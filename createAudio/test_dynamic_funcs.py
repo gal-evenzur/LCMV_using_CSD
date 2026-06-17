@@ -60,8 +60,11 @@ sp_path, labels = generate_source_path(
     center=center,
     radius=0.75,
     angle_classes=np.arange(5, 176, 10),
-    start_angle=np.deg2rad(50),
-    end_angle=np.deg2rad(160)
+    fs=fs,
+    linear_velocity=2,
+    mode='bounce',
+    start_angle=np.deg2rad(0),
+    end_angle=np.deg2rad(90)
 )
 
 # Plot 3D source path and receiver positions
