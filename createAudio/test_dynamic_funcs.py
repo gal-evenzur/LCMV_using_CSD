@@ -50,12 +50,18 @@ center = np.mean(receiver_positions, axis=0)
 
 
 # Generate source path (moving) receiver paths (static)
-movement_type = "circle"  # Source movement 'line' or 'circle'
-hop = (
-    32  # Number of samples between each position update (reduces computation time)
-)
-sp_path = generate_source_path(
-    movement_type, len_source_signal, hop, center=center, radius=0.75, start_angle=np.deg2rad(50), end_angle=np.deg2rad(160)
+hop = 32  # Number of samples between each position update (reduces computation time)
+
+
+
+sp_path, labels = generate_source_path(
+    len_source_signal=len_source_signal,
+    hop=hop,
+    center=center,
+    radius=0.75,
+    angle_classes=np.arange(5, 176, 10),
+    start_angle=np.deg2rad(50),
+    end_angle=np.deg2rad(160)
 )
 
 # Plot 3D source path and receiver positions
@@ -104,6 +110,20 @@ plt.legend()
 plt.title("2D Source Path and Receiver Positions (X-Y Plane)")
 plt.savefig(os.path.join(plots_dir, "dynamic_source_path_and_receivers_2d.png"))
 
+
+# Plot angle labels over time
+label_time = np.arange(len(labels)) / fs
+plt.figure()
+plt.plot(label_time, labels, "b-")
+plt.xlabel("Time [Seconds]")
+plt.ylabel("Angle Label [Degrees]")
+plt.title("Angle Labels Over Time")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig(os.path.join(plots_dir, "dynamic_angle_labels.png"))
+
+
+
 receiver_signals = generator.generate(
     source_signal,  # Source signal
     c=340,  # Sound velocity (m/s)
@@ -120,6 +140,7 @@ receiver_signals = generator.generate(
 # Check dimensions of input and output signals
 print("Shape source_signal: ", source_signal.shape)
 print("Shape receiver_signals: ", receiver_signals.shape)
+print("Labels shape: ", labels.shape)
 
 # Plot input and output signals
 t = np.linspace(0, (len(source_signal) - 1) / fs, len(source_signal))

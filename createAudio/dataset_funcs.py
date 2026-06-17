@@ -8,7 +8,7 @@ import soundfile as sf
 from anf_generator import generate_signals
 from anf_generator.CoherenceMatrix import Parameters 
 import time
-from typing import Optional
+from typing import Tuple
 
 
 def fillline(startp, endp, pts):
@@ -627,91 +627,74 @@ def create_vad_dynamic(x: np.ndarray, hop: int, nfft: int) -> np.ndarray:
 
 
 def generate_source_path(
-    movement_type: str,
     len_source_signal: int,
     hop: int,
-    source_position: Optional[np.ndarray] = None,
-    center: Optional[np.ndarray] = None,
-    radius: Optional[float] = None,
+    center: np.ndarray,
+    radius: float,
+    angle_classes: np.ndarray,
     start_angle: float = 0.0,
     end_angle: float = 2 * np.pi,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Generate source path.
+    Generate an arc-based source trajectory and corresponding angle class labels.
 
     Parameters:
     -----------
-    movement_type : str
-        Type of movement ('line', 'circle', 'arc', or 'semi_circle')
     len_source_signal : int
-        Length of the source signal
+        Length of the source signal (total number of samples).
     hop : int
-        Number of samples between position updates
-    source_position : np.ndarray, optional
-        Initial source position (Required for 'line' movement)
-    center : np.ndarray, optional
-        Center position for movements (Required for all movements)
-    radius : float, optional
-        Radius of the arc (Required for 'circle'/'arc' movements)
+        Number of samples between position updates.
+    center : np.ndarray
+        Center position of the arc as a 3D array [x, y, z].
+    radius : float
+        Radius of the arc.
+    angle_classes : np.ndarray
+        1D array of discrete angles (in degrees) used for AoA classification.
     start_angle : float, optional
-        Absolute starting angle in radians (Default: 0.0)
+        Absolute starting angle in radians (Default: 0.0).
     end_angle : float, optional
-        Absolute ending angle in radians (Default: 2*pi)
+        Absolute ending angle in radians (Default: 2*pi).
 
     Returns:
     --------
     sp_path : np.ndarray
-        Source path array of shape (3, len_source_signal)
+        Source path array of shape (3, len_source_signal).
+    labels : np.ndarray
+        1D array of integer indices representing the closest angle class at each sample.
     """
 
-    # Initialize source path array
+    # Initialize output arrays
     sp_path = np.zeros((3, len_source_signal))
-    movement = movement_type.lower()
+    labels = np.zeros(len_source_signal, dtype=int)
 
-    # --- Phase 1 & 2: Initialization and Validation ---
-    if movement == "line":
-        if source_position is None or center is None:
-            raise ValueError("For 'line' movement, 'source_position' and 'center' must be provided.")
-        start_x, start_y, start_z = source_position
-        stop_x, stop_y = center[0] - 1.0, center[1] - 1.0
-        
-    elif movement in ["circle", "arc", "semi_circle"]:
-        if center is None or radius is None:
-            raise ValueError("For circle/arc movements, 'center' and 'radius' must be provided.")
-        # Calculate the total angular sweep
-        total_sweep = end_angle - start_angle
-        
-    else:
-        raise ValueError(f"Unsupported movement type: {movement_type}")
+    # Calculate the total angular sweep in radians
+    total_sweep = end_angle - start_angle
 
-    # --- Phase 3 & 4: Path Generation Loop ---
+    # Iterating over the length of the input in steps of 'hop'
     for ii in range(0, len_source_signal, hop):
-        # Calculate the progress fraction (0.0 to almost 1.0)
+        # 1. Calculate the progress fraction (0.0 to almost 1.0)
         progress = ii / len_source_signal
 
-        if movement == "line":
-            # Calculate new source position (linear interpolation)
-            x_tmp = start_x + (progress * (stop_x - start_x))
-            y_tmp = start_y + (progress * (stop_y - start_y))
-            z_tmp = start_z  # Assuming flat line movement on Z
+        # 2. Interpolate the current continuous angle in radians
+        current_angle_rad = start_angle + (progress * total_sweep)
 
-            sp_new = np.array([x_tmp, y_tmp, z_tmp])
+        # 3. Construct the 3D coordinates directly in global space
+        x_tmp = center[0] + radius * np.cos(current_angle_rad)
+        y_tmp = center[1] + radius * np.sin(current_angle_rad)
+        z_tmp = center[2]  # Trajectory rests flat at the center's Z-height
 
-        elif movement in ["circle", "arc", "semi_circle"]:
-            # Interpolate the current angle based on progress
-            current_angle = start_angle + (progress * total_sweep)
+        sp_new = np.array([x_tmp, y_tmp, z_tmp])
 
-            # Construct the coordinates directly in global space
-            x_tmp = center[0] + radius * np.cos(current_angle)
-            y_tmp = center[1] + radius * np.sin(current_angle)
-            z_tmp = center[2]  # Rests perfectly flat at the center's Z-height
+        # 4. Convert angle to degrees and wrap to 0-360 for consistent matching
+        current_angle_deg = np.degrees(current_angle_rad) % 360
 
-            sp_new = np.array([x_tmp, y_tmp, z_tmp])
+        # 5. Find the index of the closest angle class
+        # np.abs calculates the distance to all classes; np.argmin finds the index of the smallest distance
+        label_idx = np.argmin(np.abs(angle_classes - current_angle_deg))
 
-        # Store source path
+        # 6. Store the coordinates and label for the duration of the current hop
         end_idx = min(ii + hop, len_source_signal)
         sp_path[:, ii:end_idx] = sp_new[:, np.newaxis]
+        labels[ii:end_idx] = label_idx
 
-    return sp_path
-
-
+    return sp_path, labels
