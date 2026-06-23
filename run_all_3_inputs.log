@@ -1,0 +1,43 @@
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ ls
+[?2004l[0m[01;34mLCMV_using_CSD[0m
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ cd LCMV_using_CSD/p[K
+[?2004l[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python pipeline_beamformer.py 
+[?2004l2026-05-28 11:57:09.506818: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-05-28 11:57:09.522974: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-05-28 11:57:09.542247: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8473] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-05-28 11:57:09.548480: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1471] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-05-28 11:57:09.563816: I tensorflow/core/platform/cpu_feature_guard.cc:211] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 1)
+=======================================================
+--- Loading data for Experiment 1 ---
+Reference files found. Evaluation metrics will be computed.
+[⏱] 1. Load Data:                    0.02 seconds
+--- Computing STFTs ---
+[⏱] 2. Compute STFT:                 0.14 seconds
+--- Running Online Separation ---
+Processing frame 0/325
+Processing frame 100/325
+Processing frame 200/325
+Processing frame 300/325
+[⏱] 3. Run Online Separation:        3.52 seconds
+     - Time per frame: 0.0108 seconds/frame
+--- Reconstructing Audio (ISTFT) ---
+[⏱] 4. Reconstruct Audio:            0.03 seconds
+--- Saving Outputs ---
+--- Computing Evaluation Metrics ---
+/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py:529: FutureWarning: mir_eval.separation.bss_eval_sources
+	Deprecated as of mir_eval version 0.8.
+	It will be removed in mir_eval version 0.9.
+  sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(ref_sources.T + 1e-9, est_sources.T, compute_permutation=True)
+^[[A^[[A        ^[[A^[[A^[[A^[[A^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C^[[C
+--- Evaluation Results ---
+SDR: 7.64 dB | SIR: 16.27 dB
+[⏱] 5. Evaluate and Save:           44.56 seconds
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:              48.28 seconds
+=======================================================
+
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python pipeline_beamformer.py [12Pcd LCMV_using_CSD/ls[Kgit status[K[K

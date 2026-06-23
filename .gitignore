@@ -4,4 +4,5 @@ __pycache__/
 TIMIT/
 *.wav
 *.npy
-*.npzdata/TIMIT.zip
+*.npz
+.audio-env/

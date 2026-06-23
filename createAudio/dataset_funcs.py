@@ -8,6 +8,8 @@ import soundfile as sf
 from anf_generator import generate_signals
 from anf_generator.CoherenceMatrix import Parameters 
 import time
+from typing import Tuple
+
 
 def fillline(startp, endp, pts):
     """
@@ -192,9 +194,25 @@ def create_semicircular_mic_array(center, radius, height, angle_resolution=360, 
 class AcousticTrajectorySimulator:
     """
     Generates dynamic trajectories for two speakers and a static noise source in a simulated room.
+    
+    returns: 
+    -------
+    s_first : np.ndarray
+        3 x N array of (x, y, z) coordinates for the first speaker over time.
+    labels_s1 : np.ndarray
+        1D array of length N with angle class labels for the first speaker. (1-18, where 0 can be reserved for silence)
+    s_second : np.ndarray
+        3 x N array of (x, y, z) coordinates for the second speaker over time.
+    labels_s2 : np.ndarray
+        1D array of length N with angle class labels for the second speaker. (1-18, where 0 can be reserved for silence)
+    s_noise : np.ndarray
+        3-element array with (x, y, z) coordinates of the static noise source.
+    mic_array_coords : np.ndarray
+        M x 3 array of microphone coordinates.
+    
     """
     
-    def __init__(self, room_dim: list, speaker_radius: float, radius_noise: float, num_jumps: int, plot_name: str = None):
+    def __init__(self, room_dim: list, speaker_radius: float, radius_noise: float = None, num_jumps: int = None, plot_name: str = None):
         # Input parameters
         self.room_dim = room_dim
         self.room_x, self.room_y, self.room_z = room_dim
@@ -230,6 +248,53 @@ class AcousticTrajectorySimulator:
             
         return s_first, labels_s1, s_second, labels_s2, s_noise, self.mic_array_coords
 
+    def generate_continuous(self, fs: float, update_interval: int, 
+                            len_s1: int, v_s1: float, start_s1: float, end_s1: float, mode_s1: str,
+                            len_s2: int, v_s2: float, start_s2: float, end_s2: float, mode_s2: str):
+        """
+        NEW ORCHESTRATOR: Generates continuous paths for both speakers.
+        """
+        # 1. Setup the environment first (just like the old generate method)
+        self._place_array_center()
+        self._calculate_geometry()
+        s_noise = self._generate_noise_source()
+
+        # 2. Construct the 3D center required by generate_source_path
+        center_3d = np.array([self.array_center[0], self.array_center[1], self.mic_height])
+
+        # 3. Generate trajectory for Speaker 1
+        s_first, labels_s1 = self._generate_source_path(
+            len_source_signal=len_s1, update_interval=update_interval, center=center_3d,
+            radius=self.speaker_radius, angle_classes=self.angle_classes,
+            fs=fs, linear_velocity=v_s1, start_angle=start_s1, end_angle=end_s1, mode=mode_s1
+        )
+
+        # 4. Generate trajectory for Speaker 2
+        s_second, labels_s2 = self._generate_source_path(
+            len_source_signal=len_s2, update_interval=update_interval, center=center_3d,
+            radius=self.speaker_radius, angle_classes=self.angle_classes,
+            fs=fs, linear_velocity=v_s2, start_angle=start_s2, end_angle=end_s2, mode=mode_s2
+        )
+
+        # 5. Plot labels if requested
+        if self.plot_name is not None:
+            # Plot labels over time for both speakers
+            plt.figure(figsize=(12, 6))
+            # label times are based on the update intervals, so we can create a time axis for better visualization
+            
+            time_axis_s1 = np.arange(len(labels_s1)) / fs
+            time_axis_s2 = np.arange(len(labels_s2)) / fs
+            plt.plot(time_axis_s1, labels_s1, label='Speaker 1 Labels', color='blue')
+            plt.plot(time_axis_s2, labels_s2, label='Speaker 2 Labels', color='green')
+            plt.xlabel('Time (samples)')
+            plt.ylabel('Angle Class Label')
+            plt.title('Angle Class Labels Over Time')
+            plt.legend()
+            plt.grid()
+            plt.savefig(self.plot_name + '_labels.png')
+        return s_first, labels_s1, s_second, labels_s2, s_noise, self.mic_array_coords
+
+
     def _place_array_center(self):
         """Calculates safe clearance and randomly places the array center."""
         required_clearance = self.speaker_radius + self.wall_margin + self.radius_noise
@@ -254,7 +319,7 @@ class AcousticTrajectorySimulator:
         self.reference_vec = np.array([self.speaker_ref_x[0], self.speaker_ref_y[0]]) - self.array_center
         self.angle_classes = np.arange(5, 176, 10)
 
-    def _generate_candidate_position(self, class_offset=0):
+    def _generate_candidate_position(self):
         """Picks a random perturbed position for a speaker and calculates its AoA class."""
         idx = np.random.randint(0, self.angle_resolution // 2)
         noise_angle = 0.01 * np.random.randint(1, 315)
@@ -264,7 +329,8 @@ class AcousticTrajectorySimulator:
         
         vec = np.array([pos_x, pos_y]) - self.array_center
         angle_deg = calculate_angle(self.reference_vec, vec) # Assumes calculate_angle is in scope
-        label = np.argmin(np.abs(self.angle_classes - angle_deg)) + class_offset
+        label = np.argmin(np.abs(self.angle_classes - angle_deg)) + 1
+        # !!Added 1 so that label 0 can be reserved for silence if needed!!
         
         return pos_x, pos_y, label
 
@@ -303,8 +369,8 @@ class AcousticTrajectorySimulator:
                     step, attempt_counter, history_labels = 0, 0, []
                 attempt_counter += 1
 
-                p1_x, p1_y, l1 = self._generate_candidate_position(class_offset=0)
-                p2_x, p2_y, l2 = self._generate_candidate_position(class_offset=1)
+                p1_x, p1_y, l1 = self._generate_candidate_position()
+                p2_x, p2_y, l2 = self._generate_candidate_position()
                 
                 pos1 = (p1_x, p1_y)
                 pos2 = (p2_x, p2_y)
@@ -338,6 +404,112 @@ class AcousticTrajectorySimulator:
             dist_noise = np.linalg.norm(s_noise - np.array([self.array_center[0], self.array_center[1], self.mic_height]))
             
         return s_noise
+    
+    def _generate_source_path(
+        self,
+        len_source_signal: int,
+        update_interval: int,
+        center: np.ndarray,
+        radius: float,
+        angle_classes: np.ndarray,
+        fs: float,                   
+        linear_velocity: float,      
+        mode: str = 'stop',          
+        start_angle: float = 0.0,
+        end_angle: float = 2 * np.pi,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Generate an arc-based source trajectory with constant linear velocity.
+
+        Parameters:
+        -----------
+        len_source_signal : int
+            Length of the source signal (total number of samples).
+        update_interval : int
+            Number of samples between position updates.
+        center : np.ndarray
+            Center position of the arc as a 3D array [x, y, z].
+        radius : float
+            Radius of the arc.
+        angle_classes : np.ndarray
+            1D array of discrete angles (in degrees) used for AoA classification.
+        start_angle : float, optional
+            Absolute starting angle in radians (Default: 0.0).
+        end_angle : float, optional
+            Absolute ending angle in radians (Default: 2*pi).
+        fs : float
+            Sampling rate of the audio signal in Hz. Required to map samples to time.
+        linear_velocity : float
+            Linear velocity of the source in meters per second (m/s).
+        mode : str
+            Behavior at boundaries: 'stop' (stands in place) or 'bounce' (moves back and forth).
+        """
+
+        # Initialize output arrays
+        sp_path = np.zeros((3, len_source_signal))
+        labels = np.zeros(len_source_signal, dtype=int)
+
+        # 1. Pre-calculate total sweep and direction
+        total_sweep = abs(end_angle - start_angle)
+        direction = 1 if end_angle >= start_angle else -1
+
+        # 2. Calculate angular velocity: w = v / r (radians per sec)
+        # Guard against division by zero if radius is 0
+        w = linear_velocity / radius if radius > 0 else 0.0
+
+        # Iterating over the length of the input in steps of 'update_interval'
+        for ii in range(0, len_source_signal, update_interval):
+            
+            # 3. Calculate elapsed time in seconds
+            t = ii / fs
+
+            # 4. Calculate raw accumulated angle sweep based on time and omega
+            alpha = w * t
+
+            # 5. Apply the chosen boundary mode
+            if mode == 'stop':
+                # Clamp the sweep to the total sweep distance
+                current_sweep = min(alpha, total_sweep)
+                
+            elif mode == 'bounce':
+                if total_sweep > 0:
+                    # Cycle length is a full round trip (forward + backward)
+                    cycle_length = 2 * total_sweep
+                    mod_alpha = alpha % cycle_length
+                    
+                    if mod_alpha <= total_sweep:
+                        # Moving forward
+                        current_sweep = mod_alpha
+                    else:
+                        # Moving backward (bouncing)
+                        current_sweep = cycle_length - mod_alpha
+                else:
+                    current_sweep = 0.0
+            else:
+                raise ValueError("mode must be either 'stop' or 'bounce'")
+
+            # 6. Apply the sweep to the starting angle
+            current_angle_rad = start_angle + (direction * current_sweep)
+
+            # 7. Construct the 3D coordinates directly in global space
+            x_tmp = center[0] + radius * np.cos(current_angle_rad)
+            y_tmp = center[1] + radius * np.sin(current_angle_rad)
+            z_tmp = center[2] 
+
+            sp_new = np.array([x_tmp, y_tmp, z_tmp])
+
+            # 8. Convert angle to degrees and wrap to 0-360 for consistent matching
+            current_angle_deg = np.degrees(current_angle_rad) % 360
+
+            # 9. Find the index of the closest angle class
+            label_idx = np.argmin(np.abs(angle_classes - current_angle_deg)) + 1  # +1 to reserve 0 for silence if needed
+
+            # 10. Store the coordinates and label for the duration of the current update_interval
+            end_idx = min(ii + update_interval, len_source_signal)
+            sp_path[:, ii:end_idx] = sp_new[:, np.newaxis]
+            labels[ii:end_idx] = label_idx
+
+        return sp_path, labels
 
     def _plot_simulation(self, s_first, s_second, s_noise):
         """Handles all matplotlib visualization logic."""
@@ -390,6 +562,7 @@ class AcousticTrajectorySimulator:
         result_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Results')
         os.makedirs(result_path, exist_ok=True)
         plt.savefig(os.path.join(result_path, f'{self.plot_name}.png'), dpi=150)
+
 def fun_create_diffuse_noise(
     mic_positions: np.ndarray,
     noise_folder: str = None,
@@ -624,3 +797,107 @@ def create_vad_dynamic(x: np.ndarray, hop: int, nfft: int) -> np.ndarray:
     return vad
 
 
+def generate_source_path(
+    len_source_signal: int,
+    update_interval: int,
+    center: np.ndarray,
+    radius: float,
+    angle_classes: np.ndarray,
+    fs: float,                   
+    linear_velocity: float,      
+    mode: str = 'stop',          
+    start_angle: float = 0.0,
+    end_angle: float = 2 * np.pi,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Generate an arc-based source trajectory with constant linear velocity.
+
+    Parameters:
+    -----------
+    len_source_signal : int
+        Length of the source signal (total number of samples).
+    update_interval : int
+        Number of samples between position updates.
+    center : np.ndarray
+        Center position of the arc as a 3D array [x, y, z].
+    radius : float
+        Radius of the arc.
+    angle_classes : np.ndarray
+        1D array of discrete angles (in degrees) used for AoA classification.
+    start_angle : float, optional
+        Absolute starting angle in radians (Default: 0.0).
+    end_angle : float, optional
+        Absolute ending angle in radians (Default: 2*pi).
+    fs : float
+        Sampling rate of the audio signal in Hz. Required to map samples to time.
+    linear_velocity : float
+        Linear velocity of the source in meters per second (m/s).
+    mode : str
+        Behavior at boundaries: 'stop' (stands in place) or 'bounce' (moves back and forth).
+    """
+
+    # Initialize output arrays
+    sp_path = np.zeros((3, len_source_signal))
+    labels = np.zeros(len_source_signal, dtype=int)
+
+    # 1. Pre-calculate total sweep and direction
+    total_sweep = abs(end_angle - start_angle)
+    direction = 1 if end_angle >= start_angle else -1
+
+    # 2. Calculate angular velocity: w = v / r (radians per sec)
+    # Guard against division by zero if radius is 0
+    w = linear_velocity / radius if radius > 0 else 0.0
+
+    # Iterating over the length of the input in steps of 'update_interval'
+    for ii in range(0, len_source_signal, update_interval):
+        
+        # 3. Calculate elapsed time in seconds
+        t = ii / fs
+
+        # 4. Calculate raw accumulated angle sweep based on time and omega
+        alpha = w * t
+
+        # 5. Apply the chosen boundary mode
+        if mode == 'stop':
+            # Clamp the sweep to the total sweep distance
+            current_sweep = min(alpha, total_sweep)
+            
+        elif mode == 'bounce':
+            if total_sweep > 0:
+                # Cycle length is a full round trip (forward + backward)
+                cycle_length = 2 * total_sweep
+                mod_alpha = alpha % cycle_length
+                
+                if mod_alpha <= total_sweep:
+                    # Moving forward
+                    current_sweep = mod_alpha
+                else:
+                    # Moving backward (bouncing)
+                    current_sweep = cycle_length - mod_alpha
+            else:
+                current_sweep = 0.0
+        else:
+            raise ValueError("mode must be either 'stop' or 'bounce'")
+
+        # 6. Apply the sweep to the starting angle
+        current_angle_rad = start_angle + (direction * current_sweep)
+
+        # 7. Construct the 3D coordinates directly in global space
+        x_tmp = center[0] + radius * np.cos(current_angle_rad)
+        y_tmp = center[1] + radius * np.sin(current_angle_rad)
+        z_tmp = center[2] 
+
+        sp_new = np.array([x_tmp, y_tmp, z_tmp])
+
+        # 8. Convert angle to degrees and wrap to 0-360 for consistent matching
+        current_angle_deg = np.degrees(current_angle_rad) % 360
+
+        # 9. Find the index of the closest angle class
+        label_idx = np.argmin(np.abs(angle_classes - current_angle_deg)) + 1  # +1 to reserve 0 for silence if needed
+
+        # 10. Store the coordinates and label for the duration of the current update_interval
+        end_idx = min(ii + update_interval, len_source_signal)
+        sp_path[:, ii:end_idx] = sp_new[:, np.newaxis]
+        labels[ii:end_idx] = label_idx
+
+    return sp_path, labels
