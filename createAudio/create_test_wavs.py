@@ -212,7 +212,9 @@ def create_test_sample_static(
         'room_dim': room_dim,
         'T60': beta,
         'SNR_diffuse': SNR_diffuse,
-        'mic_positions': mic_positions
+        'mic_positions': mic_positions,
+        'true_geom_sector_first': label_first[0],
+        'true_geom_sector_second': label_second[0]
     }
 
 # Help me run this function to generate a test sample and save the resulting mixture and labels as WAV files for listening and verification.
@@ -251,7 +253,7 @@ class Config:
     output_path = None          # Will be set at runtime
     
     # Number of samples to generate
-    num_samples = 3
+    num_samples = 20
     start_idx = 1  # Starting index for file naming (e.g., 1 for 'first_1.wav')
 
     # File naming
@@ -347,12 +349,15 @@ if __name__ == "__main__":
         )
         
         # Save metadata
+        # Save metadata
         np.savez(
             os.path.join(output_path, f'metadata_{i}.npz'),
             room_dim=result['room_dim'],
             T60=result['T60'],
             SNR_diffuse=result['SNR_diffuse'],
-            mic_positions=result['mic_positions']
+            mic_positions=result['mic_positions'],
+            true_sector_spk1=result['true_geom_sector_first'],
+            true_sector_spk2=result['true_geom_sector_second']
         )
     
     print(f"\n\nDatabase generation complete!")
