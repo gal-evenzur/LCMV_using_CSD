@@ -335,8 +335,8 @@ models_folder = os.path.join(workspace_folder, 'models')
 
 pipeline_config = {
     # --- Models Config ---
-    'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_19_05.h5'),
-    'doa_path': os.path.join(models_folder, 'model_angle_GEVD_19_05.h5'),
+    'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_23_06.h5'),
+    'doa_path': os.path.join(models_folder, 'model_angle_GEVD_23_06.h5'),
 
     # --- STFT Config ---
     'n_fft': 2048,
