@@ -346,11 +346,11 @@ class SpatialSeparationPipeline:
             temp_alfa = self.total_frame_per_DOA[y2_prob - 1] + thresh
             self.PSD_matrix_per_DOA[y2_prob - 1] = (self.total_frame_per_DOA[y2_prob - 1] / temp_alfa) * self.PSD_matrix_per_DOA[y2_prob - 1] + (thresh / temp_alfa) * Zvv_temp
             
-            # 4. Slot assignment policy (Scalar state machine logic, unchanged)
+             # 4. Slot assignment policy (Scalar state machine logic, unchanged)
             fc = self.Frame_classification_system
             if fc[1, 0] == 0:
                 to_change = 0
-            elif (fc[1, 1] == 0) and (abs(fc[0, 0] - y2_prob) < 4):
+            elif (fc[1, 1] == 0) and (abs(fc[0, 0] - y2_prob) < 2): # FIX: Reduced from 4 to 2 to prevent slot collision
                 to_change = 0
             elif fc[1, 1] == 0: 
                 to_change = 1
@@ -493,6 +493,20 @@ class SpatialSeparationPipeline:
                 self._update_noise_covariance(l)
             elif y_prob == 1:
                 self._update_rtf_and_tracking(l)
+                
+                # FIX: Dynamically update gating flags to prevent muting during single-speaker LCMV operation
+                y2_prob = self.y2_prob_stat_mf[l]
+                if y2_prob == self.Frame_classification_system[0, 0]:
+                    self.first_speaker_active = 1
+                    self.second_speaker_active = 0
+                elif y2_prob == self.Frame_classification_system[0, 1]:
+                    self.first_speaker_active = 0
+                    self.second_speaker_active = 1
+                else:
+                    # Fallback for a new candidate speaker
+                    self.first_speaker_active = 1
+                    self.second_speaker_active = 0
+
             elif y_prob == 2:
                 self.first_speaker_active = 1
                 self.second_speaker_active = 1
