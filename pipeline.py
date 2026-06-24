@@ -354,7 +354,7 @@ pipeline_config = {
     'threshold_freq': 0.3
 }
 
-plot_dir = os.path.join(workspace_folder, 'plots')
+plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'model_predicts')
 
 # Example instantiation
 pipeline = SpatialTrackingPipeline(
