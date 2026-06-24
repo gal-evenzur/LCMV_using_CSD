@@ -1,0 +1,265 @@
+import os
+import pandas as pd
+import time
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Import the pipeline classes and configurations
+from pipeline import SpatialTrackingPipeline, pipeline_config
+from pipeline_beamformer import SpatialSeparationPipeline
+
+def run_all_experiments(num_experiments=20):
+    py_folder = os.path.dirname(os.path.realpath(__file__))
+    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
+    folder_to_results = os.path.join(py_folder, 'plots')
+    
+    # Static configurations for the beamformer pipeline
+    p_stft = {'nfft': 2048, 'wlen': 2048, 'hop': 512, 'NUP': 1025, 'win': np.hamming(2048)}
+    p_tracking = {
+        'frame_before': 8, 'frame_after': 5, 'win_vad': np.hamming(21), 
+        'threshold': 40, 'threshold_freq': 0.3, 'threshold_chage_location': 8
+    }
+    p_beamforming = {'e': 0.01, 'epsilon': 0.01, 'alfa_Qvv_init': 0.99, 'alfa_Qvv_run': 0.05, 'buffer_size': 32}
+
+    all_results = []
+    start_time = time.time()
+    
+    SDR_SUCCESS_THRESHOLD = 3.0 
+    
+    for i in range(1, num_experiments + 1):
+        print(f"\n{'='*75}\n=== STARTING EXPERIMENT {i}/{num_experiments} ===\n{'='*75}")
+        
+        try:
+            # Step 1: Run Neural Network Inference
+            print(">> Running Neural Network Inference...")
+            nn_pipeline = SpatialTrackingPipeline(
+                run_idx=i, config=pipeline_config, folder_to_test_data=folder_to_test_data, n_mics=4, verbose=0
+            )
+            nn_pipeline.run(folder_to_results)
+            
+            # Step 2: Run LCMV Beamformer
+            print(">> Running Beamformer & Filtering...")
+            bf_pipeline = SpatialSeparationPipeline(
+                run_idx=i, p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming, 
+                folder_to_test_data=folder_to_test_data, folder_to_results=folder_to_results, M=4, verbose=0
+            )
+            
+            sdr_avg, sir_avg, sar_avg, nr_0, nr_1 = bf_pipeline.run()
+            
+            # ---------------------------------------------------------
+            # Step 3: Automated Diagnostics & Data Collection
+            # ---------------------------------------------------------
+            diagnosis = "Unknown"
+            est_silence_count, true_silence_count = 0, 0
+            
+            # Metrics for graphing
+            noise_contam_pct = 0.0
+            spatial_contam_pct = 0.0
+            doa_error_pct = 0.0
+            doa_jitter_pct = 0.0
+            overlap_recall_pct = 0.0  # NEW METRIC: Overlap Detection Rate
+            
+            try:
+                # ---------------- CSD Metrics ----------------
+                est_csd = np.load(os.path.join(folder_to_results, f'estimate_CSD_{i}.npy'))
+                true_csd = np.load(os.path.join(folder_to_results, f'true_CSD_{i}.npy'))
+                total_frames = len(true_csd)
+                
+                noise_contam_pct = np.sum((est_csd == 0) & (true_csd > 0)) / total_frames * 100
+                spatial_contam_pct = np.sum((est_csd > 0) & (true_csd == 0)) / total_frames * 100
+                
+                # Overlap Recall Calculation (Did the network catch the double-talk?)
+                true_overlap_idx = np.where(true_csd == 2)[0]
+                if len(true_overlap_idx) > 0:
+                    correct_overlap_preds = np.sum(est_csd[true_overlap_idx] == 2)
+                    overlap_recall_pct = (correct_overlap_preds / len(true_overlap_idx)) * 100
+                
+                # ---------------- DOA Metrics ----------------
+                est_doa = np.load(os.path.join(folder_to_results, f'estimate_DOA_{i}.npy'))
+                true_doa = np.load(os.path.join(folder_to_results, f'true_DOA_{i}.npy'))
+                
+                valid_doa_idx = np.where((true_doa > 0) & (true_doa < 19))[0]
+                if len(valid_doa_idx) > 0:
+                    doa_error_pct = np.sum(est_doa[valid_doa_idx] != true_doa[valid_doa_idx]) / len(valid_doa_idx) * 100
+                
+                active_est_doa = est_doa[(est_doa > 0) & (est_doa < 19)]
+                if len(active_est_doa) > 1:
+                    jumps = np.sum(np.diff(active_est_doa) != 0)
+                    doa_jitter_pct = (jumps / (len(active_est_doa) - 1)) * 100
+                
+                # ---------------- Geometry Check ----------------
+                doa_1 = np.load(os.path.join(folder_to_test_data, f'label_location_first_{i}.npy'))
+                doa_2 = np.load(os.path.join(folder_to_test_data, f'label_location_second_{i}.npy'))
+                spk1_sectors = np.unique(doa_1[doa_1 > 0]).astype(int).tolist()
+                spk2_sectors = np.unique(doa_2[doa_2 > 0]).astype(int).tolist()
+                
+                is_close = False
+                if len(spk1_sectors) > 0 and len(spk2_sectors) > 0:
+                    for s1 in spk1_sectors:
+                        for s2 in spk2_sectors:
+                            if abs(s1 - s2) <= 2:
+                                is_close = True
+                                break
+                proximity_str = "Yes" if is_close else "No"
+                
+            except Exception as e:
+                print(f"Error calculating diagnostics: {e}")
+
+            # Formulate Diagnosis
+            if sdr_avg is None:
+                diagnosis = "Pipeline crashed. No metrics generated."
+            elif sdr_avg < 0:
+                diagnosis = f"[Cat 1] Severe Failure. Overlap Recall: {overlap_recall_pct:.1f}% | Noise Contam: {noise_contam_pct:.1f}%"
+            elif 0 <= sdr_avg < SDR_SUCCESS_THRESHOLD:
+                diagnosis = f"[Cat 2] Poor Separation. DOA Error: {doa_error_pct:.1f}% | DOA Jitter (Jumps): {doa_jitter_pct:.1f}%"
+            else:
+                diagnosis = f"[Cat 3] Success. Overlap Recall: {overlap_recall_pct:.1f}% | DOA Jitter: {doa_jitter_pct:.1f}%"
+
+            # Append results
+            all_results.append({
+                'Experiment': i,
+                'SDR (dB)': sdr_avg,
+                'SIR (dB)': sir_avg,
+                'SAR (dB)': sar_avg,
+                'NR Spk 0 (dB)': nr_0,
+                'NR Spk 1 (dB)': nr_1,
+                'Noise Contam (%)': noise_contam_pct,
+                'Spatial Contam (%)': spatial_contam_pct,
+                'DOA Error (%)': doa_error_pct,
+                'DOA Jitter (%)': doa_jitter_pct,
+                'Overlap Recall (%)': overlap_recall_pct,
+                'Diagnosis': diagnosis
+            })
+            print(f"✅ Experiment {i} Completed.\n   -> {diagnosis}")
+            
+        except Exception as e:
+            print(f"❌ FAILED on Experiment {i}. Error: {e}")
+            all_results.append({
+                'Experiment': i, 'SDR (dB)': None, 'SIR (dB)': None, 'SAR (dB)': None,
+                'NR Spk 0 (dB)': None, 'NR Spk 1 (dB)': None, 
+                'Noise Contam (%)': 0, 'Spatial Contam (%)': 0, 
+                'DOA Error (%)': 0, 'DOA Jitter (%)': 0, 'Overlap Recall (%)': 0,
+                'Diagnosis': 'Pipeline Crash'
+            })
+
+    # Export to CSV
+    df_results = pd.DataFrame(all_results)
+    csv_path = os.path.join(folder_to_results, 'experiments_summary.csv')
+    df_results.to_csv(csv_path, index=False)
+    
+    # ---------------------------------------------------------
+    # PRINT CLEAN SUMMARY
+    # ---------------------------------------------------------
+    print("\n\n")
+    print("*"*95)
+    print(" 🚀 FINAL SUMMARY AND DIAGNOSTICS OF ALL EXPERIMENTS 🚀")
+    print("*"*95)
+    
+    for res in all_results:
+        print(f"--- Experiment {res['Experiment']:02d} ---")
+        if res['NR Spk 0 (dB)'] is not None and res['NR Spk 1 (dB)'] is not None:
+             print(f"  Noise Reduction   : Speaker 0: {res['NR Spk 0 (dB)']:6.2f} dB | Speaker 1: {res['NR Spk 1 (dB)']:6.2f} dB")
+        else:
+             print("  Noise Reduction   : Metrics unavailable (Shared valid frames not found)")
+             
+        if res['SDR (dB)'] is not None:
+             print(f"  Speech Separation : SDR: {res['SDR (dB)']:6.2f} dB | SIR: {res['SIR (dB)']:6.2f} dB | SAR: {res['SAR (dB)']:6.2f} dB")
+        else:
+             print("  Speech Separation : Metrics unavailable")
+             
+        print(f"  Diagnosis         : {res['Diagnosis']}\n")
+
+    print("*"*95)
+    print(" 📊 AVERAGES ACROSS ALL RUNS (Including Failures) 📊")
+    print("*"*95)
+    numeric_df = df_results.drop(columns=['Experiment', 'Diagnosis'])
+    print(numeric_df.mean(numeric_only=True).to_string())
+    
+    print("\n" + "*"*95)
+    print(" ⭐ AVERAGES ACROSS VALID RUNS ONLY (Category 3) ⭐")
+    print("*"*95)
+    valid_df = df_results[df_results['SDR (dB)'] >= SDR_SUCCESS_THRESHOLD]
+    if not valid_df.empty:
+        print(valid_df.drop(columns=['Experiment', 'Diagnosis']).mean(numeric_only=True).to_string())
+    else:
+        print("No successful runs found.")
+    print("*"*95)
+    
+    print(f"\nTotal time elapsed: {time.time() - start_time:.2f} seconds.")
+    print(f"Detailed results saved to: {csv_path}")
+
+    # ---------------------------------------------------------
+    # PLOT GENERATION
+    # ---------------------------------------------------------
+    print("\nGenerating Diagnostic Plots...")
+    
+    valid_plot_data = [r for r in all_results if r['SDR (dB)'] is not None]
+    
+    if len(valid_plot_data) > 0:
+        sdrs = [r['SDR (dB)'] for r in valid_plot_data]
+        noise_contams = [r['Noise Contam (%)'] for r in valid_plot_data]
+        spatial_contams = [r['Spatial Contam (%)'] for r in valid_plot_data]
+        doa_errors = [r['DOA Error (%)'] for r in valid_plot_data]
+        doa_jitters = [r['DOA Jitter (%)'] for r in valid_plot_data]
+        overlap_recalls = [r['Overlap Recall (%)'] for r in valid_plot_data]
+        
+        # Plot 1: Category 1 (CSD Contaminations vs SDR)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+        
+        ax1.scatter(noise_contams, sdrs, color='red', alpha=0.7)
+        ax1.set_title('Noise Matrix Contamination vs SDR')
+        ax1.set_xlabel('% Frames (Est=0 while True>0)')
+        ax1.set_ylabel('SDR (dB)')
+        ax1.grid(True)
+        
+        ax2.scatter(spatial_contams, sdrs, color='orange', alpha=0.7)
+        ax2.set_title('Spatial (RTF) Contamination vs SDR')
+        ax2.set_xlabel('% Frames (Est>0 while True=0)')
+        ax2.set_ylabel('SDR (dB)')
+        ax2.grid(True)
+        
+        plt.tight_layout()
+        plot1_path = os.path.join(folder_to_results, 'category1_csd_contamination.png')
+        plt.savefig(plot1_path)
+        plt.close()
+        print(f" -> Saved Plot: {plot1_path}")
+        
+        # Plot 2: Category 2 (DOA Absolute Error vs DOA Jitter vs SDR)
+        fig, (ax3, ax4) = plt.subplots(1, 2, figsize=(14, 6))
+        
+        ax3.scatter(doa_errors, sdrs, color='blue', alpha=0.7)
+        ax3.set_title('DOA Absolute Error Rate vs SDR')
+        ax3.set_xlabel('DOA Error Rate (%)')
+        ax3.set_ylabel('SDR (dB)')
+        ax3.grid(True)
+
+        ax4.scatter(doa_jitters, sdrs, color='purple', alpha=0.7)
+        ax4.set_title('DOA Jitter (Chaotic Jumps) vs SDR')
+        ax4.set_xlabel('DOA Jitter Rate (%)')
+        ax4.set_ylabel('SDR (dB)')
+        ax4.grid(True)
+        
+        plt.tight_layout()
+        plot2_path = os.path.join(folder_to_results, 'category2_doa_jitter.png')
+        plt.savefig(plot2_path)
+        plt.close()
+        print(f" -> Saved Plot: {plot2_path}")
+        
+        # Plot 3: NEW! Overlap Recall vs SDR
+        plt.figure(figsize=(8, 6))
+        plt.scatter(overlap_recalls, sdrs, color='green', alpha=0.7)
+        plt.title('CSD Overlap Recall vs SDR')
+        plt.xlabel('Overlap Recall Rate (%) [Est=2 | True=2]')
+        plt.ylabel('SDR (dB)')
+        plt.grid(True)
+        
+        plot3_path = os.path.join(folder_to_results, 'category1_overlap_recall.png')
+        plt.savefig(plot3_path)
+        plt.close()
+        print(f" -> Saved Plot: {plot3_path}")
+        
+    else:
+        print("Not enough valid data to generate plots.")
+
+if __name__ == "__main__":
+    run_all_experiments(20)
