@@ -3,11 +3,10 @@ from pipeline_ofer_funcs import * # Assumes this is available in your environmen
 print("-----------------STARTING LCMV PIPELINE-----------------")
 
 class SpatialTrackingPipeline:
-    def __init__(self, run_idx, config, folder_to_test_data, n_mics=4, verbose=1):
+    def __init__(self, config, folder_to_test_data, n_mics=4, verbose=1):
         """
         Initializes the pipeline configuration and loads Keras models.
         """
-        self.run_idx = run_idx
         self.config = config
         self.folder_to_test_data = folder_to_test_data
         self.n_mics = n_mics
@@ -39,6 +38,7 @@ class SpatialTrackingPipeline:
         self.model_csd = None
         self.model_doa = None
 
+        # Load models only once when the pipeline is instantiated
         self._load_models()
 
     def _load_models(self):
@@ -52,14 +52,14 @@ class SpatialTrackingPipeline:
         if self.verbose > 1:
             print("Models loaded successfully.")
 
-    def load_data(self):
+    def load_data(self, run_idx):
         """Loads audio and angle data, calculates frames, and verifies dimensions."""
         if self.verbose:
-            print(f"--- Loading data for Experiment {self.run_idx} ---")
+            print(f"--- Loading data for Experiment {run_idx} ---")
         
         self.input_data = load_and_preprocess_experiment(
             self.folder_to_test_data, 
-            self.run_idx, 
+            run_idx, 
             mic_indices=list(range(self.n_mics))
         )
         
@@ -253,74 +253,73 @@ class SpatialTrackingPipeline:
         pred_doa_probs = self.model_doa.predict(self.model_inputs)
         self.pred_doa = np.argmax(pred_doa_probs, axis=1)
 
-    def evaluate_and_save(self, folder_to_save):
+    def evaluate_and_save(self, run_idx, folder_to_save):
         """Post-processes predictions, saves outputs, and plots confusion matrices."""
-        if self.verbose:
-            print("--- Evaluating, Saving, and Plotting ---")
-
         os.makedirs(folder_to_save, exist_ok=True)
 
-        # Median Filtering
         true_csd_filtered = ndimage.median_filter(self.true_csd, size=11)
         pred_csd_filtered = ndimage.median_filter(self.pred_csd, size=25)
         pred_doa_filtered = ndimage.median_filter(self.pred_doa, size=11)
 
-        # Save Arrays
-        np.save(os.path.join(folder_to_save, f'estimate_DOA_{self.run_idx}.npy'), pred_doa_filtered)
-        np.save(os.path.join(folder_to_save, f'true_DOA_{self.run_idx}.npy'), self.true_doa)
-        np.save(os.path.join(folder_to_save, f'estimate_CSD_{self.run_idx}.npy'), pred_csd_filtered)
-        np.save(os.path.join(folder_to_save, f'true_CSD_{self.run_idx}.npy'), true_csd_filtered)
+        np.save(os.path.join(folder_to_save, f'estimate_DOA_{run_idx}.npy'), pred_doa_filtered)
+        np.save(os.path.join(folder_to_save, f'true_DOA_{run_idx}.npy'), self.true_doa)
+        np.save(os.path.join(folder_to_save, f'estimate_CSD_{run_idx}.npy'), pred_csd_filtered)
+        np.save(os.path.join(folder_to_save, f'true_CSD_{run_idx}.npy'), true_csd_filtered)
 
         # Plotting Defaults
         annot, cmap, fmt, fz, lw, cbar = True, 'Oranges', '.2f', 9, 0.5, False
         show_null_values, pred_val_axis = 2, 'y'
         figsize = [18, 18]
 
-        # Plot 1: CSD Confusion Matrix
         cm_plot_labels_csd = ['Noise', 'One speaker', '2 speakers']
-        if self.verbose > 1:
-            print("Plotting CSD Confusion Matrix...")
-            
         plot_confusion_folder = os.path.join(folder_to_save, 'confusion_matrices')
         os.makedirs(plot_confusion_folder, exist_ok=True)
         
         plot_confusion_matrix_from_data(
             true_csd_filtered, pred_csd_filtered, 3, cm_plot_labels_csd,
             annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis,
-            name=f'CSD_Confusion_Matrix_Experiment_{self.run_idx}.png', plot_folder=plot_confusion_folder
+            name=f'CSD_Confusion_Matrix_Experiment_{run_idx}.png', plot_folder=plot_confusion_folder
         )
 
-        # Filter DOA data for plotting (Remove noise and overlap classes)
         valid_indices = np.where((self.true_doa != 0) & (self.true_doa != 19))
         true_doa_plot = self.true_doa[valid_indices]
         pred_doa_plot = pred_doa_filtered[valid_indices]
 
-        # Plot 2: DOA Confusion Matrix
         cm_plot_labels_doa = [f'{i}-{i+9}' for i in range(0, 180, 10)]
-        if self.verbose > 1:
-            print("Plotting DOA Confusion Matrix...")
             
         plot_confusion_matrix_from_data(
             true_doa_plot - 1, pred_doa_plot - 1, 18, cm_plot_labels_doa,
             annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis,
-            name=f'DOA_Confusion_Matrix_Experiment_{self.run_idx}.png', plot_folder=plot_confusion_folder
+            name=f'DOA_Confusion_Matrix_Experiment_{run_idx}.png', plot_folder=plot_confusion_folder
         )
 
-    def run(self, folder_to_save):
-        """Orchestrates the pipeline steps."""
-        self.load_data()
+    def process_single_run(self, run_idx, folder_to_save):
+        """Executes the pipeline for a single experiment file."""
+        self.load_data(run_idx)
         self.compute_stft()
         self.estimate_noise_covariance()
         self.extract_gevd_features()
         self.prepare_model_inputs()
         self.compute_ground_truth_labels()
         self.run_inference()
-        self.evaluate_and_save(folder_to_save)
+        self.evaluate_and_save(run_idx, folder_to_save)
         
         if self.verbose:
-            print(f"--- Pipeline Execution Complete for Experiment {self.run_idx} ---")
-        return self
+            print(f"-> Experiment {run_idx} complete.")
 
+    def run_batch(self, run_indices, folder_to_save):
+        """Orchestrates the pipeline across multiple experiments sequentially."""
+        if self.verbose:
+            print(f"\n=================================================")
+            print(f" BEGINNING BATCH PROCESSING: {len(run_indices)} FILES")
+            print(f"=================================================")
+
+        for run_idx in run_indices:
+            self.process_single_run(run_idx, folder_to_save)
+
+        if self.verbose:
+                print("\n--- ALL EXPERIMENTS PROCESSED SUCCESSFULLY ---")
+        return self
 
 # ==========================================
 # CONFIGURATION
@@ -354,14 +353,17 @@ pipeline_config = {
     'threshold_freq': 0.3
 }
 
-plot_dir = os.path.join(workspace_folder, 'plots')
+plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'model_predicts')
 
 # Example instantiation
 pipeline = SpatialTrackingPipeline(
-    run_idx=1, 
     config=pipeline_config, 
     folder_to_test_data=folder_to_test_data, 
     n_mics=4, 
-    verbose=2
+    verbose=1
 )
-pipeline.run(plot_dir)
+
+pipeline.run_batch(
+    run_indices=range(1, 21), 
+    folder_to_save=plot_dir
+)
