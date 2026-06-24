@@ -261,7 +261,97 @@ def run_all_experiments(num_experiments=20):
     else:
         print("Not enough valid data to generate plots.")
 
+def plot_single_experiment_doa_accuracy(run_idx):
+    """
+    Runs the pipeline for a single experiment (if results don't exist),
+    filters out noise/overlap frames (keeping only true_CSD == 1),
+    and plots the DOA accuracy per frame.
+    """
+    py_folder = os.path.dirname(os.path.realpath(__file__))
+    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
+    plot_dir = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
+    
+    # 1. Check if files already exist; if not, spin up the pipeline for this file
+    true_csd_path = os.path.join(plot_dir, f'true_CSD_{run_idx}.npy')
+    true_doa_path = os.path.join(plot_dir, f'true_DOA_{run_idx}.npy')
+    est_doa_path = os.path.join(plot_dir, f'estimate_DOA_{run_idx}.npy')
+    
+    if not (os.path.exists(true_csd_path) and os.path.exists(true_doa_path) and os.path.exists(est_doa_path)):
+        print(f"--- Files for Experiment {run_idx} not found. Running pipeline... ---")
+        pipeline = SpatialTrackingPipeline(
+            config=pipeline_config, 
+            folder_to_test_data=folder_to_test_data, 
+            n_mics=4, 
+            verbose=1
+        )
+        pipeline.process_single_run(run_idx, plot_dir)
+    
+    # 2. Load the specific experiment arrays
+    true_csd = np.load(true_csd_path)
+    true_doa = np.load(true_doa_path)
+    est_doa = np.load(est_doa_path)
+    
+    n_frames = len(true_csd)
+    
+    # 3. Filter for frames where exactly 1 speaker is active
+    # We create a boolean mask: True where CSD == 1, False everywhere else
+    valid_mask = (true_csd == 1)
+    
+    if not np.any(valid_mask):
+        print(f"Warning: Experiment {run_idx} has zero frames where true_CSD == 1! Cannot plot accuracy.")
+        return
 
+    # 4. Calculate accurate hits (1 for correct, 0 for incorrect)
+    # We only care about correctness at the valid indices
+    is_correct = (true_doa == est_doa)
+    
+    # 5. Prepare data for plotting
+    # Instead of an average percentage, for a single file we map out binary success 
+    # over time, or look at the moving accuracy. Let's plot the direct hits/misses 
+    # alongside the valid frames so you can see exactly where it succeeded.
+    frames_x = np.arange(n_frames)
+    
+    plt.figure(figsize=(14, 5))
+    
+    # Plot active single-speaker regions as a background shade for context
+    plt.fill_between(frames_x, 0, 100, where=valid_mask, color='green', alpha=0.15, label='Single Speaker Active (CSD == 1)')
+    
+    # Calculate a rolling/running accuracy just for the active speaker parts to give you a smooth visual trend
+    running_accuracy = np.zeros(n_frames)
+    hits = 0
+    attempts = 0
+    for t in range(n_frames):
+        if valid_mask[t]:
+            attempts += 1
+            if is_correct[t]:
+                hits += 1
+            running_accuracy[t] = (hits / attempts) * 100
+        else:
+            # If CSD != 1, we put NaN so the line breaks visually in noise/overlap zones
+            running_accuracy[t] = np.nan
+            
+    # Plot the tracked accuracy line
+    plt.plot(frames_x, running_accuracy, color='darkblue', linewidth=2, label='Running DOA Accuracy')
+    
+    # Scatter individual frame results (Hits vs Misses) inside the valid zones
+    correct_indices = np.where(valid_mask & is_correct)[0]
+    incorrect_indices = np.where(valid_mask & ~is_correct)[0]
+    
+    plt.scatter(correct_indices, np.ones_like(correct_indices) * 100, color='forestgreen', marker='|', s=100, label='Correct Frame Hit')
+    plt.scatter(incorrect_indices, np.zeros_like(incorrect_indices) * 0, color='crimson', marker='|', s=100, label='Incorrect Frame Miss')
+
+    # Formatting the timeline graph
+    plt.title(f'DOA Evaluation Tracking — Experiment {run_idx} (Single-Speaker Frames Only)')
+    plt.xlabel('Frame Index')
+    plt.ylabel('Tracking Accuracy State (%)')
+    plt.ylim(-10, 110)
+    plt.grid(True, linestyle=':', alpha=0.6)
+    plt.legend(loc='lower left', frameon=True, facecolor='white', framealpha=0.9)
+    
+    # Save specific plot
+    single_plot_path = os.path.join(plot_dir, f'DOA_Single_Analysis_Exp_{run_idx}.png')
+    plt.savefig(single_plot_path, dpi=300, bbox_inches='tight')
+    print(f"Saved single experiment analysis plot to: {single_plot_path}")
 
 
 def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
@@ -368,4 +458,4 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     
 
 if __name__ == "__main__":
-    run_doa_experiments(20)
+    plot_single_experiment_doa_accuracy(run_idx=1)

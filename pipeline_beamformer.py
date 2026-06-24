@@ -346,11 +346,11 @@ class SpatialSeparationPipeline:
             temp_alfa = self.total_frame_per_DOA[y2_prob - 1] + thresh
             self.PSD_matrix_per_DOA[y2_prob - 1] = (self.total_frame_per_DOA[y2_prob - 1] / temp_alfa) * self.PSD_matrix_per_DOA[y2_prob - 1] + (thresh / temp_alfa) * Zvv_temp
             
-             # 4. Slot assignment policy (Scalar state machine logic, unchanged)
+            # 4. Slot assignment policy (Scalar state machine logic, unchanged)
             fc = self.Frame_classification_system
             if fc[1, 0] == 0:
                 to_change = 0
-            elif (fc[1, 1] == 0) and (abs(fc[0, 0] - y2_prob) < 2): # FIX: Reduced from 4 to 2 to prevent slot collision
+            elif (fc[1, 1] == 0) and (abs(fc[0, 0] - y2_prob) < 4):
                 to_change = 0
             elif fc[1, 1] == 0: 
                 to_change = 1
@@ -397,9 +397,9 @@ class SpatialSeparationPipeline:
             # Batch invert all 1,025 matrices: (NUP, M, M)
             inv_Qvv = LA.inv(self.Qvv + reg_matrix)
 
-            # Case B1: Only Slot 0 active (Speaker 1 only)
+            # Case B: One slot -> MVDR
             if fc[0, 0] != 0 and fc[0, 1] == 0:
-                # Isolate target spatial fingerprint for Speaker 1: (NUP, M, 1)
+                # Isolate target spatial fingerprint: (NUP, M, 1)
                 g = self.G[:, :, 0:1] 
                 g_conj = g.conj().transpose(0, 2, 1) # (NUP, 1, M)
                 
@@ -408,41 +408,15 @@ class SpatialSeparationPipeline:
                 inv_temp = (g_conj @ c) + epsilon      # (NUP, 1, 1)
                 w = c / inv_temp                       # (NUP, M, 1)
                 
-                # Save weights
+                # Save weights and apply filter
                 w_flat = np.squeeze(w, axis=2)
                 self.W[l, :, :, 0] = w_flat
-                self.W[l, :, :, 1] = 0  # Zero out weights for the inactive speaker
-                
-                # Apply filter to signal
-                s_hat_j = w.conj().transpose(0, 2, 1) @ z_frame
-                s_hat_flat = np.squeeze(s_hat_j)
-                
-                # Route to Speaker 1 and mute Speaker 2
-                s_hat[0, :] = s_hat_flat
-                s_hat[1, :] = 1e-10
-
-            # Case B2: Only Slot 1 active (Speaker 2 only)
-            elif fc[0, 0] == 0 and fc[0, 1] != 0:
-                # Isolate target spatial fingerprint for Speaker 2: (NUP, M, 1)
-                g = self.G[:, :, 1:2] 
-                g_conj = g.conj().transpose(0, 2, 1) # (NUP, 1, M)
-                
-                # Batched MVDR formula
-                c = inv_Qvv @ g                        # (NUP, M, 1)
-                inv_temp = (g_conj @ c) + epsilon      # (NUP, 1, 1)
-                w = c / inv_temp                       # (NUP, M, 1)
-                
-                # Save weights
-                w_flat = np.squeeze(w, axis=2)
-                self.W[l, :, :, 0] = 0
                 self.W[l, :, :, 1] = w_flat
                 
-                # Apply filter to signal
+                # Apply filter to signal: (NUP, 1, M) @ (NUP, M, 1) -> (NUP, 1, 1)
                 s_hat_j = w.conj().transpose(0, 2, 1) @ z_frame
                 s_hat_flat = np.squeeze(s_hat_j)
-                
-                # Mute Speaker 1 and route to Speaker 2
-                s_hat[0, :] = 1e-10
+                s_hat[0, :] = s_hat_flat
                 s_hat[1, :] = s_hat_flat
 
             # Case C: Two slots -> LCMV
@@ -493,20 +467,6 @@ class SpatialSeparationPipeline:
                 self._update_noise_covariance(l)
             elif y_prob == 1:
                 self._update_rtf_and_tracking(l)
-                
-                # FIX: Dynamically update gating flags to prevent muting during single-speaker LCMV operation
-                y2_prob = self.y2_prob_stat_mf[l]
-                if y2_prob == self.Frame_classification_system[0, 0]:
-                    self.first_speaker_active = 1
-                    self.second_speaker_active = 0
-                elif y2_prob == self.Frame_classification_system[0, 1]:
-                    self.first_speaker_active = 0
-                    self.second_speaker_active = 1
-                else:
-                    # Fallback for a new candidate speaker
-                    self.first_speaker_active = 1
-                    self.second_speaker_active = 0
-
             elif y_prob == 2:
                 self.first_speaker_active = 1
                 self.second_speaker_active = 1
@@ -569,182 +529,8 @@ class SpatialSeparationPipeline:
         sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(ref_sources.T + 1e-9, est_sources.T, compute_permutation=True)
 
         if self.verbose:
-            print("\n--- Evaluation Results (During Overlap) ---")
-            print(f"Speaker 0 -> SDR: {sdr[0]:.2f} dB | SIR: {sir[0]:.2f} dB | SAR: {sar[0]:.2f} dB")
-            print(f"Speaker 1 -> SDR: {sdr[1]:.2f} dB | SIR: {sir[1]:.2f} dB | SAR: {sar[1]:.2f} dB")
-            print("-" * 45)
-            print(f"Average   -> SDR: {sdr.mean():.2f} dB | SIR: {sir.mean():.2f} dB | SAR: {sar.mean():.2f} dB")
-            
-        # Return the mean evaluation metrics for external tracking
-        return sdr.mean(), sir.mean(), sar.mean()
-
-    def investigate_geometry(self):
-        """
-        Diagnoses the acoustic geometry of the current audio file.
-        1. Extracts the physical DOA index for each speaker.
-        2. Calculates the spatial correlation between the dominant noise direction
-           and each speaker's spatial fingerprint.
-        """
-        print("\n" + "="*55)
-        print(" ACOUSTIC GEOMETRY INVESTIGATION")
-        print("="*55)
-        
-        # ---------------------------------------------------------
-        # 1. Speaker Direction of Arrival (DOA) Indices
-        # ---------------------------------------------------------
-        print("\n[1] Microphone Array Geometry (DOA Sectors per Speaker):")
-        
-        # Extract frames where only one speaker is active (CSD=1)
-        single_frames_idx = np.where(self.y_prob_stat_mf == 1)[0]
-        doas_single = self.y2_prob_stat_mf[single_frames_idx]
-        
-        # Measure output energy to know WHICH speaker was active in those frames
-        power_0 = np.mean(np.abs(self.s_hat_total[single_frames_idx, :, 0])**2, axis=1)
-        power_1 = np.mean(np.abs(self.s_hat_total[single_frames_idx, :, 1])**2, axis=1)
-        
-        # Assign DOAs to Speaker 0 when its output energy is significantly higher
-        doas_spk0 = doas_single[power_0 > power_1 * 10]
-        # Assign DOAs to Speaker 1 when its output energy is significantly higher
-        doas_spk1 = doas_single[power_1 > power_0 * 10]
-        
-        unique_doas_0 = np.unique(doas_spk0[doas_spk0 > 0]).astype(int)
-        unique_doas_1 = np.unique(doas_spk1[doas_spk1 > 0]).astype(int)
-        
-        print(f"    Speaker 0 is moving through sectors: {unique_doas_0}")
-        print(f"    Speaker 1 is moving through sectors: {unique_doas_1}")
-        print("    -> Note: The array spans 180 degrees (Indices 1 to 18).")
-        print("    -> 'Broadside' (Optimal separation) is around index 9.")
-        print("    -> 'Endfire' (Poor separation) is near index 1 or 18.")
-        
-        # ---------------------------------------------------------
-        # 2. Spatial Correlation with Directional Noise
-        # ---------------------------------------------------------
-        print("\n[2] Spatial Overlap (Speaker vs. Background Noise):")
-        correlation_scores = np.zeros(self.num_speech)
-        
-        for p in range(self.num_speech):
-            corr_per_freq = np.zeros(self.NUP)
-            
-            for f in range(self.NUP):
-                # Target spatial fingerprint
-                g_f = self.G[f, :, p]
-                
-                # Eigendecomposition of the noise matrix
-                w, v = np.linalg.eig(self.Qvv[f, :, :])
-                
-                # Dominant noise direction is the eigenvector of the largest eigenvalue
-                noise_vector = v[:, np.argmax(w.real)]
-                
-                # Complex Cosine Similarity
-                numerator = np.abs(np.vdot(g_f, noise_vector))**2
-                denominator = (np.linalg.norm(g_f)**2) * (np.linalg.norm(noise_vector)**2)
-                corr_per_freq[f] = numerator / (denominator + 1e-15)
-                
-            correlation_scores[p] = np.mean(corr_per_freq)
-            print(f"    Speaker {p} Spatial Overlap: {correlation_scores[p]:.4f}")
-            
-        print("\n    -> Score Guide: 0.0 means completely orthogonal (perfect).")
-        print("    -> Score Guide: 1.0 means exact same direction (impossible to separate).")
-        print("="*55 + "\n")
-
-    def compute_noise_reduction(self):
-        """
-        Calculates the quantitative Noise Reduction (NR) in dB.
-        1. Calculates the true final target NR using shared late valid frames.
-        2. Uses a moving average over early frames to find when Speaker 0 hits 95% of its target.
-        3. Compares the average of all valid frames vs the converged frames.
-        """
-        if self.verbose: print("\n--- Computing Noise Reduction Metrics ---")
-        
-        noise_frames_idx = np.where(self.y_prob_stat_mf == 0)[0]
-        
-        if len(noise_frames_idx) == 0:
-            if self.verbose: print("No pure noise frames found to evaluate.")
-            return None, None
-
-        # Energy per frame for input (Mic 0) and outputs
-        power_in_frames = np.mean(np.abs(self.z_k[noise_frames_idx, :, 0])**2, axis=1)
-        power_out_frames = np.zeros((self.num_speech, len(noise_frames_idx)))
-        for p in range(self.num_speech):
-            power_out_frames[p, :] = np.mean(np.abs(self.s_hat_total[noise_frames_idx, :, p])**2, axis=1)
-
-        valid_idx_0 = np.where(power_out_frames[0, :] > 1e-18)[0]
-        valid_idx_1 = np.where(power_out_frames[1, :] > 1e-18)[0]
-
-        # ---------------------------------------------------------
-        # Part 1: Fair "Apples-to-Apples" NR Comparison (The Target)
-        # ---------------------------------------------------------
-        shared_valid_idx = np.intersect1d(valid_idx_0, valid_idx_1)
-        
-        target_nr = [0.0, 0.0]
-        
-        if len(shared_valid_idx) > 0:
-            if self.verbose: print(f"\n[1] Fair Noise Attenuation (Over {len(shared_valid_idx)} shared valid frames):")
-            mean_power_in_shared = np.mean(power_in_frames[shared_valid_idx])
-            
-            for p in range(self.num_speech):
-                mean_power_out_shared = np.mean(power_out_frames[p, shared_valid_idx])
-                target_nr[p] = 10 * np.log10(mean_power_in_shared / (mean_power_out_shared + 1e-15))
-                if self.verbose: print(f"    - Speaker {p} Channel: Final target NR = {target_nr[p]:.2f} dB")
-        else:
-            print("    - No shared valid frames found. Cannot compute target NR.")
-            return None, None
-
-        # ---------------------------------------------------------
-        # Part 2: Empirical Convergence Time (Speaker 0)
-        # ---------------------------------------------------------
-        # We look at the frames for Speaker 0 before Speaker 1 became valid
-        early_frames_0 = np.setdiff1d(valid_idx_0, shared_valid_idx)
-        
-        if len(early_frames_0) > 0 and target_nr[0] > 0:
-            if self.verbose: print("\n[2] Empirical Convergence Analysis (Speaker 0):")
-            
-            # The target is 95% of the final stable NR calculated in Part 1
-            threshold_db = target_nr[0] * 0.95
-            print(f"    - Target NR: {target_nr[0]:.2f} dB (95% Threshold: {threshold_db:.2f} dB)")
-            
-            # Use a moving average window to smooth frame-to-frame variance
-            window_size = 10
-            convergence_frame_count = 0
-            converged = False
-            
-            for i in range(len(early_frames_0) - window_size):
-                window_idx = early_frames_0[i:i+window_size]
-                
-                # Mean energy over the sliding window
-                win_power_in = np.mean(power_in_frames[window_idx])
-                win_power_out = np.mean(power_out_frames[0, window_idx])
-                win_nr_db = 10 * np.log10(win_power_in / (win_power_out + 1e-15))
-                
-                if win_nr_db >= threshold_db:
-                    # Plus window_size/2 to approximate the center of the window
-                    convergence_frame_count = i + (window_size // 2)
-                    converged = True
-                    break
-                    
-            if converged:
-                print(f"    - Frames to reach 95% convergence: ~{convergence_frame_count} frames")
-            else:
-                print("    - Speaker 0 did not clearly hit the 95% threshold before the shared phase.")
-
-        # ---------------------------------------------------------
-        # Part 3: Final Sanity Check (All frames vs. Converged)
-        # ---------------------------------------------------------
-        if len(early_frames_0) > 0 and len(shared_valid_idx) > 0:
-            if self.verbose: print("\n[3] Sanity Check: All Frames vs Converged Frames (Speaker 0):")
-            
-            # Combine early frames and shared valid frames
-            all_valid_idx = np.union1d(early_frames_0, shared_valid_idx)
-            
-            mean_power_in_all = np.mean(power_in_frames[all_valid_idx])
-            mean_power_out_all = np.mean(power_out_frames[0, all_valid_idx])
-            nr_all_db = 10 * np.log10(mean_power_in_all / (mean_power_out_all + 1e-15))
-            
-            print(f"    - NR for Speaker 0 (All valid frames): {nr_all_db:.2f} dB")
-            print(f"    - NR for Speaker 0 (Converged frames only): {target_nr[0]:.2f} dB")
-
-        # Return the target noise reduction for both speakers
-        return target_nr[0], target_nr[1]
+            print("\n--- Evaluation Results ---")
+            print(f"SDR: {sdr.mean():.2f} dB | SIR: {sir.mean():.2f} dB")
 
     def run(self):
         """Orchestrates the separation pipeline with timing."""
@@ -771,8 +557,7 @@ class SpatialSeparationPipeline:
         self.run_online_separation()
         t_sep = time.time() - step_start
         print(f"[⏱] 3. Run Online Separation:      {t_sep:>6.2f} seconds")
-        
-        # Print time per frame for the online separation step
+        # print time per frame for the online separation step
         if self.verbose > 1:
             num_frames = len(self.y2_prob_stat_mf)
             time_per_frame = t_sep / num_frames
@@ -786,14 +571,7 @@ class SpatialSeparationPipeline:
 
         # 5. Evaluate and Save
         step_start = time.time()
-        
-        # Capture the returned metrics if evaluation is possible
-        if self.evaluate:
-            sdr_avg, sir_avg, sar_avg = self.evaluate_and_save()
-        else:
-            self.evaluate_and_save()
-            sdr_avg, sir_avg, sar_avg = None, None, None
-            
+        self.evaluate_and_save()
         t_eval = time.time() - step_start
         print(f"[⏱] 5. Evaluate and Save:          {t_eval:>6.2f} seconds")
 
@@ -801,14 +579,8 @@ class SpatialSeparationPipeline:
         print(f"{'-'*55}")
         print(f" TOTAL EXECUTION TIME:             {total_time:>6.2f} seconds")
         print(f"{'='*55}\n")
-
-        self.investigate_geometry()
         
-        # Capture NR metrics
-        nr_0, nr_1 = self.compute_noise_reduction()
-        
-        # Return all 5 metrics to the orchestrator script
-        return sdr_avg, sir_avg, sar_avg, nr_0, nr_1
+        return self
 
 if __name__ == "__main__":
     # Dynamically locate the workspace
@@ -818,7 +590,7 @@ if __name__ == "__main__":
     folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
 
     # Define where the tracking pipeline saved its labels, and where we will save the separated audio
-    folder_to_results = os.path.join(workspace_folder, 'plots')
+    folder_to_results = os.path.join(workspace_folder, 'pipeline_results', 'model_predicts')
 
     # Configuration objects (same as before)
     p_stft = {

@@ -334,8 +334,8 @@ models_folder = os.path.join(workspace_folder, 'models')
 
 pipeline_config = {
     # --- Models Config ---
-    'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_23_06.h5'),
-    'doa_path': os.path.join(models_folder, 'model_angle_GEVD_23_06.h5'),
+    'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_24_06.h5'),
+    'doa_path': os.path.join(models_folder, 'model_angle_GEVD_24_06.h5'),
 
     # --- STFT Config ---
     'n_fft': 2048,
@@ -355,15 +355,19 @@ pipeline_config = {
 
 plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'model_predicts')
 
-# Example instantiation
-pipeline = SpatialTrackingPipeline(
-    config=pipeline_config, 
-    folder_to_test_data=folder_to_test_data, 
-    n_mics=4, 
-    verbose=1
-)
 
-pipeline.run_batch(
-    run_indices=range(1, 21), 
-    folder_to_save=plot_dir
-)
+if __name__ == "__main__":
+    # Run the pipeline for experiments 1 to 20 and save results
+    
+    # Example instantiation
+    pipeline = SpatialTrackingPipeline(
+        config=pipeline_config, 
+        folder_to_test_data=folder_to_test_data, 
+        n_mics=4, 
+        verbose=1
+    )
+
+    pipeline.run_batch(
+        run_indices=range(1, 21), 
+        folder_to_save=plot_dir
+    )
