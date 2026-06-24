@@ -264,14 +264,16 @@ def run_all_experiments(num_experiments=20):
 def plot_single_experiment_doa_accuracy(run_idx):
     """
     Runs the pipeline for a single experiment (if results don't exist),
-    filters out noise/overlap frames (keeping only true_CSD == 1),
-    and plots the DOA accuracy per frame.
+    filters out noise/overlap frames, and plots a 3-panel subplot:
+      1. Running DOA Accuracy (Only when true_CSD == 1)
+      2. True vs Estimated DOA for Speaker 1 (Active Regions)
+      3. True vs Estimated DOA for Speaker 2 (Active Regions)
     """
     py_folder = os.path.dirname(os.path.realpath(__file__))
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
     plot_dir = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
     
-    # 1. Check if files already exist; if not, spin up the pipeline for this file
+    # 1. Pipeline Verification / Generation
     true_csd_path = os.path.join(plot_dir, f'true_CSD_{run_idx}.npy')
     true_doa_path = os.path.join(plot_dir, f'true_DOA_{run_idx}.npy')
     est_doa_path = os.path.join(plot_dir, f'estimate_DOA_{run_idx}.npy')
@@ -286,40 +288,23 @@ def plot_single_experiment_doa_accuracy(run_idx):
         )
         pipeline.process_single_run(run_idx, plot_dir)
     
-    # 2. Load the specific experiment arrays
+    # 2. Load Generated Artifacts
     true_csd = np.load(true_csd_path)
     true_doa = np.load(true_doa_path)
     est_doa = np.load(est_doa_path)
     
     n_frames = len(true_csd)
-    
-    # 3. Filter for frames where exactly 1 speaker is active
-    # We create a boolean mask: True where CSD == 1, False everywhere else
-    valid_mask = (true_csd == 1)
-    
-    if not np.any(valid_mask):
-        print(f"Warning: Experiment {run_idx} has zero frames where true_CSD == 1! Cannot plot accuracy.")
-        return
-
-    # 4. Calculate accurate hits (1 for correct, 0 for incorrect)
-    # We only care about correctness at the valid indices
-    is_correct = (true_doa == est_doa)
-    
-    # 5. Prepare data for plotting
-    # Instead of an average percentage, for a single file we map out binary success 
-    # over time, or look at the moving accuracy. Let's plot the direct hits/misses 
-    # alongside the valid frames so you can see exactly where it succeeded.
     frames_x = np.arange(n_frames)
     
-    plt.figure(figsize=(14, 5))
+    # Masks based on Ground Truth CSD
+    valid_mask = (true_csd == 1)
+    is_correct = (true_doa == est_doa)
     
-    # Plot active single-speaker regions as a background shade for context
-    plt.fill_between(frames_x, 0, 100, where=valid_mask, color='green', alpha=0.15, label='Single Speaker Active (CSD == 1)')
-    
-    # Calculate a rolling/running accuracy just for the active speaker parts to give you a smooth visual trend
+    # ---------------------------------------------------------
+    # Subplot Calculation 1: Running Accuracy Metrics
+    # ---------------------------------------------------------
     running_accuracy = np.zeros(n_frames)
-    hits = 0
-    attempts = 0
+    hits, attempts = 0, 0
     for t in range(n_frames):
         if valid_mask[t]:
             attempts += 1
@@ -327,32 +312,64 @@ def plot_single_experiment_doa_accuracy(run_idx):
                 hits += 1
             running_accuracy[t] = (hits / attempts) * 100
         else:
-            # If CSD != 1, we put NaN so the line breaks visually in noise/overlap zones
             running_accuracy[t] = np.nan
-            
-    # Plot the tracked accuracy line
-    plt.plot(frames_x, running_accuracy, color='darkblue', linewidth=2, label='Running DOA Accuracy')
+
+    # ---------------------------------------------------------
+    # Subplot Calculations 2 & 3: Clean up Angles for Plotting
+    # ---------------------------------------------------------
+    # Mask out non-active segments with NaN to keep lines clean on the plot
+    # The true pipeline marks overlapping frames as sentinel label '19'
+    spk1_active = (true_csd == 1) & (true_doa != 19) & (true_doa != 0) 
+    spk2_active = (true_csd == 1) & (true_doa != 19) & (true_doa != 0) 
+
+    # Note: Because true_doa collapses speaker 1 & 2 together based on VAD, 
+    # we copy the true tracking track directly into respective slots.
+    true_doa_spk1 = np.where(spk1_active, true_doa, np.nan)
+    est_doa_spk1 = np.where(spk1_active, est_doa, np.nan)
+
+    true_doa_spk2 = np.where(spk2_active, true_doa, np.nan)
+    est_doa_spk2 = np.where(spk2_active, est_doa, np.nan)
+
+# ---------------------------------------------------------
+    # Rendering Phase: 2-Panel Figure
+    # ---------------------------------------------------------
+    fig, axs = plt.subplots(2, 1, figsize=(15, 9), sharex=True)
+    fig.suptitle(f'Uncut DOA Evaluation Tracking — Experiment {run_idx}', fontsize=16, fontweight='bold', y=0.96)
+
+    # Panel 1: Accuracy Percentage Line (Isolated to CSD==1 for analytical validity)
+    axs[0].fill_between(frames_x, 0, 100, where=valid_mask, color='green', alpha=0.1, label='Evaluation Domain (CSD == 1)')
+    axs[0].plot(frames_x, running_accuracy, color='darkblue', linewidth=2.5, label='Running Tracking Accuracy')
     
-    # Scatter individual frame results (Hits vs Misses) inside the valid zones
     correct_indices = np.where(valid_mask & is_correct)[0]
     incorrect_indices = np.where(valid_mask & ~is_correct)[0]
+    axs[0].scatter(correct_indices, np.ones_like(correct_indices) * 100, color='forestgreen', marker='|', s=60, alpha=0.7)
+    axs[0].scatter(incorrect_indices, np.zeros_like(incorrect_indices) * 0, color='crimson', marker='|', s=60, alpha=0.7)
     
-    plt.scatter(correct_indices, np.ones_like(correct_indices) * 100, color='forestgreen', marker='|', s=100, label='Correct Frame Hit')
-    plt.scatter(incorrect_indices, np.zeros_like(incorrect_indices) * 0, color='crimson', marker='|', s=100, label='Incorrect Frame Miss')
+    axs[0].set_ylabel('Accuracy (%)', fontweight='bold')
+    axs[0].set_ylim(-10, 110)
+    axs[0].grid(True, linestyle=':', alpha=0.6)
+    axs[0].legend(loc='lower left')
+    axs[0].set_title('DOA Tracking Performance Metrics (Filtered Domain)')
 
-    # Formatting the timeline graph
-    plt.title(f'DOA Evaluation Tracking — Experiment {run_idx} (Single-Speaker Frames Only)')
-    plt.xlabel('Frame Index')
-    plt.ylabel('Tracking Accuracy State (%)')
-    plt.ylim(-10, 110)
-    plt.grid(True, linestyle=':', alpha=0.6)
-    plt.legend(loc='lower left', frameon=True, facecolor='white', framealpha=0.9)
+    # Panel 2: Uncut Spatial Trajectory vs Estimate
+    axs[1].plot(frames_x, true_doa, color='black', linewidth=2, linestyle='-', label='True DOA (Raw Uncut)')
+    axs[1].plot(frames_x, est_doa, color='darkorange', linewidth=1.2, linestyle='--', marker='.', alpha=0.6, label='Estimated DOA')
+    axs[1].axhline(y=19, color='purple', linestyle=':', alpha=0.5, label='Sentinel Overlap Value (19)')
+    axs[1].axhline(y=0, color='gray', linestyle=':', alpha=0.5, label='Silence/Noise Value (0)')
+    axs[1].set_xlabel('Frame Index', fontweight='bold')
+    axs[1].set_ylabel('DOA Index / Bin', fontweight='bold')
+    axs[1].set_ylim(-2, 22)  # Bounds adjusted comfortably to display 0 to 19 values
+    axs[1].grid(True, linestyle=':', alpha=0.6)
+    axs[1].legend(loc='upper right')
+    axs[1].set_title('Raw Spatial Trajectory Analysis: Entire Timeline')
+
+    # Global Formatting adjustments
+    plt.tight_layout(rect=[0, 0, 1, 0.94])
     
-    # Save specific plot
-    single_plot_path = os.path.join(plot_dir, f'DOA_Single_Analysis_Exp_{run_idx}.png')
+    # Save Layout
+    single_plot_path = os.path.join(plot_dir, f'DOA_Uncut_2Panel_Analysis_Exp_{run_idx}.png')
     plt.savefig(single_plot_path, dpi=300, bbox_inches='tight')
-    print(f"Saved single experiment analysis plot to: {single_plot_path}")
-
+    print(f"Saved uncut 2-panel evaluation plot to: {single_plot_path}")
 
 def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     py_folder = os.path.dirname(os.path.realpath(__file__))
