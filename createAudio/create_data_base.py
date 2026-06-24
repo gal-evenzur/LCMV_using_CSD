@@ -616,6 +616,7 @@ if __name__ == "__main__":
         parser.add_argument("--num_samples", type=int, default=200, help="Number of samples to generate")
         parser.add_argument("--start_idx", type=int, default=1, help="Starting index")
         parser.add_argument("--trainORval", type=str, default="train", help="'train' or 'val'")
+        parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
         args = parser.parse_args()
         
         config = Config()
@@ -623,6 +624,7 @@ if __name__ == "__main__":
         config.start_idx = args.start_idx
         config.trainORval = args.trainORval
         config.dataset_title = args.trainORval
+        config.seed = args.seed
 
     except Exception as e:
         print(f"Error parsing arguments: {e}")

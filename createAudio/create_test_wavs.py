@@ -274,11 +274,18 @@ if __name__ == "__main__":
         Configuration object with all parameters
     """
     config = Config()
-    np.random.seed(config.seed)
+
+    # Parser - add arguments for number of samples and starting index
+    parser = argparse.ArgumentParser(description="Generate test samples for LCMV using CSD")
+    parser.add_argument("--num_samples", type=int, default=config.num_samples, help="Number of samples to generate")
+    parser.add_argument("--start_idx", type=int, default=config.start_idx, help="Starting index for file naming (e.g., 1 for 'first_1.wav')")
+    parser.add_argument("--seed", type=int, default=config.seed, help="Random seed for reproducibility")
+    args = parser.parse_args()
+    num_samples = args.num_samples
+    start_idx = args.start_idx
+    np.random.seed(args.seed)
 
     dataset_title = config.dataset_title
-    num_samples = config.num_samples
-    start_idx = config.start_idx
 
 
     # Set default paths

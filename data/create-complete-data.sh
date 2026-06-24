@@ -23,7 +23,7 @@ echo "========================================"
 echo " Generating TRAIN dataset... "
 echo "========================================"
 echo "1. Generating simulated audio for TRAIN (num_samples=$N_TRAIN)"
-python3 "$WORKSPACE_DIR/createAudio/create_data_base.py" --num_samples $N_TRAIN --start_idx $START_IDX_TRAIN --trainORval train
+python3 "$WORKSPACE_DIR/createAudio/create_data_base.py" --num_samples $N_TRAIN --start_idx $START_IDX_TRAIN --trainORval train -seed $LOTTERY_TRAIN
 
 echo "2. Converting DataSamples to Input vectors for TRAIN"
 python3 "$WORKSPACE_DIR/DataSamples_to_InputVectors/create_data_base.py" --mode train --nom_data_sets 2 --lottery $LOTTERY_TRAIN
@@ -33,7 +33,7 @@ echo "========================================"
 echo " Generating VAL dataset... "
 echo "========================================"
 echo "1. Generating simulated audio for VAL (num_samples=$N_VAL)"
-python3 "$WORKSPACE_DIR/createAudio/create_data_base.py" --num_samples $N_VAL --start_idx $START_IDX_VAL --trainORval val
+python3 "$WORKSPACE_DIR/createAudio/create_data_base.py" --num_samples $N_VAL --start_idx $START_IDX_VAL --trainORval val --seed $LOTTERY_VAL
 
 echo "2. Converting DataSamples to Input vectors for VAL"
 python3 "$WORKSPACE_DIR/DataSamples_to_InputVectors/create_data_base.py" --mode val --nom_data_sets 2 --lottery $LOTTERY_VAL
