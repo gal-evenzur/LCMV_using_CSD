@@ -328,7 +328,7 @@ class SpatialTrackingPipeline:
 py_folder = os.path.dirname(os.path.realpath(__file__))
 workspace_folder = py_folder
 folder_to_all_data = os.path.join(workspace_folder, 'data')
-folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
+folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'dynamic')
 
 models_folder = os.path.join(workspace_folder, 'models')
 
@@ -353,7 +353,8 @@ pipeline_config = {
     'threshold_freq': 0.3
 }
 
-plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'model_predicts')
+run_type = 'dynamic' # Options: 'model_predicts' (normal) or 'dynamic' or 'val_data'
+plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'dynamic')
 
 
 if __name__ == "__main__":

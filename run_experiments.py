@@ -270,8 +270,8 @@ def plot_single_experiment_doa_accuracy(run_idx):
       3. True vs Estimated DOA for Speaker 2 (Active Regions)
     """
     py_folder = os.path.dirname(os.path.realpath(__file__))
-    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
-    plot_dir = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
+    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'dynamic')
+    plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic')
     
     # 1. Pipeline Verification / Generation
     true_csd_path = os.path.join(plot_dir, f'true_CSD_{run_idx}.npy')
@@ -475,4 +475,5 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     
 
 if __name__ == "__main__":
-    plot_single_experiment_doa_accuracy(run_idx=1)
+    for run_idx in range(1, 6):
+        plot_single_experiment_doa_accuracy(run_idx)
