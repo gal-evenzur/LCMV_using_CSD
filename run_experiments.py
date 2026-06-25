@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import the pipeline classes and configurations
-from pipeline import SpatialTrackingPipeline, pipeline_config
+from pipeline import SpatialTrackingPipeline, pipeline_config, plot_dir
 from pipeline_beamformer import SpatialSeparationPipeline
 
 def run_all_experiments(num_experiments=20):
@@ -261,5 +261,218 @@ def run_all_experiments(num_experiments=20):
     else:
         print("Not enough valid data to generate plots.")
 
+def plot_single_experiment_doa_accuracy(run_idx):
+    """
+    Runs the pipeline for a single experiment (if results don't exist),
+    filters out noise/overlap frames, and plots a 3-panel subplot:
+      1. Running DOA Accuracy (Only when true_CSD == 1)
+      2. True vs Estimated DOA for Speaker 1 (Active Regions)
+      3. True vs Estimated DOA for Speaker 2 (Active Regions)
+    """
+    py_folder = os.path.dirname(os.path.realpath(__file__))
+    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
+    plot_dir = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
+    
+    # 1. Pipeline Verification / Generation
+    true_csd_path = os.path.join(plot_dir, f'true_CSD_{run_idx}.npy')
+    true_doa_path = os.path.join(plot_dir, f'true_DOA_{run_idx}.npy')
+    est_doa_path = os.path.join(plot_dir, f'estimate_DOA_{run_idx}.npy')
+    
+    if not (os.path.exists(true_csd_path) and os.path.exists(true_doa_path) and os.path.exists(est_doa_path)):
+        print(f"--- Files for Experiment {run_idx} not found. Running pipeline... ---")
+        pipeline = SpatialTrackingPipeline(
+            config=pipeline_config, 
+            folder_to_test_data=folder_to_test_data, 
+            n_mics=4, 
+            verbose=1
+        )
+        pipeline.process_single_run(run_idx, plot_dir)
+    
+    # 2. Load Generated Artifacts
+    true_csd = np.load(true_csd_path)
+    true_doa = np.load(true_doa_path)
+    est_doa = np.load(est_doa_path)
+    
+    n_frames = len(true_csd)
+    frames_x = np.arange(n_frames)
+    
+    # Masks based on Ground Truth CSD
+    valid_mask = (true_csd == 1)
+    is_correct = (true_doa == est_doa)
+    
+    # ---------------------------------------------------------
+    # Subplot Calculation 1: Running Accuracy Metrics
+    # ---------------------------------------------------------
+    running_accuracy = np.zeros(n_frames)
+    hits, attempts = 0, 0
+    for t in range(n_frames):
+        if valid_mask[t]:
+            attempts += 1
+            if is_correct[t]:
+                hits += 1
+            running_accuracy[t] = (hits / attempts) * 100
+        else:
+            running_accuracy[t] = np.nan
+
+    # ---------------------------------------------------------
+    # Subplot Calculations 2 & 3: Clean up Angles for Plotting
+    # ---------------------------------------------------------
+    # Mask out non-active segments with NaN to keep lines clean on the plot
+    # The true pipeline marks overlapping frames as sentinel label '19'
+    spk1_active = (true_csd == 1) & (true_doa != 19) & (true_doa != 0) 
+    spk2_active = (true_csd == 1) & (true_doa != 19) & (true_doa != 0) 
+
+    # Note: Because true_doa collapses speaker 1 & 2 together based on VAD, 
+    # we copy the true tracking track directly into respective slots.
+    true_doa_spk1 = np.where(spk1_active, true_doa, np.nan)
+    est_doa_spk1 = np.where(spk1_active, est_doa, np.nan)
+
+    true_doa_spk2 = np.where(spk2_active, true_doa, np.nan)
+    est_doa_spk2 = np.where(spk2_active, est_doa, np.nan)
+
+# ---------------------------------------------------------
+    # Rendering Phase: 2-Panel Figure
+    # ---------------------------------------------------------
+    fig, axs = plt.subplots(2, 1, figsize=(15, 9), sharex=True)
+    fig.suptitle(f'Uncut DOA Evaluation Tracking — Experiment {run_idx}', fontsize=16, fontweight='bold', y=0.96)
+
+    # Panel 1: Accuracy Percentage Line (Isolated to CSD==1 for analytical validity)
+    axs[0].fill_between(frames_x, 0, 100, where=valid_mask, color='green', alpha=0.1, label='Evaluation Domain (CSD == 1)')
+    axs[0].plot(frames_x, running_accuracy, color='darkblue', linewidth=2.5, label='Running Tracking Accuracy')
+    
+    correct_indices = np.where(valid_mask & is_correct)[0]
+    incorrect_indices = np.where(valid_mask & ~is_correct)[0]
+    axs[0].scatter(correct_indices, np.ones_like(correct_indices) * 100, color='forestgreen', marker='|', s=60, alpha=0.7)
+    axs[0].scatter(incorrect_indices, np.zeros_like(incorrect_indices) * 0, color='crimson', marker='|', s=60, alpha=0.7)
+    
+    axs[0].set_ylabel('Accuracy (%)', fontweight='bold')
+    axs[0].set_ylim(-10, 110)
+    axs[0].grid(True, linestyle=':', alpha=0.6)
+    axs[0].legend(loc='lower left')
+    axs[0].set_title('DOA Tracking Performance Metrics (Filtered Domain)')
+
+    # Panel 2: Uncut Spatial Trajectory vs Estimate
+    axs[1].plot(frames_x, true_doa, color='black', linewidth=2, linestyle='-', label='True DOA (Raw Uncut)')
+    axs[1].plot(frames_x, est_doa, color='darkorange', linewidth=1.2, linestyle='--', marker='.', alpha=0.6, label='Estimated DOA')
+    axs[1].axhline(y=19, color='purple', linestyle=':', alpha=0.5, label='Sentinel Overlap Value (19)')
+    axs[1].axhline(y=0, color='gray', linestyle=':', alpha=0.5, label='Silence/Noise Value (0)')
+    axs[1].set_xlabel('Frame Index', fontweight='bold')
+    axs[1].set_ylabel('DOA Index / Bin', fontweight='bold')
+    axs[1].set_ylim(-2, 22)  # Bounds adjusted comfortably to display 0 to 19 values
+    axs[1].grid(True, linestyle=':', alpha=0.6)
+    axs[1].legend(loc='upper right')
+    axs[1].set_title('Raw Spatial Trajectory Analysis: Entire Timeline')
+
+    # Global Formatting adjustments
+    plt.tight_layout(rect=[0, 0, 1, 0.94])
+    
+    # Save Layout
+    single_plot_path = os.path.join(plot_dir, f'DOA_Uncut_2Panel_Analysis_Exp_{run_idx}.png')
+    plt.savefig(single_plot_path, dpi=300, bbox_inches='tight')
+    print(f"Saved uncut 2-panel evaluation plot to: {single_plot_path}")
+
+def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
+    py_folder = os.path.dirname(os.path.realpath(__file__))
+    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
+    
+    workspace_dir = py_folder
+    plot_dir = os.path.join(workspace_dir, 'pipeline_results', 'model_predicts')
+    
+    # Ensure the output directory exists
+    os.makedirs(plot_dir, exist_ok=True)
+
+# ---------------------------------------------------------
+    # Phase 1: Run the Pipeline on all N Experiments (UPDATED)
+    # ---------------------------------------------------------
+    if need_to_estimate_doa:
+        print("\n--- ESTIMATING DOA FOR ALL EXPERIMENTS ---")
+        print(f"--- STARTING BATCH PROCESSING FOR {num_experiments} EXPERIMENTS ---")
+        
+        # Initialize the pipeline ONCE (loads models into memory)
+        pipeline = SpatialTrackingPipeline(
+            config=pipeline_config, 
+            folder_to_test_data=folder_to_test_data, 
+            n_mics=4, 
+            verbose=1  # Set to 0 to mute, or 2 for deep debugging
+        )
+        
+        # Run the batch process for the specified number of experiments
+        run_indices = range(1, num_experiments + 1)
+        pipeline.run_batch(run_indices=run_indices, folder_to_save=plot_dir)
+
+    
+    # ---------------------------------------------------------
+    # Phase 2: Analyze DOA Results (Accuracy vs Frame)
+    # ---------------------------------------------------------
+    print("\n--- ANALYZING DOA RESULTS ---")
+    
+    # Lists to hold the loaded data from all experiments
+    all_true_csd = []
+    all_true_doa = []
+    all_est_doa = []
+    max_frames = 0
+    
+    # Load the results generated by the pipeline
+    for i in range(1, num_experiments + 1):
+        true_csd = np.load(os.path.join(plot_dir, f'true_CSD_{i}.npy'))
+        true_doa = np.load(os.path.join(plot_dir, f'true_DOA_{i}.npy'))
+        est_doa = np.load(os.path.join(plot_dir, f'estimate_DOA_{i}.npy'))
+        
+        all_true_csd.append(true_csd)
+        all_true_doa.append(true_doa)
+        all_est_doa.append(est_doa)
+        
+        if len(true_csd) > max_frames:
+            max_frames = len(true_csd)
+
+    # Arrays to accumulate hits and total valid attempts per frame index
+    correct_per_frame = np.zeros(max_frames)
+    valid_attempts_per_frame = np.zeros(max_frames)
+    
+    # Calculate accuracy frame-by-frame across all 20 experiments
+    for exp_idx in range(num_experiments):
+        n_frames_in_exp = len(all_true_csd[exp_idx])
+        
+        for t in range(n_frames_in_exp):
+            # CRITICAL: Only evaluate DOA when exactly 1 speaker is active
+            if all_true_csd[exp_idx][t] == 1:
+                valid_attempts_per_frame[t] += 1
+                
+                # Check for an exact match in the DOA bin
+                if all_true_doa[exp_idx][t] == all_est_doa[exp_idx][t]:
+                    correct_per_frame[t] += 1
+
+    # Calculate final accuracy percentage, protecting against division by zero
+    accuracy_per_frame = np.zeros(max_frames)
+    valid_indices = valid_attempts_per_frame > 0
+    
+    accuracy_per_frame[valid_indices] = (
+        correct_per_frame[valid_indices] / valid_attempts_per_frame[valid_indices]
+    ) * 100
+
+    # ---------------------------------------------------------
+    # Phase 3: Plot the Results
+    # ---------------------------------------------------------
+    plt.figure(figsize=(12, 6))
+    
+    # We only want to plot the line where valid frames actually existed
+    frames_x = np.arange(max_frames)[valid_indices]
+    acc_y = accuracy_per_frame[valid_indices]
+    
+    plt.plot(frames_x, acc_y, color='b', marker='.', linestyle='-', alpha=0.7, label='Average Accuracy')
+    
+    plt.title(f'DOA Estimation Accuracy vs. Frame Index\n(Averaged over {num_experiments} Experiments, Single-Speaker Frames Only)')
+    plt.xlabel('Frame Index')
+    plt.ylabel('Accuracy (%)')
+    plt.ylim(-5, 105)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.legend()
+    
+    # Save and display
+    analysis_plot_path = os.path.join(plot_dir, 'DOA_Accuracy_vs_Frame.png')
+    plt.savefig(analysis_plot_path, dpi=300, bbox_inches='tight')
+    print(f"Saved aggregated analysis plot to: {analysis_plot_path}")
+    
+
 if __name__ == "__main__":
-    run_all_experiments(20)
+    plot_single_experiment_doa_accuracy(run_idx=1)

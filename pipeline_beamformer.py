@@ -397,7 +397,7 @@ class SpatialSeparationPipeline:
             # Batch invert all 1,025 matrices: (NUP, M, M)
             inv_Qvv = LA.inv(self.Qvv + reg_matrix)
 
-            # Case B1: Only Slot 0 active (Speaker 1 only)
+            # Case B: One slot -> MVDR
             if fc[0, 0] != 0 and fc[0, 1] == 0:
                 # Isolate target spatial fingerprint for Speaker 1: (NUP, M, 1)
                 g = self.G[:, :, 0:1]
@@ -407,7 +407,7 @@ class SpatialSeparationPipeline:
                 c = inv_Qvv @ g                        # (NUP, M, 1)
                 inv_temp = (g_conj @ c) + epsilon      # (NUP, 1, 1)
                 w = c / inv_temp                       # (NUP, M, 1)
-
+                
                 # Save weights
                 w_flat = np.squeeze(w, axis=2)
                 self.W[l, :, :, 0] = w_flat
@@ -436,7 +436,7 @@ class SpatialSeparationPipeline:
                 w_flat = np.squeeze(w, axis=2)
                 self.W[l, :, :, 0] = 0
                 self.W[l, :, :, 1] = w_flat
-
+                
                 # Apply filter to signal
                 s_hat_j = w.conj().transpose(0, 2, 1) @ z_frame
                 s_hat_flat = np.squeeze(s_hat_j)
@@ -805,7 +805,7 @@ if __name__ == "__main__":
     folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
 
     # Define where the tracking pipeline saved its labels, and where we will save the separated audio
-    folder_to_results = os.path.join(workspace_folder, 'plots')
+    folder_to_results = os.path.join(workspace_folder, 'pipeline_results', 'model_predicts')
 
     # Configuration objects (same as before)
     p_stft = {
