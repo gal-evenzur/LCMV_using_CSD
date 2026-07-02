@@ -181,8 +181,8 @@ def create_semicircular_mic_array(center, radius, height, angle_resolution=360, 
     angles = np.linspace(-np.pi, 2 * np.pi, angle_resolution + (angle_resolution // 2))
     active_angles = angles[rotation_offset_idx - 1 : rotation_offset_idx - 1 + (angle_resolution // 2)]
     
-    mic_x_all = radius * np.sin(active_angles) + center_x
-    mic_y_all = radius * np.cos(active_angles) + center_y
+    mic_x_all = radius * np.cos(active_angles) + center_x
+    mic_y_all = radius * np.sin(active_angles) + center_y
     
     mic_array_coords = np.array([
         [mic_x_all[i], mic_y_all[i], height] for i in selected_indices if i < len(mic_x_all)
@@ -312,8 +312,8 @@ class AcousticTrajectorySimulator:
 
         # Speakers
         center_x, center_y = self.array_center
-        self.speaker_ref_x = self.speaker_radius * np.sin(active_angles) + center_x
-        self.speaker_ref_y = self.speaker_radius * np.cos(active_angles) + center_y
+        self.speaker_ref_x = self.speaker_radius * np.cos(active_angles) + center_x
+        self.speaker_ref_y = self.speaker_radius * np.sin(active_angles) + center_y
         
         # Reference vector for 0 degrees
         self.reference_vec = np.array([self.speaker_ref_x[0], self.speaker_ref_y[0]]) - self.array_center
@@ -324,8 +324,8 @@ class AcousticTrajectorySimulator:
         idx = np.random.randint(0, self.angle_resolution // 2)
         noise_angle = 0.01 * np.random.randint(1, 315)
         
-        pos_x = self.speaker_ref_x[idx] + self.radius_noise * np.sin(noise_angle)
-        pos_y = self.speaker_ref_y[idx] + self.radius_noise * np.cos(noise_angle)
+        pos_x = self.speaker_ref_x[idx] + self.radius_noise * np.cos(noise_angle)
+        pos_y = self.speaker_ref_y[idx] + self.radius_noise * np.sin(noise_angle)
         
         vec = np.array([pos_x, pos_y]) - self.array_center
         angle_deg = calculate_angle(self.reference_vec, vec) # Assumes calculate_angle is in scope
@@ -457,6 +457,8 @@ class AcousticTrajectorySimulator:
         # Guard against division by zero if radius is 0
         w = linear_velocity / radius if radius > 0 else 0.0
 
+        ref_angle_abs = np.arctan2(self.reference_vec[1], self.reference_vec[0])
+
         # Iterating over the length of the input in steps of 'update_interval'
         for ii in range(0, len_source_signal, update_interval):
             
@@ -491,15 +493,19 @@ class AcousticTrajectorySimulator:
             # 6. Apply the sweep to the starting angle
             current_angle_rad = start_angle + (direction * current_sweep)
 
-            # 7. Construct the 3D coordinates directly in global space
-            x_tmp = center[0] + radius * np.cos(current_angle_rad)
-            y_tmp = center[1] + radius * np.sin(current_angle_rad)
-            z_tmp = center[2] 
+            global_angle_rad = current_angle_rad + ref_angle_abs
 
+            # 7. Construct the 3D coordinates directly in global space
+            x_tmp = center[0] + radius * np.cos(global_angle_rad)
+            y_tmp = center[1] + radius * np.sin(global_angle_rad)
+            z_tmp = center[2]
             sp_new = np.array([x_tmp, y_tmp, z_tmp])
 
-            # 8. Convert angle to degrees and wrap to 0-360 for consistent matching
-            current_angle_deg = np.degrees(current_angle_rad) % 360
+            # --- THE FIX: Calculate relative angle ---
+            # 8. Calculate vector relative to center, then find angle against the array's reference vector
+            vec = np.array([x_tmp, y_tmp]) - center[:2]
+            current_angle_deg = calculate_angle(self.reference_vec, vec)
+
 
             # 9. Find the index of the closest angle class
             label_idx = np.argmin(np.abs(angle_classes - current_angle_deg)) + 1  # +1 to reserve 0 for silence if needed
@@ -545,8 +551,8 @@ class AcousticTrajectorySimulator:
         
         for i in range(self.num_jumps):
             for tx, ty, color in [(traj_s1_x[i], traj_s1_y[i], 'b-'), (traj_s2_x[i], traj_s2_y[i], 'g-')]:
-                nx = self.radius_noise * np.sin(t_noise) + tx
-                ny = self.radius_noise * np.cos(t_noise) + ty
+                nx = self.radius_noise * np.cos(t_noise) + tx
+                ny = self.radius_noise * np.sin(t_noise) + ty
                 ax.plot(nx, ny, np.ones_like(t_noise), color, alpha=0.5)
                 
             ax.scatter([traj_s1_x[i]], [traj_s1_y[i]], [self.mic_height], marker='o', s=30, c='blue', label='Speaker 1' if i == 0 else None)

@@ -14,8 +14,7 @@ from create_data_base import (
     normalize_signal
 )
 from dataset_funcs import (
-    create_semicircular_mic_array,
-    generate_source_path,
+    AcousticTrajectorySimulator,
     fun_create_diffuse_noise,
     create_vad_dynamic
 )
@@ -23,7 +22,7 @@ from dataset_funcs import (
 
 class Config:
     """Configuration parameters for dynamic dataset generation."""
-    seed = 12
+    seed = 15
     
     # Acoustic & Environment parameters
     c = 340                     # Sound velocity (m/s)
@@ -33,7 +32,7 @@ class Config:
     # Analysis parameters
     nfft = 2048                 # FFT length
     hop = 512                   # Hop size for STFT and VAD
-    path_hop = 32               # Update interval for dynamic trajectory
+    path_hop = 1024               # Update interval for dynamic trajectory
     
     # Array configuration
     M = 4                       # Number of microphones
@@ -41,17 +40,17 @@ class Config:
     
     # Paper-specific Dynamic Parameters
     speaker_radius = 1.3        # Distance of arc from array center (m)
-    linear_velocity = 0.1         # Speaker movement speed (m/s) EXACTLY as per paper
+    linear_velocity = 0.3         # Speaker movement speed (m/s) EXACTLY as per paper
     angle_resolution = 10       # DOA resolution in degrees
-    repeatMode = 'bounce'         # stop or bounce  
+    repeatMode = 'stop'         # stop or bounce  
     
     # Missing parameters (Assumed, please update based on the PDF)
-    start_angle_deg = 50         # Starting angle of the arc
-    end_angle_deg = 120         # Ending angle of the arc
+    start_angle_deg = 30         # Starting angle of the arc
+    end_angle_deg = 90         # Ending angle of the arc
     
     # SNR parameters
-    SNR_mic = 20                # Microphone noise SNR (dB)
-    SNR_diffuse = 10            # Diffuse noise SNR (dB)
+    SNR_mic = 40                # Microphone noise SNR (dB)
+    SNR_diffuse = 40            # Diffuse noise SNR (dB)
     
     # Initialization
     initial_noise_pad_sec = 2.0 # Seconds of pure noise before speech starts
@@ -60,9 +59,11 @@ class Config:
     timit_base_path = None      # Set at runtime
     output_path = None          # Set at runtime
     
-    num_samples = 3
-    start_idx = 7
+    num_samples = 1
+    start_idx = 13
     dataset_title = 'test/dynamic'
+
+    plot_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Results')
 
 
 def ensure_audio_length(speech: np.ndarray, target_length: int) -> np.ndarray:
@@ -89,52 +90,48 @@ def create_test_sample_dynamic(
     room_dim = np.array([L1, L2, config.room_height])
     
     T60 = np.random.choice([0.2, 0.4, 0.6])      # Parameterized reverberation times
+    T60 = 0.4 # very small T60 for testing purposes
     SNR_diffuse = config.SNR_diffuse
-    
-    # --- 2. Geometry Setup ---
-    # Place array in center-ish of the room
-    center = np.array([room_dim[0] / 2, room_dim[1] / 2])
-    selected_mic_indices = [0, 54, 119, 179] # For a 4-mic semi-circle
-    
-    mic_positions, _, _, _ = create_semicircular_mic_array(
-        center, config.array_radius, height=1.0, 
-        angle_resolution=360, selected_indices=selected_mic_indices
-    )
-    center_3d = np.array([center[0], center[1], 1.0])
-    
-    # --- 3. Calculate Arc Duration & Load Single Speaker ---
+
+    # --- 2 & 3 & 4. Unified Geometry & Trajectory Setup ---
+    # Calculate target samples
     start_rad = np.deg2rad(config.start_angle_deg)
     end_rad = np.deg2rad(config.end_angle_deg)
     arc_length = abs(end_rad - start_rad) * config.speaker_radius
-    
-    # Time = Distance / Velocity
-    duration_sec = arc_length / config.linear_velocity
-    duration_sec = max(duration_sec, 5.0)  # Ensure at least 5 seconds of audio
+    duration_sec = max(arc_length / config.linear_velocity, 3.0)
     target_samples = int(duration_sec * config.fs)
     
+    # Initialize the Simulator (matching static params)
+    plot_name = f"dynamic_sample_{sample_idx}_T60_{T60:.1f}_SNR_{SNR_diffuse:.1f}"
+    plot_name = os.path.join(config.plot_dir, plot_name)
+    simulator = AcousticTrajectorySimulator(
+        room_dim=room_dim.tolist(), 
+        speaker_radius=config.speaker_radius, 
+        radius_noise=0.2, # Matching static default
+        num_jumps=0,       # Not used for continuous
+        plot_name=plot_name
+    )
+    
+    # Generate continuous paths for both speakers (we'll just use speaker 1 for now)
+    s_first_path, labels_s1, s_second_path, labels_s2, s_noise, mic_positions = simulator.generate_continuous(
+        fs=config.fs, 
+        update_interval=config.path_hop, 
+        len_s1=target_samples, v_s1=config.linear_velocity, 
+        start_s1=start_rad, end_s1=end_rad, mode_s1=config.repeatMode,
+        # Dummy params for S2 just to satisfy the function
+        len_s2=target_samples, v_s2=0.0, 
+        start_s2=0.0, end_s2=0.0, mode_s2='stop'
+    )
+    
+    sp_path = s_first_path
+    sample_labels = labels_s1
+    
+    # Load speaker audio
     speaker_list = male_speakers if np.random.rand() < 0.5 else female_speakers
     speaker_dir = speaker_list[np.random.randint(len(speaker_list))]
     raw_speech = load_speech(get_random_speech_file(speaker_dir), config.fs)
-    
     source_signal = ensure_audio_length(raw_speech, target_samples)
-    
-    # --- 4. Generate Dynamic Trajectory ---
-    if verbose: print(f"  Generating trajectory: {duration_sec:.2f}s at {config.linear_velocity}m/s")
-    
-    angle_classes = np.arange(0, 181, config.angle_resolution)
-    
-    sp_path, sample_labels = generate_source_path(
-        len_source_signal=target_samples,
-        update_interval=config.path_hop,
-        center=center_3d,
-        radius=config.speaker_radius,
-        angle_classes=angle_classes,
-        fs=config.fs,
-        linear_velocity=config.linear_velocity,
-        mode=config.repeatMode,
-        start_angle=start_rad,
-        end_angle=end_rad
-    )
+
     
     # --- 5. Dynamic Acoustic Simulation ---
     if verbose:
@@ -149,7 +146,7 @@ def create_test_sample_dynamic(
         sp_path=sp_path,
         L=room_dim,
         reverberation_time=T60,
-        nRIR=1024,
+        nRIR=4096,
         mtypes=generator.mic_type.omnidirectional,
         orientation=[0, 0]
     )
@@ -191,7 +188,7 @@ def create_test_sample_dynamic(
         repeat_times = int(np.ceil(length_receives / len(diffuse_noise)))
         diffuse_noise = np.tile(diffuse_noise, (repeat_times, 1))
     diffuse_noise = diffuse_noise[:length_receives, :config.M]
-    x
+    
     # Mix
     noise_total = mic_noise + A_n_diffuse * diffuse_noise
     mixture = receiver_signals + noise_total
