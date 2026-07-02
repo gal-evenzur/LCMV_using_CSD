@@ -23,7 +23,7 @@ from dataset_funcs import (
 
 class Config:
     """Configuration parameters for dynamic dataset generation."""
-    seed = 420
+    seed = 12
     
     # Acoustic & Environment parameters
     c = 340                     # Sound velocity (m/s)
@@ -41,24 +41,27 @@ class Config:
     
     # Paper-specific Dynamic Parameters
     speaker_radius = 1.3        # Distance of arc from array center (m)
-    linear_velocity = 0.33      # Speaker movement speed (m/s) EXACTLY as per paper
+    linear_velocity = 0.1         # Speaker movement speed (m/s) EXACTLY as per paper
     angle_resolution = 10       # DOA resolution in degrees
+    repeatMode = 'bounce'         # stop or bounce  
     
     # Missing parameters (Assumed, please update based on the PDF)
-    start_angle_deg = 0     # Starting angle of the arc
-    end_angle_deg = 180        # Ending angle of the arc
+    start_angle_deg = 50         # Starting angle of the arc
+    end_angle_deg = 120         # Ending angle of the arc
     
     # SNR parameters
     SNR_mic = 20                # Microphone noise SNR (dB)
     SNR_diffuse = 10            # Diffuse noise SNR (dB)
     
+    # Initialization
+    initial_noise_pad_sec = 2.0 # Seconds of pure noise before speech starts
     
     # Paths
     timit_base_path = None      # Set at runtime
     output_path = None          # Set at runtime
     
-    num_samples = 5
-    start_idx = 1
+    num_samples = 3
+    start_idx = 7
     dataset_title = 'test/dynamic'
 
 
@@ -106,9 +109,9 @@ def create_test_sample_dynamic(
     
     # Time = Distance / Velocity
     duration_sec = arc_length / config.linear_velocity
+    duration_sec = max(duration_sec, 5.0)  # Ensure at least 5 seconds of audio
     target_samples = int(duration_sec * config.fs)
     
-    # Pick a random speaker (single speaker as per paper)
     speaker_list = male_speakers if np.random.rand() < 0.5 else female_speakers
     speaker_dir = speaker_list[np.random.randint(len(speaker_list))]
     raw_speech = load_speech(get_random_speech_file(speaker_dir), config.fs)
@@ -118,7 +121,6 @@ def create_test_sample_dynamic(
     # --- 4. Generate Dynamic Trajectory ---
     if verbose: print(f"  Generating trajectory: {duration_sec:.2f}s at {config.linear_velocity}m/s")
     
-    # Define class angles based on 10-degree resolution
     angle_classes = np.arange(0, 181, config.angle_resolution)
     
     sp_path, sample_labels = generate_source_path(
@@ -129,13 +131,12 @@ def create_test_sample_dynamic(
         angle_classes=angle_classes,
         fs=config.fs,
         linear_velocity=config.linear_velocity,
-        mode='stop', # Just sweep once
+        mode=config.repeatMode,
         start_angle=start_rad,
         end_angle=end_rad
     )
     
     # --- 5. Dynamic Acoustic Simulation ---
-    # Process through the DAS generator with variable T60
     if verbose:
         start_time = time.time()
         print(f"  Running das_generator (T60={T60}s)...", end="", flush=True)
@@ -157,16 +158,23 @@ def create_test_sample_dynamic(
     
     # --- 6. Noise Generation & Injection ---
     receiver_signals = normalize_signal(receiver_signals)
-    length_receives = receiver_signals.shape[0]
     
-    # Calculate noise amplitudes
+    # Calculate noise amplitudes strictly on the ACTIVE speech segment
+    # (Doing this before padding ensures the 2 seconds of silence don't skew the SNR)
     A_x = np.mean(np.std(receiver_signals, axis=0))
     A_n_diffuse = A_x / (10 ** (SNR_diffuse / 20))
     A_n_mic = A_x / (10 ** (config.SNR_mic / 20))
     
+    # Inject 2 Seconds of Silence to the speaker signals and labels
+    pad_samples = int(config.initial_noise_pad_sec * config.fs)
+    receiver_signals = np.vstack((np.zeros((pad_samples, config.M)), receiver_signals))
+    sample_labels = np.concatenate((np.zeros(pad_samples), sample_labels))
+    
+    length_receives = receiver_signals.shape[0]
+    
+    # Generate Noise for the entirely new length
     mic_noise = A_n_mic * np.random.randn(length_receives, config.M)
     
-    # Diffuse noise
     mic_pos_2d = mic_positions[:, :2]
     try:
         diffuse_noise = fun_create_diffuse_noise(
@@ -183,7 +191,7 @@ def create_test_sample_dynamic(
         repeat_times = int(np.ceil(length_receives / len(diffuse_noise)))
         diffuse_noise = np.tile(diffuse_noise, (repeat_times, 1))
     diffuse_noise = diffuse_noise[:length_receives, :config.M]
-    
+    x
     # Mix
     noise_total = mic_noise + A_n_diffuse * diffuse_noise
     mixture = receiver_signals + noise_total
@@ -247,9 +255,9 @@ if __name__ == "__main__":
         # Save Audio
         sf.write(os.path.join(output_path, f'together_{i}.wav'), result['mixture'], config.fs)
         sf.write(os.path.join(output_path, f'first_{i}.wav'), result['clean_speech'], config.fs)
-        second_wav = result['noise']  # For this dynamic test, we only have one speaker, so the second channel is noise
+        second_wav = np.zeros_like(result['clean_speech'])  
         sf.write(os.path.join(output_path, f'second_{i}.wav'), second_wav, config.fs)
-        # second wav labels are just zeros since it's noise
+        
         second_labels = np.zeros_like(result['labels'])
 
         # Save Labels & Metadata
