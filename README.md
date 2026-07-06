@@ -24,6 +24,27 @@ When you'll create a file using diffuse noise, you'll get an error about the np.
     - `create_locations_18_dynamic.m` to calculate speaker trajectories.
     - `fun_create_deffuse_noise.m` to generate ambient diffuse noise.
 
+
+
+# Dynamic Audio Generation
+Here there are two scripts that generate dynamic audio files. The first one generates a single speaker moving from 0 to 180, for DOA analysis.
+While the second one generates two speakers moving in a dynamic environment, for pipeline analysis!
+**File to Run:** `createAudio/dynamic_test_wavs.py`
+- **Purpose:** Generates a single moving speaker audio file for DOA analysis.
+
+- **How to run?** 
+First, create a python env using the requirements.txt file in the createAudio folder. Then run the following command in the terminal:
+```bash
+python createAudio/dynamic_test_wavs.py --num_samples 5 --t60 0.3 --snr 10 --output_dir data/simulated_audio/test/dynamic
+```
+
+- **Generates:**
+    - **Mixed Audio:** `together_*.wav` (The main input for the model).
+    - **Clean References:** `first_*.wav` (Individual speaker, used for validation).
+    - **Labels:** `label_location_*.npy` (Contains VAD activity and spatial location data).
+    - Also generates a `metadata_*.npz` file containing the T60 and SNR values for each generated sample.
+
+
 # Dataset train/val creation
 
 **File to Run:** `DataSamples_to_InputVectors/create_data_base`
