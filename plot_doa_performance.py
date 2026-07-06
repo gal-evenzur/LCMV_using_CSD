@@ -4,6 +4,9 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
+from pipeline_ofer_funcs import plot_confusion_matrix_from_data
+
+
 def get_args():
     parser = argparse.ArgumentParser(description="Aggregate and plot DOA performance across T60 environments.")
     parser.add_argument("--t60_list", type=float, nargs='+', default=[0.3, 0.4, 0.6], 
@@ -22,11 +25,15 @@ def process_metrics(args):
     # Using rounded T60 keys to avoid float precision mismatch
     target_t60s = [round(t, 2) for t in args.t60_list]
     metrics = {t: {'success': 0, 'low': 0, 'high': 0, 'total': 0} for t in target_t60s}
+
+    # Global CSD tracking
+    all_true_csd = []
+    all_est_csd = []
     
     metadata_files = glob.glob(os.path.join(args.data_dir, 'metadata_*.npz'))
     
     if not metadata_files:
-        raise FileNotFoundError(f"No metadata files found in {args.data_dir}. Did the pipeline run?")
+        raise FileNotFoundError(f"No metadata files found in {args.data_dir}. Did you create the files?")
 
     for meta_path in metadata_files:
         # Extract the run index from the filename (e.g., metadata_1.npz -> 1)
@@ -44,6 +51,7 @@ def process_metrics(args):
         true_csd_path = os.path.join(args.save_dir, f'true_CSD_{run_idx}.npy')
         true_doa_path = os.path.join(args.save_dir, f'true_DOA_{run_idx}.npy')
         est_doa_path = os.path.join(args.save_dir, f'estimate_DOA_{run_idx}.npy')
+        est_csd_path = os.path.join(args.save_dir, f'estimate_CSD_{run_idx}.npy')
 
         if not (os.path.exists(true_csd_path) and os.path.exists(true_doa_path) and os.path.exists(est_doa_path)):
             print(f"Warning: Missing tracking arrays for Experiment {run_idx}. Skipping.")
@@ -53,11 +61,19 @@ def process_metrics(args):
         true_csd = np.load(true_csd_path)
         true_doa = np.load(true_doa_path)
         est_doa = np.load(est_doa_path)
+        est_csd = np.load(est_csd_path) 
+
+        csd_accuracy = np.mean(true_csd == est_csd) * 100
+        if csd_accuracy < 60.0:
+            print(f"  [WARNING] Experiment {run_idx} (T60={t60}s) has poor CSD accuracy: {csd_accuracy:.2f}%")
+
+        # --- CSD Aggregation ---
+        all_true_csd.extend(true_csd)
+        all_est_csd.extend(est_csd)
 
         # 1. Filter: Keep only frames where a single speaker is active (CSD == 1)
         # and ignore the Sentinel overlap value (19) or silence (0)
         valid_mask = (true_csd == 1) & (true_doa != 0) & (true_doa != 19)
-        
         valid_true_doa = true_doa[valid_mask]
         valid_est_doa = est_doa[valid_mask]
 
@@ -78,7 +94,7 @@ def process_metrics(args):
         metrics[t60]['high'] += high_error
         metrics[t60]['total'] += (success + low_error + high_error)
 
-    return metrics, target_t60s
+    return metrics, target_t60s, np.array(all_true_csd), np.array(all_est_csd)
 
 def plot_stacked_bar(metrics, t60_list, save_dir):
     """Renders and saves the exact stacked bar chart requested."""
@@ -151,23 +167,39 @@ def plot_stacked_bar(metrics, t60_list, save_dir):
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     print(f"Graph saved successfully to: {output_path}")
 
+def plot_global_csd_matrix(true_csd, est_csd, save_dir):
+    """Renders the global CSD confusion matrix using the existing utility function."""
+    print("--- Generating Global CSD Confusion Matrix ---")
+    
+    # Plotting Defaults to match pipeline.py
+    annot, cmap, fmt, fz, lw, cbar = True, 'Oranges', '.2f', 9, 0.5, False
+    show_null_values, pred_val_axis = 2, 'y'
+    figsize = [18, 18]  # Adjust this if the global matrix feels too large
+    
+    cm_plot_labels_csd = ['Noise', 'One speaker', '2 speakers']
+    
+    os.makedirs(save_dir, exist_ok=True)
+    
+    plot_confusion_matrix_from_data(
+        true_csd, est_csd, 3, cm_plot_labels_csd,
+        annot, cmap, fmt, fz, lw, cbar, figsize, show_null_values, pred_val_axis,
+        name='CSD_Global_Confusion_Matrix.png', plot_folder=save_dir
+    )
 
 if __name__ == "__main__":
     args = get_args()
+    os.makedirs(args.save_dir, exist_ok=True)
     
     # Run metric aggregation
-    compiled_metrics, sorted_t60s = process_metrics(args)
+    doa_metrics, sorted_t60s, all_true_csd, all_est_csd = process_metrics(args)
     
     # Generate the visualization
-    plot_stacked_bar(compiled_metrics, sorted_t60s, args.save_dir)
-
-    # Save the metrics for future reference
-    metrics_save_path = os.path.join(args.save_dir, 'DOA_Performance_Metrics.npz')
-    # metrics is a dictionary of dictionaries, so we need to convert it to a structured array for saving
-    structured_metrics = {f"T60_{t60:.2f}": np.array([compiled_metrics[t60]['success'], 
-                                                      compiled_metrics[t60]['low'],
-                                                      compiled_metrics[t60]['high'],
-                                                      compiled_metrics[t60]['total']])
-                          for t60 in compiled_metrics}
-    np.savez(metrics_save_path, **structured_metrics)
-    print(f"Metrics saved successfully to: {metrics_save_path}")
+    plot_stacked_bar(doa_metrics, sorted_t60s, args.save_dir)
+    
+    # Generate CSD matrix if data was found
+    if len(all_true_csd) > 0:
+        plot_global_csd_matrix(all_true_csd, all_est_csd, args.save_dir)
+    else:
+        print("No CSD data gathered, skipping confusion matrix.")
+        
+    print("--- All plots generated successfully ---")
