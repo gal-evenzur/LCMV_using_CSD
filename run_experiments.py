@@ -261,7 +261,7 @@ def run_all_experiments(num_experiments=20):
     else:
         print("Not enough valid data to generate plots.")
 
-def plot_single_experiment_doa_accuracy(run_idx):
+def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     """
     Runs the pipeline for a single experiment (if results don't exist)
     and plots a 2-panel subplot tracking uncut ground truths:
@@ -269,9 +269,15 @@ def plot_single_experiment_doa_accuracy(run_idx):
       2. Uncut True vs Estimated DOA Timeline (Includes 0s and 19 Overlaps).
     """
     py_folder = os.path.dirname(os.path.realpath(__file__))
-    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'dynamic')
-    plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic')
-    
+    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', test_type)
+    if test_type == 'static':
+        plot_dir = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
+    elif test_type == 'dynamic':
+        plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic')
+    elif test_type == 'val':
+        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', test_type)
+        plot_dir = os.path.join(py_folder, 'pipeline_results', 'val_data')
+
     # 1. Pipeline Verification / Generation
     true_csd_path = os.path.join(plot_dir, f'true_CSD_{run_idx}.npy')
     est_csd_path = os.path.join(plot_dir, f'estimate_CSD_{run_idx}.npy')
@@ -440,5 +446,5 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     
 
 if __name__ == "__main__":
-    for run_idx in range(13, 14):
-        plot_single_experiment_doa_accuracy(run_idx)
+    for run_idx in range(7, 9):
+        plot_single_experiment_doa_accuracy(run_idx, 'dynamic')

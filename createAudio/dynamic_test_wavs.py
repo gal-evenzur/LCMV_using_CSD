@@ -40,17 +40,17 @@ class Config:
     
     # Paper-specific Dynamic Parameters
     speaker_radius = 1.3        # Distance of arc from array center (m)
-    linear_velocity = 0.3         # Speaker movement speed (m/s) EXACTLY as per paper
+    linear_velocity = np.random.choice([1, 2, 3])         # Speaker movement speed (m/s) EXACTLY as per paper
     angle_resolution = 10       # DOA resolution in degrees
-    repeatMode = 'stop'         # stop or bounce  
+    repeatMode = 'bounce'         # stop or bounce  
     
     # Missing parameters (Assumed, please update based on the PDF)
-    start_angle_deg = 30         # Starting angle of the arc
-    end_angle_deg = 90         # Ending angle of the arc
+    start_angle_deg = 0         # Starting angle of the arc
+    end_angle_deg = 180         # Ending angle of the arc
     
     # SNR parameters
-    SNR_mic = 40                # Microphone noise SNR (dB)
-    SNR_diffuse = 40            # Diffuse noise SNR (dB)
+    SNR_mic = np.random.choice([20, 30])                # Microphone noise SNR (dB)
+    SNR_diffuse = np.random.choice([10, 20, 30])            # Diffuse noise SNR (dB)
     
     # Initialization
     initial_noise_pad_sec = 2.0 # Seconds of pure noise before speech starts
@@ -59,8 +59,8 @@ class Config:
     timit_base_path = None      # Set at runtime
     output_path = None          # Set at runtime
     
-    num_samples = 1
-    start_idx = 13
+    num_samples = 6
+    start_idx = 3
     dataset_title = 'test/dynamic'
 
     plot_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Results')
@@ -90,7 +90,6 @@ def create_test_sample_dynamic(
     room_dim = np.array([L1, L2, config.room_height])
     
     T60 = np.random.choice([0.2, 0.4, 0.6])      # Parameterized reverberation times
-    T60 = 0.4 # very small T60 for testing purposes
     SNR_diffuse = config.SNR_diffuse
 
     # --- 2 & 3 & 4. Unified Geometry & Trajectory Setup ---
@@ -98,7 +97,7 @@ def create_test_sample_dynamic(
     start_rad = np.deg2rad(config.start_angle_deg)
     end_rad = np.deg2rad(config.end_angle_deg)
     arc_length = abs(end_rad - start_rad) * config.speaker_radius
-    duration_sec = max(arc_length / config.linear_velocity, 3.0)
+    duration_sec = max(arc_length / config.linear_velocity, 6.0)
     target_samples = int(duration_sec * config.fs)
     
     # Initialize the Simulator (matching static params)
