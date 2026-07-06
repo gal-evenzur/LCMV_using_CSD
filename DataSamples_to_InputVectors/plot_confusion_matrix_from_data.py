@@ -36,7 +36,7 @@ def configcell_text_and_colors(array_df, lin, col, oText, facecolors, posi, fz, 
     curr_column = array_df[:,col]
     ccl = len(curr_column)
     sum_cc=sum(curr_column)
-    per = (float(cell_val) / sum_cc) * 200
+    per = 0.0 if sum_cc == 0 else (float(cell_val) / sum_cc) * 200
     #last line  and/or last column
     if(col == (ccl - 1)) or (lin == (ccl - 1)):
         #tots and percents

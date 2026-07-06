@@ -19,55 +19,45 @@ from dataset_funcs import (
     create_vad_dynamic
 )
 
-
 class Config:
-    """Configuration parameters for dynamic dataset generation."""
-    seed = 15
-    
+    """Base configuration for static/structural parameters."""
     # Acoustic & Environment parameters
-    c = 340                     # Sound velocity (m/s)
-    fs = 16000                  # Sample frequency (Hz)
-    room_height = 3.0           # Room height fixed at 3m
+    c = 340                     
+    fs = 16000                  
+    room_height = 3.0           
     
     # Analysis parameters
-    nfft = 2048                 # FFT length
-    hop = 512                   # Hop size for STFT and VAD
-    path_hop = 1024               # Update interval for dynamic trajectory
+    nfft = 2048                 
+    hop = 512                   
+    path_hop = 1024               
     
     # Array configuration
-    M = 4                       # Number of microphones
-    array_radius = 0.1          # Radius of the mic array
-    
-    # Paper-specific Dynamic Parameters
-    speaker_radius = 1.3        # Distance of arc from array center (m)
-    linear_velocity = np.random.choice([1, 2, 3])         # Speaker movement speed (m/s) EXACTLY as per paper
-    angle_resolution = 10       # DOA resolution in degrees
-    repeatMode = 'bounce'         # stop or bounce  
-    
-    # Missing parameters (Assumed, please update based on the PDF)
-    start_angle_deg = 0         # Starting angle of the arc
-    end_angle_deg = 180         # Ending angle of the arc
-    
-    # SNR parameters
-    SNR_mic = np.random.choice([20, 30])                # Microphone noise SNR (dB)
-    SNR_diffuse = np.random.choice([10, 20, 30])            # Diffuse noise SNR (dB)
+    M = 4                       
+    array_radius = 0.1          
     
     # Initialization
-    initial_noise_pad_sec = 2.0 # Seconds of pure noise before speech starts
+    initial_noise_pad_sec = 1.0
+    min_speech_duration = initial_noise_pad_sec + 1.0
+    
+    # Dynamic settings mapped from args
+    seed = None
+    T60 = None
+    SNR_diffuse = None
+    SNR_mic = None
+    linear_velocity = None
+    start_angle_deg = None
+    end_angle_deg = None
+    speaker_radius = None
+    repeatMode = None
     
     # Paths
-    timit_base_path = None      # Set at runtime
-    output_path = None          # Set at runtime
-    
-    num_samples = 6
-    start_idx = 3
+    timit_base_path = None      
+    output_path = None          
     dataset_title = 'test/dynamic'
-
     plot_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Results')
 
 
 def ensure_audio_length(speech: np.ndarray, target_length: int) -> np.ndarray:
-    """Loops or truncates audio to match the exact time required to complete the arc."""
     if len(speech) < target_length:
         repeats = int(np.ceil(target_length / len(speech)))
         speech = np.tile(speech, repeats)
@@ -82,27 +72,25 @@ def create_test_sample_dynamic(
     verbose: bool = True
 ) -> Dict:
     
-    # --- 1. Parameterize Environment (Reverberation & SNR) ---
-    # The paper tests several reverberation times and SNRs. 
-    # Here we randomly sample from a realistic range for each generated file.
+    # --- 1. Parameterize Environment ---
+    # Randomized room dimensions but FIXED T60 and SNR from config
     L1 = 4.0 + 0.1 * np.random.randint(1, 21)
     L2 = 4.0 + 0.1 * np.random.randint(1, 21)
     room_dim = np.array([L1, L2, config.room_height])
     
-    T60 = np.random.choice([0.2, 0.4, 0.6])      # Parameterized reverberation times
-    SNR_diffuse = config.SNR_diffuse
-
-    # --- 2 & 3 & 4. Unified Geometry & Trajectory Setup ---
-    # Calculate target samples
+    # --- 2. Unified Geometry & Trajectory Setup ---
     start_rad = np.deg2rad(config.start_angle_deg)
     end_rad = np.deg2rad(config.end_angle_deg)
     arc_length = abs(end_rad - start_rad) * config.speaker_radius
-    duration_sec = max(arc_length / config.linear_velocity, 6.0)
+    
+    # Prevent division by zero if stationary
+    v = config.linear_velocity if config.linear_velocity > 0 else 0.01
+    duration_sec = max(arc_length / v, config.min_speech_duration)  # Ensure at least some active speech
     target_samples = int(duration_sec * config.fs)
     
-    # Initialize the Simulator (matching static params)
-    plot_name = f"dynamic_sample_{sample_idx}_T60_{T60:.1f}_SNR_{SNR_diffuse:.1f}"
-    plot_name = os.path.join(config.plot_dir, plot_name)
+    os.makedirs(config.plot_dir, exist_ok=True)
+    plot_name = os.path.join(config.plot_dir, f"dynamic_sample_{sample_idx}_T60_{config.T60:.2f}_SNR_{config.SNR_diffuse:.1f}")
+    
     simulator = AcousticTrajectorySimulator(
         room_dim=room_dim.tolist(), 
         speaker_radius=config.speaker_radius, 
@@ -111,7 +99,6 @@ def create_test_sample_dynamic(
         plot_name=plot_name
     )
     
-    # Generate continuous paths for both speakers (we'll just use speaker 1 for now)
     s_first_path, labels_s1, s_second_path, labels_s2, s_noise, mic_positions = simulator.generate_continuous(
         fs=config.fs, 
         update_interval=config.path_hop, 
@@ -122,56 +109,49 @@ def create_test_sample_dynamic(
         start_s2=0.0, end_s2=0.0, mode_s2='stop'
     )
     
-    sp_path = s_first_path
-    sample_labels = labels_s1
-    
     # Load speaker audio
     speaker_list = male_speakers if np.random.rand() < 0.5 else female_speakers
     speaker_dir = speaker_list[np.random.randint(len(speaker_list))]
     raw_speech = load_speech(get_random_speech_file(speaker_dir), config.fs)
     source_signal = ensure_audio_length(raw_speech, target_samples)
 
-    
-    # --- 5. Dynamic Acoustic Simulation ---
+    # --- 3. Dynamic Acoustic Simulation ---
     if verbose:
         start_time = time.time()
-        print(f"  Running das_generator (T60={T60}s)...", end="", flush=True)
+        print(f"  Running das_generator (T60={config.T60}s)...", end="", flush=True)
         
     receiver_signals = generator.generate(
         source_signal,
         c=config.c,
         fs=config.fs,
         rp_path=mic_positions,
-        sp_path=sp_path,
+        sp_path=s_first_path,
         L=room_dim,
-        reverberation_time=T60,
+        reverberation_time=config.T60,
         nRIR=4096,
         mtypes=generator.mic_type.omnidirectional,
         orientation=[0, 0]
     )
-    
     if verbose: print(f" done in {time.time() - start_time:.2f}s.")
     
-    # --- 6. Noise Generation & Injection ---
+    # --- 4. Noise Generation & Injection ---
     receiver_signals = normalize_signal(receiver_signals)
     
     # Calculate noise amplitudes strictly on the ACTIVE speech segment
     # (Doing this before padding ensures the 2 seconds of silence don't skew the SNR)
     A_x = np.mean(np.std(receiver_signals, axis=0))
-    A_n_diffuse = A_x / (10 ** (SNR_diffuse / 20))
+    A_n_diffuse = A_x / (10 ** (config.SNR_diffuse / 20))
     A_n_mic = A_x / (10 ** (config.SNR_mic / 20))
     
     # Inject 2 Seconds of Silence to the speaker signals and labels
     pad_samples = int(config.initial_noise_pad_sec * config.fs)
     receiver_signals = np.vstack((np.zeros((pad_samples, config.M)), receiver_signals))
-    sample_labels = np.concatenate((np.zeros(pad_samples), sample_labels))
+    sample_labels = np.concatenate((np.zeros(pad_samples), labels_s1))
     
     length_receives = receiver_signals.shape[0]
-    
-    # Generate Noise for the entirely new length
     mic_noise = A_n_mic * np.random.randn(length_receives, config.M)
-    
     mic_pos_2d = mic_positions[:, :2]
+    
     try:
         diffuse_noise = fun_create_diffuse_noise(
             mic_positions=mic_pos_2d,
@@ -208,22 +188,39 @@ def create_test_sample_dynamic(
         'labels': vad_labels,
         'raw_sample_labels': sample_labels,
         'room_dim': room_dim,
-        'T60': T60,
-        'SNR_diffuse': SNR_diffuse,
+        'T60': config.T60,
+        'SNR_diffuse': config.SNR_diffuse,
         'mic_positions': mic_positions
     }
 
-
 if __name__ == "__main__":
-    config = Config()
+    parser = argparse.ArgumentParser(description="Generate parameterized dynamic acoustic trajectory samples.")
+    parser.add_argument("--num_samples", type=int, default=5, help="Number of files to generate")
+    parser.add_argument("--start_idx", type=int, default=1, help="Starting index for file naming")
+    parser.add_argument("--seed", type=int, default=420, help="Random seed for reproducibility")
+    parser.add_argument("--T60", type=float, default=0.4, help="Reverberation time in seconds")
+    parser.add_argument("--SNR_diffuse", type=float, default=20.0, help="Diffuse noise SNR (dB)")
+    parser.add_argument("--SNR_mic", type=float, default=30.0, help="Microphone noise SNR (dB)")
+    parser.add_argument("--linear_velocity", type=float, default=1.0, help="Speaker velocity (m/s)")
+    parser.add_argument("--start_angle_deg", type=float, default=0.0, help="Start angle of trajectory")
+    parser.add_argument("--end_angle_deg", type=float, default=180.0, help="End angle of trajectory")
+    parser.add_argument("--speaker_radius", type=float, default=1.3, help="Radius of speaker arc (m)")
+    parser.add_argument("--repeatMode", type=str, default="bounce", choices=["stop", "bounce"], help="Trajectory completion mode")
     
-    parser = argparse.ArgumentParser(description="Generate dynamic test samples (Arc trajectory)")
-    parser.add_argument("--num_samples", type=int, default=config.num_samples, help="Number of files to generate")
-    parser.add_argument("--start_idx", type=int, default=config.start_idx)
-    parser.add_argument("--seed", type=int, default=config.seed)
     args = parser.parse_args()
     
-    np.random.seed(args.seed)
+    config = Config()
+    config.seed = args.seed
+    config.T60 = args.T60
+    config.SNR_diffuse = args.SNR_diffuse
+    config.SNR_mic = args.SNR_mic
+    config.linear_velocity = args.linear_velocity
+    config.start_angle_deg = args.start_angle_deg
+    config.end_angle_deg = args.end_angle_deg
+    config.speaker_radius = args.speaker_radius
+    config.repeatMode = args.repeatMode
+    
+    np.random.seed(config.seed)
     
     # Path configuration
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -240,25 +237,23 @@ if __name__ == "__main__":
     print("Scanning TIMIT database...")
     male_speakers, female_speakers = get_timit_speakers(timit_path)
     
-    print(f"\nGenerating {args.num_samples} dynamic samples...")
+    print(f"\nGenerating {args.num_samples} dynamic samples for T60={config.T60}...")
     print("-" * 60)
     
     for i in range(args.start_idx, args.start_idx + args.num_samples):
-        print(f"\nSample {i}/{args.start_idx + args.num_samples - 1}:")
+        print(f"Sample {i}: Seed={config.seed + i}")
+        
+        # Advance seed slightly per sample to ensure variety within the same batch
+        np.random.seed(config.seed + i)
         
         result = create_test_sample_dynamic(i, config, male_speakers, female_speakers)
         
-        # Save Audio
         sf.write(os.path.join(output_path, f'together_{i}.wav'), result['mixture'], config.fs)
         sf.write(os.path.join(output_path, f'first_{i}.wav'), result['clean_speech'], config.fs)
-        second_wav = np.zeros_like(result['clean_speech'])  
-        sf.write(os.path.join(output_path, f'second_{i}.wav'), second_wav, config.fs)
+        sf.write(os.path.join(output_path, f'second_{i}.wav'), np.zeros_like(result['clean_speech']), config.fs)
         
-        second_labels = np.zeros_like(result['labels'])
-
-        # Save Labels & Metadata
         np.save(os.path.join(output_path, f'label_location_first_{i}.npy'), result['labels'])
-        np.save(os.path.join(output_path, f'label_location_second_{i}.npy'), second_labels)
+        np.save(os.path.join(output_path, f'label_location_second_{i}.npy'), np.zeros_like(result['labels']))
         np.savez(
             os.path.join(output_path, f'metadata_{i}.npz'),
             room_dim=result['room_dim'],
@@ -266,5 +261,3 @@ if __name__ == "__main__":
             SNR_diffuse=result['SNR_diffuse'],
             mic_positions=result['mic_positions']
         )
-        
-    print(f"\nGeneration complete! Saved to {output_path}")

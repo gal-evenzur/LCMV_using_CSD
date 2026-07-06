@@ -1,4 +1,5 @@
 from pipeline_ofer_funcs import * # Assumes this is available in your environment
+import argparse
 
 print("-----------------STARTING LCMV PIPELINE-----------------")
 
@@ -206,7 +207,7 @@ class SpatialTrackingPipeline:
 
         def compute_raw_vad(stft_clean):
             vad_temp = abs(stft_clean)
-            vad_temp = vad_temp / vad_temp.std()
+            vad_temp = vad_temp / (vad_temp.std() + 1e-12)
             vad_temp = vad_temp.mean(axis=0)
             vad_temp = vad_temp > threshold_freq
             vad_sum = vad_temp.astype(int).sum(axis=0)
@@ -360,6 +361,13 @@ plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'dynamic')
 if __name__ == "__main__":
     # Run the pipeline for experiments 1 to 20 and save results
     
+    parser = argparse.ArgumentParser(description="Generate parameterized dynamic acoustic trajectory samples.")
+    parser.add_argument("--start_idx", type=int, default=1, help="Starting index for file naming")
+    parser.add_argument("--end_idx", type=int, default=20, help="Ending index for file naming")
+    
+    args = parser.parse_args()
+    
+    
     # Example instantiation
     pipeline = SpatialTrackingPipeline(
         config=pipeline_config, 
@@ -369,6 +377,6 @@ if __name__ == "__main__":
     )
 
     pipeline.run_batch(
-        run_indices=range(1, 21), 
+        run_indices=range(args.start_idx, args.end_idx + 1), 
         folder_to_save=plot_dir
     )
