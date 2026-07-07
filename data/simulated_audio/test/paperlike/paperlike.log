@@ -1,0 +1,27 @@
+python create_dynamic_paperlike.py 
+[?2004l
+Generating 3 paper replication samples...
+------------------------------------------------------------
+Processing sample 1/3...
+--- Generating Sample 1 --- with plot: /home/evenzug/LCMV_using_CSD/createAudio/Results/paperlike_1_labels_SNR_14.4_T60_0.321.png
+
+  Running S1 das_generator simulation...
+  Running S2 das_generator simulation...Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/restaurant-sounds-sunny-point-cafe-25092-2.wav
+Processing sample 2/3...
+--- Generating Sample 2 --- with plot: /home/evenzug/LCMV_using_CSD/createAudio/Results/paperlike_2_labels_SNR_15.7_T60_0.396.png
+
+  Running S1 das_generator simulation...
+  Running S2 das_generator simulation...^[[B    Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/011822_street-cafe-very-busy-with-traffic-58807.wav
+Audio file too short. Need 2624000 samples, got 2004480
+Looped audio to length 4008960 samples.
+Processing sample 3/3...
+--- Generating Sample 3 --- with plot: /home/evenzug/LCMV_using_CSD/createAudio/Results/paperlike_3_labels_SNR_13.7_T60_0.395.png
+
+  Running S1 das_generator simulation...
+  Running S2 das_generator simulation...Selected noise file: /home/evenzug/LCMV_using_CSD/data/Diff_noise_srs/015939_street-cafe-very-busy-motorcycle-stopping-by-56168.wav
+Audio file too short. Need 2624000 samples, got 1440768
+Looped audio to length 2881536 samples.
+
+
+Generation complete! Files saved to: /home/evenzug/LCMV_using_CSD/data/simulated_audio/test/paperlike
+[?2004h(.audio-env) [01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/createAudio[00m$ [K(.audio-env) [01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/createAudio[00m$ [K(.audio-env) [01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/createAudio[00m$ [K(.audio-env) [01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/createAudio[00m$ [K(.audio-env) [01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/createAudio[00m$ [K(.audio-env) [01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/createAudio[00m$ [K(.audio-env) [01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/createAudio[00m$ [K(.audio-env) [01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD/createAudio[00m$ 

@@ -1,3 +1,11 @@
+"""
+Generates a dataset of 40-second simulated dynamic speakers.
+- Phase 1 (0s-10s): S1 static at angle_s1_start (S2 silent).
+- Phase 2 (10s-20s): S2 static at angle_s2_start (S1 silent).
+- Phase 3 (20s-40s): Both moving concurrently using 'bounce' mode.
+"""
+
+from logging import config
 import os
 import time
 import argparse
@@ -5,279 +13,379 @@ from typing import List, Dict
 import numpy as np
 import soundfile as sf
 import das_generator as generator
+import matplotlib.pyplot as plt
 
-# Import from your existing utility modules
+# Imports from your existing modules
 from create_data_base import (
     get_timit_speakers,
     get_random_speech_file,
     load_speech,
-    normalize_signal
+    normalize_signal,
+    generate_rir,
+    convolve_with_rir
 )
 from dataset_funcs import (
-    create_semicircular_mic_array,
-    generate_source_path,
+    AcousticTrajectorySimulator,
     fun_create_diffuse_noise,
     create_vad_dynamic
 )
 
-
-class ConcurrentConfig:
-    """Configuration parameters for the 40s concurrent dynamic dataset."""
-    seed = 100
+class Config:
+    """Configuration parameters for the 40-second paper replication."""
+    seed = 42
     
-    # Acoustic & Environment parameters
+    # Acoustic parameters
     c = 340                     
     fs = 16000                  
+    n_rir_samples = 4096        
     room_height = 3.0           
     
     # Analysis parameters
     nfft = 2048                 
     hop = 512                   
-    path_hop = 32               
-    
-    # Array configuration
+    path_hop = 1024               
     M = 4                       
-    array_radius = 0.1          
     
-    # Paper-specific Parameters (Section 7.1.3)
-    num_samples = 4            # "Ten 40-s-long signals"
-    total_duration = 40.0       # Seconds
-    static_duration = 10.0      # Time each speaker gets alone to facilitate RTF
-    concurrent_duration = 20.0  # Time both speakers are active and moving
+    # Speaker parameters
+    radius_s1 = 1.3
+    radius_s2 = 1.3
+    linear_velocity = 0.333     # 1 meter every 3 seconds
     
-    speaker_radius = 1.3        
-    linear_velocity = 1.0 / 3.0 # "One meter every 3 s" (approx 0.333 m/s)
-    angle_resolution = 10       
+    angle_s1_start = 0.0
+    angle_s1_end = 140.0
+    angle_s2_start = 160.0
+    angle_s2_end = 180.0
     
-    # Trajectory Angles (Degrees)
-    spk1_start_deg = 0.0
-    spk1_end_deg = 140.0
-    
-    spk2_start_deg = 160.0
-    spk2_end_deg = 180.0
+    # Timeline blocks (in seconds)
+    t_phase1 = 10.0             # S1 static, S2 silent
+    t_phase2 = 10.0             # S2 static, S1 silent
+    t_phase3 = 20.0             # Concurrent dynamic
+    t_total = t_phase1 + t_phase2 + t_phase3
+    initial_noise_pad_sec = 1.0   # Silence before the first speaker starts
     
     # SNR parameters
-    SNR_diffuse = 10            
-    SNR_mic = 30                
+    SNR_direction = 20
+    SNR_mic = 30
+    SNR_diffuse = 15 # will be randomized per sample          
     
-    dataset_title = 'test/concurrent_dynamic'
+    # Output configurations
+    num_samples = 10
     start_idx = 1
+    dataset_title = 'test/paperlike'
+    timit_base_path = None
+    output_path = None
+    plot_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Results')
 
 
-def build_40s_source_signal(speaker_dir: str, fs: int, active_segments: list) -> np.ndarray:
+class PaperReplicationSimulator(AcousticTrajectorySimulator):
     """
-    Constructs a 40-second audio array, filling specified active time segments 
-    with concatenated TIMIT speech, and the rest with silence.
-    active_segments: list of tuples (start_time_sec, end_time_sec)
+    Subclass that encapsulates the rigid 40-second timeline requirements
+    for this specific paper replication, leaving the base math untouched.
     """
-    total_samples = int(40.0 * fs)
-    full_signal = np.zeros(total_samples)
-    
-    for start_sec, end_sec in active_segments:
-        start_idx = int(start_sec * fs)
-        end_idx = int(end_sec * fs)
-        target_len = end_idx - start_idx
+    def generate_40s_scenario(self, fs: int, path_hop: int, config: Config):
+        # 1. Setup the physical environment
+        self._place_array_center()
+        self._calculate_geometry()
+        center_3d = np.array([self.array_center[0], self.array_center[1], self.mic_height])
+        s_noise = self._generate_noise_source()
         
-        # Load and concatenate speech until we fill the segment
-        segment_audio = np.array([])
-        while len(segment_audio) < target_len:
-            speech = load_speech(get_random_speech_file(speaker_dir), fs)
-            segment_audio = np.concatenate([segment_audio, speech])
+        static_samples = int((config.t_phase1 + config.t_phase2) * fs)
+        dynamic_samples = int(config.t_phase3 * fs)
+        
+        # 2. Generate Speaker 1 Trajectory
+        s1_stat_path, s1_stat_labels = self._generate_source_path(
+            len_source_signal=static_samples, update_interval=path_hop, center=center_3d,
+            radius=config.radius_s1, angle_classes=self.angle_classes, fs=fs,
+            linear_velocity=0.0, start_angle=np.deg2rad(config.angle_s1_start), end_angle=np.deg2rad(config.angle_s1_start), mode='stop'
+        )
+        s1_dyn_path, s1_dyn_labels = self._generate_source_path(
+            len_source_signal=dynamic_samples, update_interval=path_hop, center=center_3d,
+            radius=config.radius_s1, angle_classes=self.angle_classes, fs=fs,
+            linear_velocity=config.linear_velocity, start_angle=np.deg2rad(config.angle_s1_start), end_angle=np.deg2rad(config.angle_s1_end), mode='bounce'
+        )
+        s1_path = np.hstack([s1_stat_path, s1_dyn_path])
+        s1_labels = np.concatenate([s1_stat_labels, s1_dyn_labels])
+
+        # 3. Generate Speaker 2 Trajectory
+        s2_stat_path, s2_stat_labels = self._generate_source_path(
+            len_source_signal=static_samples, update_interval=path_hop, center=center_3d,
+            radius=config.radius_s2, angle_classes=self.angle_classes, fs=fs,
+            linear_velocity=0.0, start_angle=np.deg2rad(config.angle_s2_start), end_angle=np.deg2rad(config.angle_s2_start), mode='stop'
+        )
+        s2_dyn_path, s2_dyn_labels = self._generate_source_path(
+            len_source_signal=dynamic_samples, update_interval=path_hop, center=center_3d,
+            radius=config.radius_s2, angle_classes=self.angle_classes, fs=fs,
+            linear_velocity=config.linear_velocity, start_angle=np.deg2rad(config.angle_s2_start), end_angle=np.deg2rad(config.angle_s2_end), mode='bounce'
+        )
+        s2_path = np.hstack([s2_stat_path, s2_dyn_path])
+        s2_labels = np.concatenate([s2_stat_labels, s2_dyn_labels])
+
             
-        full_signal[start_idx:end_idx] = segment_audio[:target_len]
+        # 5. Plot labels if requested
+        if self.plot_name is not None:
+            # Plot labels over time for both speakers
+            plt.figure(figsize=(12, 6))
+            # label times are based on the update intervals, so we can create a time axis for better visualization
+            
+            time_axis_s1 = np.arange(len(s1_labels)) / fs
+            time_axis_s2 = np.arange(len(s2_labels)) / fs
+            plt.plot(time_axis_s1, s1_labels, label='Speaker 1 Labels', color='blue')
+            plt.plot(time_axis_s2, s2_labels, label='Speaker 2 Labels', color='green')
+            plt.xlabel('Time (samples)')
+            plt.ylabel('Angle Class Label')
+            plt.title('Angle Class Labels Over Time')
+            plt.legend()
+            plt.grid()
+            plt.savefig(self.plot_name + '_labels.png')
+
+        return s1_path, s1_labels, s2_path, s2_labels, s_noise, self.mic_array_coords
+
+
+def accumulate_speech_with_gaps(speaker_dir: str, target_samples: int, fs: int) -> np.ndarray:
+    """Concatenates TIMIT sentences with organic silence gaps (0.3s - 0.8s)."""
+    accumulated_audio = []
+    current_length = 0
+    
+    while current_length < target_samples:
+        wav_path = get_random_speech_file(speaker_dir)
+        speech = load_speech(wav_path, fs)
         
-    return full_signal
+        gap_samples = np.random.randint(int(0.3 * fs), int(0.8 * fs))
+        gap = np.zeros(gap_samples)
+        
+        accumulated_audio.extend([speech, gap])
+        current_length += len(speech) + len(gap)
+        
+    full_audio = np.concatenate(accumulated_audio)
+    return full_audio[:target_samples]
 
 
-def generate_composite_trajectory(
-    fs: int, duration_sec: float, path_hop: int, center: np.ndarray, radius: float, 
-    velocity: float, static_deg: float, dyn_start_deg: float, dyn_end_deg: float, 
-    angle_classes: np.ndarray
-):
-    """Generates a trajectory that is static for the first half, and moving for the second half."""
-    total_samples = int(duration_sec * fs)
-    half_samples = total_samples // 2
-    
-    # 1. Static Portion (First 20 seconds)
-    static_rad = np.deg2rad(static_deg)
-    x_stat = center[0] + radius * np.cos(static_rad)
-    y_stat = center[1] + radius * np.sin(static_rad)
-    
-    sp_path_static = np.zeros((3, half_samples))
-    sp_path_static[0, :] = x_stat
-    sp_path_static[1, :] = y_stat
-    sp_path_static[2, :] = center[2]
-    
-    label_idx = np.argmin(np.abs(angle_classes - static_deg)) + 1
-    labels_static = np.full(half_samples, label_idx, dtype=int)
-    
-    # 2. Dynamic Portion (Last 20 seconds)
-    sp_path_dyn, labels_dyn = generate_source_path(
-        len_source_signal=total_samples - half_samples,
-        update_interval=path_hop,
-        center=center,
-        radius=radius,
-        angle_classes=angle_classes,
-        fs=fs,
-        linear_velocity=velocity,
-        mode='bounce',
-        start_angle=np.deg2rad(dyn_start_deg),
-        end_angle=np.deg2rad(dyn_end_deg)
-    )
-    
-    # Concatenate
-    sp_path = np.hstack((sp_path_static, sp_path_dyn))
-    labels = np.concatenate((labels_static, labels_dyn))
-    
-    return sp_path, labels
-
-
-def create_concurrent_sample(
+def create_paper_test_sample(
     sample_idx: int,
-    config: ConcurrentConfig,
+    config: Config,
     male_speakers: List[str],
     female_speakers: List[str],
     verbose: bool = True
 ) -> Dict:
     
-    # --- 1. Environment & Geometry Setup ---
+    fs = config.fs
+    total_samples = int(config.t_total * fs)
+    phase1_samp = int(config.t_phase1 * fs)
+    phase2_samp = int(config.t_phase2 * fs)
+    phase3_samp = int(config.t_phase3 * fs)
+    
+    # --- 1. Environment ---
     L1 = 4.0 + 0.1 * np.random.randint(1, 21)
     L2 = 4.0 + 0.1 * np.random.randint(1, 21)
     room_dim = np.array([L1, L2, config.room_height])
-    T60 = np.random.choice([0.2, 0.4, 0.6])
     
-    center = np.array([room_dim[0] / 2, room_dim[1] / 2])
-    center_3d = np.array([center[0], center[1], 1.0])
-    mic_positions, _, _, _ = create_semicircular_mic_array(
-        center, config.array_radius, height=1.0, 
-        angle_resolution=360, selected_indices=[0, 54, 119, 179]
+    SNR_diffuse = config.SNR_diffuse + np.random.randint(0, 11)  # Randomized per sample
+    T60 = 0.3 + 0.001 * np.random.randint(0, 251)  # T60
+
+    total_SNR = -10 * np.log10((10 ** (-SNR_diffuse / 10)) + (10 ** (-config.SNR_direction / 10)) + (10 ** (-config.SNR_mic / 10)))
+    
+    plot_name = os.path.join(config.plot_dir, f'paperlike_{sample_idx}_labels_SNR_{total_SNR:.1f}_T60_{T60:.3f}.png')
+    print(f"\n--- Generating Sample {sample_idx} --- with plot: {plot_name}")
+    # --- 2. Generate Geometry & Trajectories ---
+    # We pass the max radius to the base constructor just for safe array clearance calculations
+    max_radius = max(config.radius_s1, config.radius_s2)
+    simulator = PaperReplicationSimulator(
+        room_dim=room_dim.tolist(), speaker_radius=max_radius, 
+        radius_noise=0.2, num_jumps=0, plot_name=plot_name
     )
     
-    angle_classes = np.arange(0, 181, config.angle_resolution)
+    s1_path, s1_labels, s2_path, s2_labels, s_noise, mic_positions = simulator.generate_40s_scenario(
+        fs, config.path_hop, config
+    )
+
+    # --- 3. Assemble and Mask Audio Timelines ---
+    speaker1_dir = male_speakers[np.random.randint(len(male_speakers))] if np.random.rand() < 0.5 else female_speakers[np.random.randint(len(female_speakers))]
+    speaker2_dir = male_speakers[np.random.randint(len(male_speakers))] if np.random.rand() < 0.5 else female_speakers[np.random.randint(len(female_speakers))]
+
+    # Get exactly 30s of active speech for each (10s static + 20s dynamic)
+    speech_s1_30s = accumulate_speech_with_gaps(speaker1_dir, phase1_samp + phase3_samp, fs)
+    speech_s2_30s = accumulate_speech_with_gaps(speaker2_dir, phase2_samp + phase3_samp, fs)
     
-    # Pick independent speakers
-    spk1_dir = male_speakers[np.random.randint(len(male_speakers))]
-    spk2_dir = female_speakers[np.random.randint(len(female_speakers))]
+    # Mask S1 (silent from 10s-20s)
+    audio_s1_40s = np.concatenate([
+        speech_s1_30s[:phase1_samp], 
+        np.zeros(phase2_samp), 
+        speech_s1_30s[phase1_samp:]
+    ])
+    s1_labels[phase1_samp : phase1_samp + phase2_samp] = 0
     
-    # --- 2. Construct Source Signals ---
-    # Timeline strategy to satisfy RTF isolation requirement:
-    # 00s-10s: Spk1 Alone (Static)
-    # 10s-20s: Spk2 Alone (Static)
-    # 20s-40s: Spk1 & Spk2 Concurrent (Moving)
-    
-    source_spk1 = build_40s_source_signal(spk1_dir, config.fs, [(0.0, 10.0), (20.0, 40.0)])
-    source_spk2 = build_40s_source_signal(spk2_dir, config.fs, [(10.0, 20.0), (20.0, 40.0)])
-    
-    # --- 3. Construct Trajectories ---
-    if verbose: print(f"  Generating paths & acoustics for 40s duration...")
-    
-    path_spk1, labels_spk1 = generate_composite_trajectory(
-        config.fs, config.total_duration, config.path_hop, center_3d, config.speaker_radius,
-        config.linear_velocity, config.spk1_start_deg, config.spk1_start_deg, config.spk1_end_deg, angle_classes
+    # Mask S2 (silent from 0s-10s)
+    audio_s2_40s = np.concatenate([
+        np.zeros(phase1_samp),
+        speech_s2_30s[:phase2_samp],
+        speech_s2_30s[phase2_samp:]
+    ])
+    s2_labels[:phase1_samp] = 0
+
+    # --- 4. Acoustic Simulation (das_generator) ---
+    if verbose: print(f"\n  Running S1 das_generator simulation...", end="", flush=True)
+    Receivers_first_total = generator.generate(
+        audio_s1_40s, c=config.c, fs=fs, rp_path=mic_positions,
+        sp_path=s1_path, L=room_dim, reverberation_time=T60,
+        nRIR=config.n_rir_samples, mtypes=generator.mic_type.omnidirectional, orientation=[0,0]
     )
     
-    path_spk2, labels_spk2 = generate_composite_trajectory(
-        config.fs, config.total_duration, config.path_hop, center_3d, config.speaker_radius,
-        config.linear_velocity, config.spk2_start_deg, config.spk2_start_deg, config.spk2_end_deg, angle_classes
+    if verbose: print(f"\n  Running S2 das_generator simulation...", end="", flush=True)
+    Receivers_second_total = generator.generate(
+        audio_s2_40s, c=config.c, fs=fs, rp_path=mic_positions,
+        sp_path=s2_path, L=room_dim, reverberation_time=T60,
+        nRIR=config.n_rir_samples, mtypes=generator.mic_type.omnidirectional, orientation=[0,0]
     )
     
-    # --- 4. Acoustic Simulation (Superposition) ---
-    # Simulate Speaker 1
-    mic_signals_spk1 = generator.generate(
-        source_spk1, c=config.c, fs=config.fs, rp_path=mic_positions,
-        sp_path=path_spk1, L=room_dim, reverberation_time=T60, nRIR=1024,
-        mtypes=generator.mic_type.omnidirectional, orientation=[0, 0]
-    )
+    Receivers_first_total = normalize_signal(Receivers_first_total)
+    Receivers_second_total = normalize_signal(Receivers_second_total)
+    receivers = Receivers_first_total + Receivers_second_total
+
+    # --- 5. Correct SNR Calculation (Active Phase Only) ---
+    # Calculate signal power strictly during Phase 3 where both speakers are active
+    active_start_idx = phase1_samp + phase2_samp
+    active_receivers = receivers[active_start_idx:, :]
+    A_x = np.mean(np.std(active_receivers, axis=0))
     
-    # Simulate Speaker 2
-    mic_signals_spk2 = generator.generate(
-        source_spk2, c=config.c, fs=config.fs, rp_path=mic_positions,
-        sp_path=path_spk2, L=room_dim, reverberation_time=T60, nRIR=1024,
-        mtypes=generator.mic_type.omnidirectional, orientation=[0, 0]
-    )
-    
-    # Combine signals at the microphones
-    clean_mixture = mic_signals_spk1 + mic_signals_spk2
-    clean_mixture = normalize_signal(clean_mixture)
-    
-    # --- 5. Noise Injection ---
-    length_receives = clean_mixture.shape[0]
-    A_x = np.mean(np.std(clean_mixture, axis=0))
-    A_n_diffuse = A_x / (10 ** (config.SNR_diffuse / 20))
+    A_n_diffuse = A_x / (10 ** (SNR_diffuse / 20))
+    A_n_direction = A_x / (10 ** (config.SNR_direction / 20))
     A_n_mic = A_x / (10 ** (config.SNR_mic / 20))
+
+
+    # Inject Initial Silence to ALL audio signals and labels
+    pad_samples = int(config.initial_noise_pad_sec * config.fs)
+    pad_matrix = np.zeros((pad_samples, config.M))
     
-    mic_noise = A_n_mic * np.random.randn(length_receives, config.M)
+    # Pad the main mixture and isolated speaker arrays
+    receivers = np.vstack((pad_matrix, receivers))
+    Receivers_first_total = np.vstack((pad_matrix, Receivers_first_total))
+    Receivers_second_total = np.vstack((pad_matrix, Receivers_second_total))
     
+    # Pad the labels (0 represents silence/no active angle)
+    s1_labels = np.concatenate((np.zeros(pad_samples), s1_labels))
+    s2_labels = np.concatenate((np.zeros(pad_samples), s2_labels))    
+    total_samples = receivers.shape[0]
+
+    # --- 6. Noise Generation ---
+    # Point-source directional noise (Full 40s)
+
+    noise_temp = np.random.randn(total_samples + config.n_rir_samples)
+    h_noise = generate_rir(
+        c=config.c, fs=fs, receiver_positions=mic_positions,
+        source_position=s_noise, room_dim=room_dim, 
+        reverberation_time=T60, n_samples=config.n_rir_samples
+    )
+    Receivers_noise = convolve_with_rir(noise_temp, h_noise)[:total_samples, :]
+    Receivers_noise = normalize_signal(Receivers_noise)
+
+    # Mic noise
+    mic_noise = A_n_mic * np.random.randn(total_samples, config.M)
+    
+    # Diffuse noise
     try:
-        diffuse_noise = fun_create_diffuse_noise(mic_positions[:, :2], fs=config.fs, L=length_receives)
+        diffuse_noise = fun_create_diffuse_noise(
+            mic_positions=mic_positions[:, :2], fs=fs, L=total_samples
+        )
         diffuse_noise = normalize_signal(diffuse_noise)
     except Exception as e:
-        diffuse_noise = np.random.randn(length_receives, config.M)
+        if verbose: print(f"\n  Warning: Diffuse noise failed ({e}), using Gaussian.")
+        diffuse_noise = np.random.randn(total_samples, config.M)
         
-    if len(diffuse_noise) < length_receives:
-        diffuse_noise = np.tile(diffuse_noise, (int(np.ceil(length_receives / len(diffuse_noise))), 1))
-    diffuse_noise = diffuse_noise[:length_receives, :config.M]
-    
-    noise_total = mic_noise + A_n_diffuse * diffuse_noise
-    mixture = clean_mixture + noise_total
-    
-    # Normalize final outputs
+    if len(diffuse_noise) < total_samples:
+        diffuse_noise = np.tile(diffuse_noise, (int(np.ceil(total_samples / len(diffuse_noise))), 1))
+    diffuse_noise = diffuse_noise[:total_samples, :config.M]
+
+    # Combine all noises exactly as in create_test_wavs
+    noise_total = mic_noise + (A_n_diffuse * diffuse_noise) + (A_n_direction * Receivers_noise)
+    mixture = receivers + noise_total
+
+    # Global normalizations
+    noise_total = noise_total / np.max(np.abs(noise_total))
     mixture = mixture / np.max(np.abs(mixture))
-    mic_signals_spk1 = mic_signals_spk1 / (np.max(np.abs(mic_signals_spk1)) + 1e-8)
-    mic_signals_spk2 = mic_signals_spk2 / (np.max(np.abs(mic_signals_spk2)) + 1e-8)
-    
-    # --- 6. Frame-level VAD Labels ---
-    # Apply VAD logic to zero-out labels during silence periods
-    # source_spk1 is silent from 10s-20s. source_spk2 is silent from 0-10s.
-    frame_len = int(10.0 * config.fs)
-    labels_spk1[frame_len:2*frame_len] = 0  # Zero out Spk1 label when silent
-    labels_spk2[0:frame_len] = 0            # Zero out Spk2 label when silent
-    
-    vad_spk1 = create_vad_dynamic(labels_spk1, config.hop, config.nfft)
-    vad_spk2 = create_vad_dynamic(labels_spk2, config.hop, config.nfft)
-    
+    Receivers_first_total = Receivers_first_total / np.max(np.abs(Receivers_first_total))
+    Receivers_second_total = Receivers_second_total / np.max(np.abs(Receivers_second_total))
+
+    # --- 7. VAD Labels ---
+    vad_first = create_vad_dynamic(s1_labels, config.hop, config.nfft)
+    vad_second = create_vad_dynamic(s2_labels, config.hop, config.nfft)
+
     return {
         'mixture': mixture,
-        'spk1_clean': mic_signals_spk1,
-        'spk2_clean': mic_signals_spk2,
-        'vad_spk1': vad_spk1,
-        'vad_spk2': vad_spk2,
+        'first_speaker': Receivers_first_total,
+        'second_speaker': Receivers_second_total,
+        'noise': noise_total,
+        'vad_first': vad_first,
+        'vad_second': vad_second,
         'room_dim': room_dim,
         'T60': T60,
+        'SNR_diffuse': SNR_diffuse,
         'mic_positions': mic_positions
     }
 
 
 if __name__ == "__main__":
-    config = ConcurrentConfig()
+    parser = argparse.ArgumentParser(description="Generate 40s Paper Replication Dataset.")
+    parser.add_argument("--num_samples", type=int, default=3, help="Number of files to generate")
+    parser.add_argument("--start_idx", type=int, default=1, help="Starting file index")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    
+    # Exposing the paper parameters
+    parser.add_argument("--radius_s1", type=float, default=1.3, help="Radius for S1 (m)")
+    parser.add_argument("--radius_s2", type=float, default=1.3, help="Radius for S2 (m)")
+    parser.add_argument("--angle_s1_start", type=float, default=0.0, help="S1 starting/static angle")
+    parser.add_argument("--angle_s1_end", type=float, default=140.0, help="S1 movement target angle")
+    parser.add_argument("--angle_s2_start", type=float, default=160.0, help="S2 starting/static angle")
+    parser.add_argument("--angle_s2_end", type=float, default=180.0, help="S2 movement target angle")
+    
+    args = parser.parse_args()
+    
+    config = Config()
+    config.num_samples = args.num_samples
+    config.start_idx = args.start_idx
+    config.seed = args.seed
+    config.radius_s1 = args.radius_s1
+    config.radius_s2 = args.radius_s2
+    config.angle_s1_start = args.angle_s1_start
+    config.angle_s1_end = args.angle_s1_end
+    config.angle_s2_start = args.angle_s2_start
+    config.angle_s2_end = args.angle_s2_end
+    
     np.random.seed(config.seed)
     
-    # Path configuration
     script_dir = os.path.dirname(os.path.abspath(__file__))
     workspace_path = os.path.dirname(script_dir)
+    
     timit_path = os.path.join(workspace_path, 'data', 'TIMIT')
     output_path = os.path.join(workspace_path, 'data', 'simulated_audio', config.dataset_title)
+    config.timit_base_path = timit_path
+    config.output_path = output_path
     os.makedirs(output_path, exist_ok=True)
     
     male_speakers, female_speakers = get_timit_speakers(timit_path)
     
-    print(f"\nGenerating {config.num_samples} concurrent dynamic samples (40s each)...")
+    print(f"\nGenerating {config.num_samples} paper replication samples...")
     print("-" * 60)
     
     for i in range(config.start_idx, config.start_idx + config.num_samples):
-        print(f"\nSample {i}/{config.start_idx + config.num_samples - 1}:")
+        print(f"\rProcessing sample {i}/{config.start_idx + config.num_samples - 1}...", end="", flush=True)
         
-        result = create_concurrent_sample(i, config, male_speakers, female_speakers)
+        np.random.seed(config.seed + i)
         
+        result = create_paper_test_sample(i, config, male_speakers, female_speakers, verbose=True)
+        
+        sf.write(os.path.join(output_path, f'first_{i}.wav'), result['first_speaker'], config.fs)
+        sf.write(os.path.join(output_path, f'second_{i}.wav'), result['second_speaker'], config.fs)
         sf.write(os.path.join(output_path, f'together_{i}.wav'), result['mixture'], config.fs)
-        sf.write(os.path.join(output_path, f'first_{i}.wav'), result['spk1_clean'], config.fs)
-        sf.write(os.path.join(output_path, f'second_{i}.wav'), result['spk2_clean'], config.fs)
         
-        np.save(os.path.join(output_path, f'label_location_first_{i}.npy'), result['vad_spk1'])
-        np.save(os.path.join(output_path, f'label_location_second_{i}.npy'), result['vad_spk2'])
+        np.save(os.path.join(output_path, f'label_location_first_{i}.npy'), result['vad_first'])
+        np.save(os.path.join(output_path, f'label_location_second_{i}.npy'), result['vad_second'])
+        
         np.savez(
             os.path.join(output_path, f'metadata_{i}.npz'),
-            room_dim=result['room_dim'], T60=result['T60'], mic_positions=result['mic_positions']
+            room_dim=result['room_dim'],
+            T60=result['T60'],
+            SNR_diffuse=result['SNR_diffuse'],
+            mic_positions=result['mic_positions']
         )
-        
-    print(f"\nGeneration complete! Files saved to {output_path}")
+    
+    print(f"\n\nGeneration complete! Files saved to: {output_path}")

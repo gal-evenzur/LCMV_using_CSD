@@ -277,6 +277,10 @@ def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     elif test_type == 'val':
         folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', test_type)
         plot_dir = os.path.join(py_folder, 'pipeline_results', 'val_data')
+    elif test_type == 'paperlike':
+        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
+        plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike')
+    os.makedirs(plot_dir, exist_ok=True)
 
     # 1. Pipeline Verification / Generation
     true_csd_path = os.path.join(plot_dir, f'true_CSD_{run_idx}.npy')
@@ -446,5 +450,5 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     
 
 if __name__ == "__main__":
-    for run_idx in range(7, 9):
-        plot_single_experiment_doa_accuracy(run_idx, 'dynamic')
+    for run_idx in range(1, 2):
+        plot_single_experiment_doa_accuracy(run_idx, 'paperlike')
