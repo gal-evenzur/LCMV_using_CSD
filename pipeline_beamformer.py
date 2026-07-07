@@ -350,7 +350,7 @@ class SpatialSeparationPipeline:
             fc = self.Frame_classification_system
             if fc[1, 0] == 0:
                 to_change = 0
-            elif (fc[1, 1] == 0) and (abs(fc[0, 0] - y2_prob) < 2):  # Keep this threshold at 2
+            elif (fc[1, 1] == 0) and (abs(fc[0, 0] - y2_prob) < 3):  # Keep this threshold at 2
                 to_change = 0
             elif fc[1, 1] == 0:
                 to_change = 1
