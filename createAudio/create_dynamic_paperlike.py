@@ -180,7 +180,7 @@ def create_paper_test_sample(
     room_dim = np.array([L1, L2, config.room_height])
     
     SNR_diffuse = config.SNR_diffuse + np.random.randint(0, 11)  # Randomized per sample
-    T60 = 0.3 + 0.001 * np.random.randint(0, 251)  # T60
+    T60 = np.random.choice([0.2, 0.3, 0.4, 0.5, 0.6])  # Randomized per sample
 
     total_SNR = -10 * np.log10((10 ** (-SNR_diffuse / 10)) + (10 ** (-config.SNR_direction / 10)) + (10 ** (-config.SNR_mic / 10)))
     
@@ -325,9 +325,9 @@ def create_paper_test_sample(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate 40s Paper Replication Dataset.")
-    parser.add_argument("--num_samples", type=int, default=3, help="Number of files to generate")
-    parser.add_argument("--start_idx", type=int, default=1, help="Starting file index")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--num_samples", type=int, default=20, help="Number of files to generate")
+    parser.add_argument("--start_idx", type=int, default=4, help="Starting file index")
+    parser.add_argument("--seed", type=int, default=4222, help="Random seed")
     
     # Exposing the paper parameters
     parser.add_argument("--radius_s1", type=float, default=1.3, help="Radius for S1 (m)")
