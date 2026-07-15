@@ -258,9 +258,9 @@ class SpatialTrackingPipeline:
         """Post-processes predictions, saves outputs, and plots confusion matrices."""
         os.makedirs(folder_to_save, exist_ok=True)
 
-        true_csd_filtered = ndimage.median_filter(self.true_csd, size=11)
-        pred_csd_filtered = ndimage.median_filter(self.pred_csd, size=25)
-        pred_doa_filtered = ndimage.median_filter(self.pred_doa, size=11)
+        true_csd_filtered = ndimage.median_filter(self.true_csd, size=2)
+        pred_csd_filtered = ndimage.median_filter(self.pred_csd, size=5)
+        pred_doa_filtered = ndimage.median_filter(self.pred_doa, size=10)
 
         np.save(os.path.join(folder_to_save, f'estimate_DOA_{run_idx}.npy'), pred_doa_filtered)
         np.save(os.path.join(folder_to_save, f'true_DOA_{run_idx}.npy'), self.true_doa)

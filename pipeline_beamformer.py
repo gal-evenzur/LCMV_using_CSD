@@ -802,10 +802,10 @@ if __name__ == "__main__":
     py_folder = os.path.dirname(os.path.realpath(__file__))
     workspace_folder = py_folder
     folder_to_all_data = os.path.join(workspace_folder, 'data')
-    folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'paperlike')
+    folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
 
     # Define where the tracking pipeline saved its labels, and where we will save the separated audio
-    folder_to_results = os.path.join(workspace_folder, 'pipeline_results', 'paperlike')
+    folder_to_results = os.path.join(workspace_folder, 'pipeline_results', 'model_predicts')
 
     # Configuration objects (same as before)
     p_stft = {
@@ -834,15 +834,19 @@ if __name__ == "__main__":
     }
 
     # Instantiate and run
-    pipeline = SpatialSeparationPipeline(
-        run_idx=1,
-        p_stft=p_stft,
-        p_tracking=p_tracking,
-        p_beamforming=p_beamforming,
-        folder_to_test_data=folder_to_test_data,
-        folder_to_results=folder_to_results,
-        M=4,
-        verbose=2
-    )
 
-    pipeline.run()
+
+    for idx in range(1,5):
+        print(f"\n\n{'#'*55}\n RUNNING PIPELINE FOR EXPERIMENT {idx} \n{'#'*55}\n")
+        pipeline = SpatialSeparationPipeline(
+            run_idx=idx,
+            p_stft=p_stft,
+            p_tracking=p_tracking,
+            p_beamforming=p_beamforming,
+            folder_to_test_data=folder_to_test_data,
+            folder_to_results=folder_to_results,
+            M=4,
+            verbose=2
+        )
+
+        pipeline.run()
