@@ -52,7 +52,7 @@ class SpatialSeparationPipeline:
        Stitches the separated frequency frames back into listenable .wav files. If reference
        files were provided, it automatically calculates BSS Eval (SDR/SIR) and SI-SDR metrics.
     """
-    def __init__(self, run_idx, p_stft, p_tracking, p_beamforming, folder_to_test_data, folder_to_results, M=4, num_speech=2, verbose=1):
+    def __init__(self, run_idx, p_stft, p_tracking, p_beamforming, folder_to_test_data, folder_to_results, M=4, num_speech=2, test_bf=False, verbose=1):
         """
         Initializes the spatial separation pipeline.
         Args:
@@ -64,6 +64,7 @@ class SpatialSeparationPipeline:
             folder_to_results (str): Path to the directory where results will be saved.
             M (int): Number of microphone channels to process.
             num_speech (int): Number of simultaneous speakers to separate.
+            test_bf (bool): Flag to indicate if the pipeline is in test mode.
             verbose (int): Level of logging detail (0: none, 1: key steps, 2: detailed).
         """
         self.run_idx = run_idx
@@ -74,6 +75,7 @@ class SpatialSeparationPipeline:
         self.folder_to_results = folder_to_results
         self.M = M
         self.num_speech = num_speech
+        self.test_bf = test_bf
         self.verbose = verbose
 
         # Audio & Labels
@@ -134,8 +136,23 @@ class SpatialSeparationPipeline:
         self.receivers = receivers[:, :self.M] / np.max(np.abs(receivers))
 
         # Load tracked outputs from the results folder
-        self.y2_prob_stat_mf = np.load(os.path.join(self.folder_to_results, f'estimate_DOA_{self.run_idx}.npy'))
-        self.y_prob_stat_mf = np.load(os.path.join(self.folder_to_results, f'estimate_CSD_{self.run_idx}.npy'))
+        use_csd = not self.test_bf  # Use estimated CSD/DOA unless in test mode
+        if use_csd:
+            self.y2_prob_stat_mf = np.load(os.path.join(self.folder_to_results, f'estimate_DOA_{self.run_idx}.npy'))
+            self.y_prob_stat_mf = np.load(os.path.join(self.folder_to_results, f'estimate_CSD_{self.run_idx}.npy'))
+
+        else:
+            if self.verbose > 0: print(">> ORACLE MODE: Using ground truth CSD and DOA.")
+            self.y_prob_stat_mf = np.load(os.path.join(self.folder_to_results, f'true_CSD_{self.run_idx}.npy'))
+            raw_true_doa = np.load(os.path.join(self.folder_to_results, f'true_DOA_{self.run_idx}.npy'))
+            
+            # Sanitize true_DOA: Force it between 1 and 18 to prevent IndexError.
+            # We only pass valid DOA values forward when true_CSD == 1.
+            safe_doa = np.zeros_like(raw_true_doa)
+            valid_mask = (self.y_prob_stat_mf == 1) & (raw_true_doa >= 1) & (raw_true_doa <= 18)
+            safe_doa[valid_mask] = raw_true_doa[valid_mask]
+            
+            self.y2_prob_stat_mf = safe_doa
 
         # Optional: Load reference signals for evaluation
         try:
@@ -210,7 +227,7 @@ class SpatialSeparationPipeline:
 
     def _update_rtf_and_tracking(self, l):
         """Handles CSD=1 (Single speaker active). Manages slots and GEVD."""
-        y2_prob = self.y2_prob_stat_mf[l]
+        y2_prob = int(self.y2_prob_stat_mf[l])
         epsilon = self.p_beamforming['epsilon']
 
         # Push to context buffer if near an active slot

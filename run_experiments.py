@@ -7,11 +7,13 @@ import matplotlib.pyplot as plt
 # Import the pipeline classes and configurations
 from pipeline import SpatialTrackingPipeline, pipeline_config, plot_dir
 from pipeline_beamformer import SpatialSeparationPipeline
-
 def run_all_experiments(num_experiments=20):
     py_folder = os.path.dirname(os.path.realpath(__file__))
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
     folder_to_results = os.path.join(py_folder, 'plots')
+    
+    # Ensure the output directory exists
+    os.makedirs(folder_to_results, exist_ok=True)
     
     # Static configurations for the beamformer pipeline
     p_stft = {'nfft': 2048, 'wlen': 2048, 'hop': 512, 'NUP': 1025, 'win': np.hamming(2048)}
@@ -26,29 +28,40 @@ def run_all_experiments(num_experiments=20):
     
     SDR_SUCCESS_THRESHOLD = 3.0 
     
+    # ---------------------------------------------------------
+    # Step 1: Run Neural Network Inference (Batch Process)
+    # ---------------------------------------------------------
+    print(f"\n{'='*75}\n--- STARTING NEURAL NETWORK BATCH PROCESSING FOR {num_experiments} EXPERIMENTS ---\n{'='*75}")
+    
+    # Initialize the pipeline ONCE (loads models into memory)
+    nn_pipeline = SpatialTrackingPipeline(
+        config=pipeline_config, 
+        folder_to_test_data=folder_to_test_data, 
+        n_mics=4, 
+        verbose=0
+    )
+    
+    # Run the batch process for all specified experiments
+    run_indices = range(1, num_experiments + 1)
+    # nn_pipeline.run_batch(run_indices=run_indices, folder_to_save=folder_to_results)
+
+    # ---------------------------------------------------------
+    # Step 2: Run LCMV Beamformer & Diagnostics (Iterative)
+    # ---------------------------------------------------------
     for i in range(1, num_experiments + 1):
-        print(f"\n{'='*75}\n=== STARTING EXPERIMENT {i}/{num_experiments} ===\n{'='*75}")
+        print(f"\n{'='*75}\n=== STARTING BEAMFORMING & EVALUATION {i}/{num_experiments} ===\n{'='*75}")
         
         try:
-            # Step 1: Run Neural Network Inference
-            print(">> Running Neural Network Inference...")
-            nn_pipeline = SpatialTrackingPipeline(
-                run_idx=i, config=pipeline_config, folder_to_test_data=folder_to_test_data, n_mics=4, verbose=0
-            )
-            nn_pipeline.run(folder_to_results)
-            
-            # Step 2: Run LCMV Beamformer
+            # Run LCMV Beamformer
             print(">> Running Beamformer & Filtering...")
             bf_pipeline = SpatialSeparationPipeline(
                 run_idx=i, p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming, 
-                folder_to_test_data=folder_to_test_data, folder_to_results=folder_to_results, M=4, verbose=0
+                folder_to_test_data=folder_to_test_data, folder_to_results=folder_to_results, M=4, test_bf=True, verbose=0
             )
             
             sdr_avg, sir_avg, sar_avg, nr_0, nr_1 = bf_pipeline.run()
             
-            # ---------------------------------------------------------
-            # Step 3: Automated Diagnostics & Data Collection
-            # ---------------------------------------------------------
+            # Automated Diagnostics & Data Collection
             diagnosis = "Unknown"
             est_silence_count, true_silence_count = 0, 0
             
@@ -68,7 +81,7 @@ def run_all_experiments(num_experiments=20):
                 noise_contam_pct = np.sum((est_csd == 0) & (true_csd > 0)) / total_frames * 100
                 spatial_contam_pct = np.sum((est_csd > 0) & (true_csd == 0)) / total_frames * 100
                 
-                # Overlap Recall Calculation (Did the network catch the double-talk?)
+                # Overlap Recall Calculation
                 true_overlap_idx = np.where(true_csd == 2)[0]
                 if len(true_overlap_idx) > 0:
                     correct_overlap_preds = np.sum(est_csd[true_overlap_idx] == 2)
@@ -261,6 +274,7 @@ def run_all_experiments(num_experiments=20):
     else:
         print("Not enough valid data to generate plots.")
 
+
 def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     """
     Runs the pipeline for a single experiment (if results don't exist)
@@ -450,5 +464,4 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     
 
 if __name__ == "__main__":
-    for run_idx in range(1, 2):
-        plot_single_experiment_doa_accuracy(run_idx, 'paperlike')
+    run_all_experiments(num_experiments=20)

@@ -6,9 +6,9 @@
 # ==========================================
 # EXPERIMENT CONFIGURATION
 # ==========================================
-NUM_SAMPLES_PER_T60=20      # Number of audio files per T60 environment
-BASE_SEED=42                # Starting seed
-VELOCITY=1.0                # Linear velocity of the speaker
+NUM_SAMPLES_PER_T60=4      # Number of audio files per T60 environment
+BASE_SEED=411                # Starting seed
+VELOCITY=0.3                # Linear velocity of the speaker
 SNR_DIFFUSE=20              # SNR setting
 START_ANGLE=0
 END_ANGLE=180
@@ -17,7 +17,7 @@ END_ANGLE=180
 T60_VALUES=(0.3 0.4 0.6)
 
 # Track the global file index so files don't overwrite each other
-CURRENT_START_IDX=100
+CURRENT_START_IDX=1000
 
 echo "====================================================="
 echo " STARTING DOA EXPERIMENT BATCH PIPELINE"

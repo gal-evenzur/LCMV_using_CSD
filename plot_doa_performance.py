@@ -24,7 +24,7 @@ def process_metrics(args):
     # Initialize storage for counts
     # Using rounded T60 keys to avoid float precision mismatch
     target_t60s = [round(t, 2) for t in args.t60_list]
-    metrics = {t: {'success': 0, 'low': 0, 'high': 0, 'total': 0} for t in target_t60s}
+    metrics = {t: {'success': 0, 'low': 0, 'high': 0, 'total': 0, 'raw_errors': []} for t in target_t60s}
 
     # Global CSD tracking
     all_true_csd = []
@@ -83,6 +83,9 @@ def process_metrics(args):
         # 2. Compute absolute bin differences
         abs_diff = np.abs(valid_true_doa - valid_est_doa)
 
+        errors_in_degrees = abs_diff * 10
+        metrics[t60]['raw_errors'].extend(errors_in_degrees)
+
         # 3. Categorize errors (Resolution = 10 degrees, so 2 bins = 20 degrees)
         success = np.sum(abs_diff == 0)
         low_error = np.sum((abs_diff > 0) & (abs_diff <= 2))
@@ -97,24 +100,24 @@ def process_metrics(args):
     return metrics, target_t60s, np.array(all_true_csd), np.array(all_est_csd)
 
 def plot_stacked_bar(metrics, t60_list, save_dir):
-    """Renders and saves the exact stacked bar chart requested."""
-    print("--- Generating Stacked Bar Chart ---")
+    """Generates the grouped bar chart and/or the CDF plot based on the metrics."""
+    os.makedirs(save_dir, exist_ok=True)
     
-    # Calculate percentages summing to 100%
-    success_pct = []
-    low_pct = []
-    high_pct = []
+    print("--- Generating Grouped Bar Chart ---")
+    success_pct, low_pct, high_pct = [], [], []
+    success_counts, low_counts, high_counts = [], [], []
     labels = []
 
     for t60 in sorted(t60_list):
         data = metrics[t60]
         total = data['total']
         
+        success_counts.append(data['success'])
+        low_counts.append(data['low'])
+        high_counts.append(data['high'])
+        
         if total == 0:
-            print(f"Warning: No valid frames found for T60 = {t60}")
-            success_pct.append(0)
-            low_pct.append(0)
-            high_pct.append(0)
+            success_pct.append(0); low_pct.append(0); high_pct.append(0)
         else:
             success_pct.append((data['success'] / total) * 100)
             low_pct.append((data['low'] / total) * 100)
@@ -122,50 +125,42 @@ def plot_stacked_bar(metrics, t60_list, save_dir):
         
         labels.append(f"{t60:.2f}")
 
-    # Set up the plot aesthetics
-    fig, ax = plt.subplots(figsize=(8, 6))
-    
-    bar_width = 0.35
+    fig, ax = plt.subplots(figsize=(10, 6))
     x_pos = np.arange(len(labels))
+    bar_width = 0.25 
     
-    # DNN Color scheme extracted from the paper
-    color_success = '#3b68e0'  # Royal Blue
-    color_low = '#6f42c1'      # Dark Purple
-    color_high = '#e88295'     # Pink
+    color_success, color_low, color_high = '#5a8cdb', '#9067c6', '#f094a4'
 
-    # Create the stacked bars
-    bars_success = ax.bar(x_pos, success_pct, bar_width, 
-                          label='Successful Estimation - DNN model', color=color_success)
-    bars_low = ax.bar(x_pos, low_pct, bar_width, bottom=success_pct, 
-                      label='Low Estimation Error - DNN model', color=color_low)
-    
-    # Calculate the bottom for the third stack
-    bottom_high = [i + j for i, j in zip(success_pct, low_pct)]
-    bars_high = ax.bar(x_pos, high_pct, bar_width, bottom=bottom_high, 
-                       label='High Estimation Error - DNN model', color=color_high)
+    bars_success = ax.bar(x_pos - bar_width, success_pct, bar_width, label='Exact (0° Error)', color=color_success, edgecolor='white')
+    bars_low = ax.bar(x_pos, low_pct, bar_width, label='Low Error (≤ 20°)', color=color_low, edgecolor='white')
+    bars_high = ax.bar(x_pos + bar_width, high_pct, bar_width, label='High Error (> 20°)', color=color_high, edgecolor='white')
 
-    # Formatting axes and layout to match the paper
+    def add_labels(bars, counts):
+        for bar, count in zip(bars, counts):
+            if count > 0:
+                ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1.5, f'{count}', ha='center', va='bottom', fontsize=9, color='black')
+
+    add_labels(bars_success, success_counts)
+    add_labels(bars_low, low_counts)
+    add_labels(bars_high, high_counts)
+
     ax.set_xlabel('T60 (sec)', fontsize=12, labelpad=10)
-    ax.set_ylabel('Percentage success rate', fontsize=12)
+    ax.set_ylabel('Percentage (%)', fontsize=12)
     ax.set_xticks(x_pos)
     ax.set_xticklabels(labels, fontsize=11)
-    ax.set_ylim(0, 100)
-    
-    # Move legend above the plot, centered
-    ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), ncol=1, 
-              frameon=True, fontsize=10)
-
-    # Clean borders
-    ax.spines['top'].set_visible(True)
-    ax.spines['right'].set_visible(True)
+    ax.set_ylim(0, 115)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.12), ncol=3, frameon=False, fontsize=11)
+    ax.grid(axis='y', linestyle='--', alpha=0.6)
+    ax.set_axisbelow(True)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
     plt.tight_layout()
-    
-    # Save output
-    os.makedirs(save_dir, exist_ok=True)
-    output_path = os.path.join(save_dir, 'DOA_Performance_DNN_Comparison.png')
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    print(f"Graph saved successfully to: {output_path}")
+    bar_path = os.path.join(save_dir, 'DOA_Performance_Grouped_Comparison.png')
+    plt.savefig(bar_path, dpi=300, bbox_inches='tight')
+    plt.close(fig) # סגירת הגרף כדי לא להעמיס על הזיכרון
+    print(f"Bar Graph saved successfully to: {bar_path}")
+
 
 def plot_global_csd_matrix(true_csd, est_csd, save_dir):
     """Renders the global CSD confusion matrix using the existing utility function."""
