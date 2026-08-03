@@ -814,17 +814,670 @@ class SpatialSeparationPipeline:
         # Return all 5 metrics to the orchestrator script
         return sdr_avg, sir_avg, sar_avg, nr_0, nr_1
 
+
+"""
+=========================================================================================
+DYNAMIC-SCENARIO METRICS FOR THE BEAMFORMER PIPELINE
+=========================================================================================
+Extends `SpatialSeparationPipeline` (pipeline_beamformer.py) for evaluating the BF on a
+MOVING-speaker test: Speaker 0 walks 0 deg -> 140 deg -> 0 deg, Speaker 1 alternates
+between 160 deg and 180 deg. Nothing here depends on the point-noise-source angle -
+that gets added once that access method is available.
+
+Design choice: subclass the original pipeline instead of editing it in place. All hooks
+are additive (they call `super()` first and only log/observe afterward) so the original
+separation algorithm's numerical behavior is completely unchanged.
+
+WHAT'S NEW HERE                                    WHY (see prior discussion)
+------------------------------------------------   --------------------------------------
+evaluate_windowed()                                 Replaces the old single "first overlap
+                                                     frame -> last overlap frame" SDR/SIR/SAR
+                                                     block, which silently pools in non-
+                                                     overlap frames whenever the speakers
+                                                     cross paths more than once (expected
+                                                     here, since Speaker 1 keeps oscillating
+                                                     back into/out of Speaker 0's path).
+                                                     Produces a full time series instead of
+                                                     one number.
+
+evaluate_windowed_noise_reduction()                 Same idea for Noise Reduction: NR over
+                                                     time instead of one aggregate number.
+
+compute_angular_separation_trace()                  The "how close are the speakers"
+                                                     display you asked for, taken from the
+                                                     pipeline's own tracked slot DOAs (not
+                                                     circular - slot assignment comes from
+                                                     DOA continuity, not output energy).
+
+compute_speaker_overlap_matrix() /                  Speaker-vs-speaker spatial (RTF) overlap,
+speaker_overlap_trace()                             the analogue of the old speaker-vs-noise
+                                                     score but without needing the noise
+                                                     angle - computed once per DOA-sector
+                                                     pair from the already-accumulated
+                                                     PSD_matrix_per_DOA, then looked up along
+                                                     the trajectory.
+
+compute_relock_latency()                            Generalizes the old "convergence time"
+                                                     check (which only ever measured Speaker
+                                                     0's very first lock, using a window
+                                                     slid over non-contiguous frame indices
+                                                     as if they were consecutive in time) to
+                                                     BOTH speakers at EVERY DOA-sector switch,
+                                                     anchored to real frame numbers.
+
+investigate_geometry() [overridden]                 Fixes the circular DOA->speaker identity
+                                                     assignment (it used to compare the
+                                                     beamformer's OWN output energy - least
+                                                     reliable exactly when the beamformer is
+                                                     struggling). Uses the independent clean
+                                                     reference channels instead. Drops the old
+                                                     speaker-vs-noise correlation section
+                                                     entirely (needs the noise angle).
+
+compute_noise_reduction() [overridden]               Keeps the legitimate "Part 1" aggregate
+                                                     NR number (for backward-compatible
+                                                     return values). Drops the old Part 2/3
+                                                     (superseded by compute_relock_latency
+                                                     and evaluate_windowed_noise_reduction).
+
+plot_dynamic_report()                                Three-panel figure: tracked angles +
+                                                     separation, windowed SIR/SDR, windowed
+                                                     NR, all on the same time axis, with
+                                                     re-lock events marked.
+=========================================================================================
+"""
+
+
+SECTOR_WIDTH_DEG = 180.0 / 18.0  # 10 deg / sector, matches investigate_geometry's comments
+
+
+def sector_to_deg(sector_idx):
+    """DOA sector index (1-18) -> center angle in degrees, over a 0-180 deg array FOV."""
+    sector_idx = np.asarray(sector_idx, dtype=float)
+    return (sector_idx - 0.5) * SECTOR_WIDTH_DEG
+
+
+def angular_separation(doa_deg_speaker0, doa_deg_speaker1):
+    """
+    Generic helper, independent of the pipeline: plug in any two per-frame angle arrays
+    (in degrees) and get the separation trace. Use this instead of
+    `compute_angular_separation_trace()` if you have the TRUE simulated trajectory
+    (e.g. saved directly by the scenario generator) rather than the beamformer's own
+    tracked estimate - that would give you a ground-truth "closeness" curve to compare
+    the tracked one against.
+    """
+    return np.abs(np.asarray(doa_deg_speaker0) - np.asarray(doa_deg_speaker1))
+
+
+class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
+    """SpatialSeparationPipeline + dynamic-scenario evaluation metrics."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Populated in load_data() once we know the frame count
+        self.slot_doa_history = None
+        self._prev_slot_doa = [0, 0]
+        self._relock_events = []
+        self._rtf_deltas = {0: [], 1: []}
+        self.windowed_bss_results = None
+        self.dynamic_metrics = None
+
+    # ------------------------------------------------------------------
+    # Setup hook
+    # ------------------------------------------------------------------
+    def load_data(self):
+        super().load_data()
+        num_frames = len(self.y2_prob_stat_mf)
+        self.slot_doa_history = np.zeros((num_frames, 2))
+        self._prev_slot_doa = [0, 0]
+        self._relock_events = []
+        self._rtf_deltas = {0: [], 1: []}
+
+    # ------------------------------------------------------------------
+    # Logging hooks (call super() first, unchanged algorithm behavior)
+    # ------------------------------------------------------------------
+    def _compute_spatial_filters(self, l):
+        super()._compute_spatial_filters(l)
+
+        for slot in (0, 1):
+            doa_now = int(self.Frame_classification_system[0, slot])
+            self.slot_doa_history[l, slot] = doa_now
+            if doa_now != 0 and doa_now != self._prev_slot_doa[slot]:
+                self._relock_events.append({
+                    'slot': slot,
+                    'frame': l,
+                    'from_doa': self._prev_slot_doa[slot],
+                    'to_doa': doa_now,
+                })
+            self._prev_slot_doa[slot] = doa_now
+
+    def _update_slot(self, slot_idx, y2_prob, l, save_last_frames, save_last_frames_doa):
+        g_before = self.G[:, :, slot_idx].copy()
+        super()._update_slot(slot_idx, y2_prob, l, save_last_frames, save_last_frames_doa)
+        g_after = self.G[:, :, slot_idx]
+        delta = LA.norm(g_after - g_before) / (LA.norm(g_before) + 1e-12)
+        self._rtf_deltas[slot_idx].append((l, float(delta)))
+
+    # ------------------------------------------------------------------
+    # NEW METRIC 1: angular separation trace ("how close are the speakers")
+    # ------------------------------------------------------------------
+    def compute_angular_separation_trace(self):
+        """
+        Returns (time_sec, separation_deg, doa0_deg, doa1_deg) built from the pipeline's
+        OWN tracked slot assignments. This reflects what the beamformer believes the
+        geometry is (slot assignment is based on DOA continuity, not on output energy,
+        so it isn't circular the way the old geometry diagnostic was) - not an
+        independent ground truth. If you have the true simulated per-speaker trajectory,
+        use the standalone `angular_separation()` function above with those arrays
+        instead, for a cleaner reference curve.
+        """
+        if self.slot_doa_history is None:
+            raise RuntimeError("Call load_data()/run_online_separation() first.")
+
+        doa0 = self.slot_doa_history[:, 0]
+        doa1 = self.slot_doa_history[:, 1]
+
+        doa0_deg = np.where(doa0 > 0, sector_to_deg(doa0), np.nan)
+        doa1_deg = np.where(doa1 > 0, sector_to_deg(doa1), np.nan)
+
+        hop = self.p_stft['hop']
+        time_sec = np.arange(len(doa0)) * hop / self.fs
+        separation_deg = np.abs(doa0_deg - doa1_deg)  # NaN whenever either slot is inactive
+
+        return time_sec, separation_deg, doa0_deg, doa1_deg
+
+    # ------------------------------------------------------------------
+    # NEW METRIC 2: speaker-vs-speaker spatial (RTF) overlap
+    # ------------------------------------------------------------------
+    def _sector_rtf_fingerprint(self, sector_idx):
+        """
+        Recomputes the RTF fingerprint the same way `_update_slot` does (GEVD dominant
+        eigenvector, recolored by Qvv), but for an arbitrary sector using the FINAL
+        accumulated `PSD_matrix_per_DOA` and the FINAL `Qvv`. This gives a fingerprint for
+        every sector actually visited during the whole recording, not just whatever a
+        slot happened to hold at the very last frame.
+
+        Uses eigh (not eig, as the original does) since PSD_matrix_per_DOA is Hermitian
+        PSD by construction - eigh is faster and numerically safer for this case.
+        """
+        if self.total_frame_per_DOA[sector_idx - 1] == 0:
+            return None  # sector never visited
+
+        chol_Qvv = LA.cholesky(self.Qvv)                                  # (NUP, M, M)
+        w, v = LA.eigh(self.PSD_matrix_per_DOA[sector_idx - 1])            # ascending, real
+        max_idx = np.argmax(w, axis=1)                                    # (NUP,)
+        phi = v[np.arange(self.NUP), :, max_idx][:, :, np.newaxis]        # (NUP, M, 1)
+
+        numerator = chol_Qvv @ phi
+        denominator = chol_Qvv[:, 0:1, :] @ phi
+        g = np.squeeze(numerator / denominator, axis=2)                   # (NUP, M)
+        return g
+
+    def compute_speaker_overlap_matrix(self):
+        """
+        18x18 matrix: overlap[i, j] = frequency-averaged squared cosine similarity between
+        the RTF fingerprint at sector i and sector j. Diagonal ~= 1. This is the
+        speaker-vs-speaker analogue of the old speaker-vs-noise score - answers "how hard
+        would separation structurally be if one source sat at sector i and the other at
+        sector j", independent of the noise source. NaN where a sector was never visited.
+        """
+        fingerprints = [self._sector_rtf_fingerprint(s) for s in range(1, 19)]
+
+        overlap = np.full((18, 18), np.nan)
+        for i in range(18):
+            if fingerprints[i] is None:
+                continue
+            for j in range(18):
+                if fingerprints[j] is None:
+                    continue
+                gi, gj = fingerprints[i], fingerprints[j]
+                num = np.abs(np.sum(gi.conj() * gj, axis=1)) ** 2
+                den = np.sum(np.abs(gi) ** 2, axis=1) * np.sum(np.abs(gj) ** 2, axis=1)
+                overlap[i, j] = np.mean(num / (den + 1e-15))
+        return overlap
+
+    def speaker_overlap_trace(self, overlap_matrix=None):
+        """
+        For every frame, looks up the spatial overlap between whichever sectors slot 0
+        and slot 1 were tracking at that time. Pairs directly with
+        compute_angular_separation_trace() for plotting overlap next to angular
+        separation and windowed SIR (they should move together).
+        """
+        if overlap_matrix is None:
+            overlap_matrix = self.compute_speaker_overlap_matrix()
+
+        doa0 = self.slot_doa_history[:, 0].astype(int)
+        doa1 = self.slot_doa_history[:, 1].astype(int)
+
+        trace = np.full(len(doa0), np.nan)
+        both_active = (doa0 > 0) & (doa1 > 0)
+        idx = np.where(both_active)[0]
+        trace[idx] = overlap_matrix[doa0[idx] - 1, doa1[idx] - 1]
+        return trace
+
+    # ------------------------------------------------------------------
+    # NEW METRIC 3: re-lock latency after every DOA-sector switch
+    # ------------------------------------------------------------------
+    def compute_relock_latency(self, rel_threshold=0.05, min_window=3):
+        """
+        For every detected DOA-sector switch (per slot, including the very first lock),
+        measures how many subsequent RTF *updates* it takes for the fingerprint's
+        relative frame-to-frame change to drop below `rel_threshold` and stay there for
+        `min_window` consecutive updates. Generalizes the old one-shot, speaker-0-only
+        "convergence time" check to both speakers at every movement-induced re-lock.
+
+        Returns a list of dicts:
+            slot, switch_frame, is_initial_lock, from_doa_deg, to_doa_deg,
+            latency_frames, latency_sec
+        `latency_frames` is None if it never reconverged before the next switch (or the
+        end of the recording) - that's itself a useful red flag for "the speaker moves
+        faster than the RTF estimator can keep up".
+        """
+        results = []
+        for slot in (0, 1):
+            deltas = self._rtf_deltas[slot]
+            if not deltas:
+                continue
+            delta_frames = np.array([d[0] for d in deltas])
+            delta_vals = np.array([d[1] for d in deltas])
+
+            events = [e for e in self._relock_events if e['slot'] == slot]
+            for i, ev in enumerate(events):
+                switch_frame = ev['frame']
+                next_switch_frame = events[i + 1]['frame'] if i + 1 < len(events) else np.inf
+                mask = (delta_frames >= switch_frame) & (delta_frames < next_switch_frame)
+                seg_frames = delta_frames[mask]
+                seg_vals = delta_vals[mask]
+
+                latency = None
+                for k in range(len(seg_vals) - min_window + 1):
+                    if np.all(seg_vals[k:k + min_window] < rel_threshold):
+                        latency = int(seg_frames[k] - switch_frame)
+                        break
+
+                results.append({
+                    'slot': slot,
+                    'switch_frame': int(switch_frame),
+                    'is_initial_lock': ev['from_doa'] == 0,
+                    'from_doa_deg': float(sector_to_deg(ev['from_doa'])) if ev['from_doa'] else None,
+                    'to_doa_deg': float(sector_to_deg(ev['to_doa'])),
+                    'latency_frames': latency,
+                    'latency_sec': (latency * self.p_stft['hop'] / self.fs) if latency is not None else None,
+                })
+        return results
+
+    # ------------------------------------------------------------------
+    # NEW METRIC 4: windowed SDR / SIR / SAR across the WHOLE recording
+    # ------------------------------------------------------------------
+    def evaluate_windowed(self, window_sec=1.0, hop_sec=0.5, min_ref_energy=1e-6):
+        """
+        Windowed SDR/SIR/SAR across the whole recording, instead of one first-overlap-
+        frame -> last-overlap-frame block. Tunable trade-off: shorter windows (literature
+        on moving sources uses ~200 ms segments) give finer temporal resolution to
+        correlate against the angular separation trace, but noisier per-window estimates;
+        longer windows are more stable but blur exactly the dynamics you're testing.
+
+        Returns a dict of arrays: t_center_sec, sdr (T,2), sir (T,2), sar (T,2),
+        csd_majority (T,) - the majority ground-truth CSD label (0/1/2) in that window,
+        so you can split "single-speaker" vs "overlap" windows afterward.
+        """
+        if not self.evaluate:
+            if self.verbose:
+                print("No reference files loaded - skipping windowed BSS evaluation.")
+            return None
+
+        win = self.p_stft['win']
+        hop = self.p_stft['hop']
+        nfft = self.p_stft['nfft']
+        frame_hop_sec = hop / self.fs
+
+        n_frames_total = self.s_hat_total.shape[0]
+        win_frames = max(1, int(round(window_sec / frame_hop_sec)))
+        hop_frames = max(1, int(round(hop_sec / frame_hop_sec)))
+
+        starts = np.arange(0, max(n_frames_total - win_frames + 1, 1), hop_frames)
+
+        t_center, sdr_list, sir_list, sar_list, csd_list = [], [], [], [], []
+
+        for start in starts:
+            end = start + win_frames
+            s_hat_win = self.s_hat_total[start:end]
+            z1_win = self.z_k_first[start:end]
+            z2_win = self.z_k_second[start:end]
+
+            ref1, _ = istft(z1_win[:, :, 0].T, win, win, hop, nfft, self.fs)
+            ref2, _ = istft(z2_win[:, :, 0].T, win, win, hop, nfft, self.fs)
+
+            # Skip windows where a reference speaker is essentially silent - bss_eval on
+            # a near-zero reference is unstable and not meaningful.
+            if np.mean(ref1 ** 2) < min_ref_energy or np.mean(ref2 ** 2) < min_ref_energy:
+                continue
+
+            est1, _ = istft(s_hat_win[:, :, 0].T, win, win, hop, nfft, self.fs)
+            est2, _ = istft(s_hat_win[:, :, 1].T, win, win, hop, nfft, self.fs)
+
+            ref_sources = np.stack([ref1, ref2])
+            est_sources = np.stack([est1, est2])
+
+            try:
+                sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(
+                    ref_sources + 1e-9, est_sources, compute_permutation=True
+                )
+            except Exception:
+                continue  # degenerate window (e.g. near-silent after all) - skip, don't crash
+
+            t_center.append((start + win_frames / 2) * frame_hop_sec)
+            sdr_list.append(sdr)
+            sir_list.append(sir)
+            sar_list.append(sar)
+
+            csd_window = self.y_mf[start:end]
+            vals, counts = np.unique(csd_window, return_counts=True)
+            csd_list.append(vals[np.argmax(counts)])
+
+        result = {
+            't_center_sec': np.array(t_center),
+            'sdr': np.array(sdr_list) if sdr_list else np.empty((0, self.num_speech)),
+            'sir': np.array(sir_list) if sir_list else np.empty((0, self.num_speech)),
+            'sar': np.array(sar_list) if sar_list else np.empty((0, self.num_speech)),
+            'csd_majority': np.array(csd_list),
+        }
+        self.windowed_bss_results = result
+        return result
+
+    # ------------------------------------------------------------------
+    # NEW METRIC 5: windowed Noise Reduction (no reference audio needed)
+    # ------------------------------------------------------------------
+    def evaluate_windowed_noise_reduction(self, window_sec=1.0, hop_sec=0.5, min_noise_frames=3):
+        """
+        Same idea as evaluate_windowed(), but for Noise Reduction: within each time
+        window, averages the ratio of input-mic power to BF output power over the
+        noise-only (CSD==0) frames that fall in that window. Windows with too few
+        noise-only frames are skipped (NaN). Needs no reference audio and no noise
+        angle - just the mic input, the BF output, and the existing CSD labels.
+        """
+        hop = self.p_stft['hop']
+        frame_hop_sec = hop / self.fs
+        n_frames_total = self.s_hat_total.shape[0]
+        win_frames = max(1, int(round(window_sec / frame_hop_sec)))
+        hop_frames = max(1, int(round(hop_sec / frame_hop_sec)))
+
+        power_in = np.mean(np.abs(self.z_k[:, :, 0]) ** 2, axis=1)              # (frames,)
+        power_out = np.mean(np.abs(self.s_hat_total) ** 2, axis=1)              # (frames, num_speech)
+
+        starts = np.arange(0, max(n_frames_total - win_frames + 1, 1), hop_frames)
+        t_center, nr = [], []
+
+        for start in starts:
+            end = start + win_frames
+            csd_win = self.y_prob_stat_mf[start:end]
+            noise_idx = np.where(csd_win == 0)[0]
+            if len(noise_idx) < min_noise_frames:
+                continue
+
+            abs_idx = start + noise_idx
+            mean_in = np.mean(power_in[abs_idx])
+
+            nr_win = np.full(self.num_speech, np.nan)
+            for p in range(self.num_speech):
+                valid = power_out[abs_idx, p] > 1e-18
+                if np.any(valid):
+                    mean_out = np.mean(power_out[abs_idx[valid], p])
+                    nr_win[p] = 10 * np.log10(mean_in / (mean_out + 1e-15))
+
+            t_center.append((start + win_frames / 2) * frame_hop_sec)
+            nr.append(nr_win)
+
+        return {
+            't_center_sec': np.array(t_center),
+            'nr_db': np.array(nr) if nr else np.empty((0, self.num_speech)),
+        }
+
+    # ------------------------------------------------------------------
+    # OVERRIDDEN: file saving kept, buggy block-metric replaced by windowed eval
+    # ------------------------------------------------------------------
+    def evaluate_and_save(self):
+        if self.verbose:
+            print("--- Saving Outputs ---")
+        os.makedirs(self.folder_to_results, exist_ok=True)
+        for p in range(self.num_speech):
+            output_path = os.path.join(self.folder_to_results, f'separating_speaker_{p}_{self.run_idx}.wav')
+            wavfile.write(output_path, self.fs, self.speech_out[p])
+
+        if not self.evaluate:
+            return None, None, None
+
+        wb = self.evaluate_windowed()
+        if wb is None or len(wb['sdr']) == 0:
+            if self.verbose:
+                print("No valid windows for BSS evaluation.")
+            return None, None, None
+
+        sdr_mean = float(np.nanmean(wb['sdr']))
+        sir_mean = float(np.nanmean(wb['sir']))
+        sar_mean = float(np.nanmean(wb['sar']))
+
+        if self.verbose:
+            print(f"\n--- Windowed Evaluation Summary ({len(wb['sdr'])} windows) ---")
+            print(f"Mean -> SDR: {sdr_mean:.2f} dB | SIR: {sir_mean:.2f} dB | SAR: {sar_mean:.2f} dB")
+            for csd_val, label in [(1, 'single-speaker windows'), (2, 'overlap windows')]:
+                mask = wb['csd_majority'] == csd_val
+                if np.any(mask):
+                    print(f"  {label} (n={mask.sum()}): "
+                          f"SDR={np.nanmean(wb['sdr'][mask]):.2f} dB, "
+                          f"SIR={np.nanmean(wb['sir'][mask]):.2f} dB")
+
+        return sdr_mean, sir_mean, sar_mean
+
+    # ------------------------------------------------------------------
+    # OVERRIDDEN: keep the legitimate aggregate NR, drop the broken convergence/sanity bits
+    # ------------------------------------------------------------------
+    def compute_noise_reduction(self):
+        if self.verbose:
+            print("\n--- Computing Noise Reduction (aggregate) ---")
+
+        noise_frames_idx = np.where(self.y_prob_stat_mf == 0)[0]
+        if len(noise_frames_idx) == 0:
+            if self.verbose:
+                print("No pure noise frames found.")
+            return None, None
+
+        power_in_frames = np.mean(np.abs(self.z_k[noise_frames_idx, :, 0]) ** 2, axis=1)
+        power_out_frames = np.zeros((self.num_speech, len(noise_frames_idx)))
+        for p in range(self.num_speech):
+            power_out_frames[p, :] = np.mean(np.abs(self.s_hat_total[noise_frames_idx, :, p]) ** 2, axis=1)
+
+        valid_idx = [np.where(power_out_frames[p, :] > 1e-18)[0] for p in range(self.num_speech)]
+        shared_valid_idx = valid_idx[0]
+        for p in range(1, self.num_speech):
+            shared_valid_idx = np.intersect1d(shared_valid_idx, valid_idx[p])
+
+        if len(shared_valid_idx) == 0:
+            if self.verbose:
+                print("No shared valid frames - cannot compute aggregate NR.")
+            return None, None
+
+        mean_power_in = np.mean(power_in_frames[shared_valid_idx])
+        target_nr = []
+        for p in range(self.num_speech):
+            mean_power_out = np.mean(power_out_frames[p, shared_valid_idx])
+            nr_db = 10 * np.log10(mean_power_in / (mean_power_out + 1e-15))
+            target_nr.append(nr_db)
+            if self.verbose:
+                print(f"    Speaker {p}: aggregate NR = {nr_db:.2f} dB "
+                      f"(over {len(shared_valid_idx)} shared noise frames)")
+
+        return target_nr[0], target_nr[1]
+
+    # ------------------------------------------------------------------
+    # OVERRIDDEN: non-circular DOA->speaker assignment, noise section removed
+    # ------------------------------------------------------------------
+    def investigate_geometry(self):
+        """
+        Fixed version of the original diagnostic. The original assigned each
+        single-speaker frame to "Speaker 0" or "Speaker 1" by comparing the
+        BEAMFORMER'S OWN output energy - circular, since it's least reliable exactly
+        when the beamformer performs poorly (the case we're trying to characterize).
+        This version uses the independent clean reference channels instead. The old
+        speaker-vs-noise correlation section is removed here (needs the noise angle).
+        """
+        print("\n" + "=" * 55)
+        print(" ACOUSTIC GEOMETRY INVESTIGATION (reference-based)")
+        print("=" * 55)
+
+        if not self.evaluate:
+            print("No reference files loaded - skipping (need clean per-speaker audio "
+                  "for a non-circular identity check).")
+            print("=" * 55 + "\n")
+            return None
+
+        single_frames_idx = np.where(self.y_prob_stat_mf == 1)[0]
+        doas_single = self.y2_prob_stat_mf[single_frames_idx]
+
+        power_ref1 = np.mean(np.abs(self.z_k_first[single_frames_idx, :, 0]) ** 2, axis=1)
+        power_ref2 = np.mean(np.abs(self.z_k_second[single_frames_idx, :, 0]) ** 2, axis=1)
+
+        doas_spk0 = doas_single[power_ref1 > power_ref2 * 10]
+        doas_spk1 = doas_single[power_ref2 > power_ref1 * 10]
+
+        unique_doas_0 = np.unique(doas_spk0[doas_spk0 > 0]).astype(int)
+        unique_doas_1 = np.unique(doas_spk1[doas_spk1 > 0]).astype(int)
+
+        print(f"    Speaker 0 (first_{self.run_idx}.wav) sectors visited: {unique_doas_0}")
+        print(f"      -> {np.round(sector_to_deg(unique_doas_0), 1)} deg")
+        print(f"    Speaker 1 (second_{self.run_idx}.wav) sectors visited: {unique_doas_1}")
+        print(f"      -> {np.round(sector_to_deg(unique_doas_1), 1)} deg")
+        print("    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).")
+        print("    -> Broadside (~90 deg, sector 9-10) = best structural separation.")
+        print("    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,")
+        print("       regardless of how the speakers move.")
+        print("=" * 55 + "\n")
+
+        return unique_doas_0, unique_doas_1
+
+    # ------------------------------------------------------------------
+    # Orchestrator
+    # ------------------------------------------------------------------
+    def run(self):
+        print(f"\n{'=' * 55}")
+        print(f" STARTING PIPELINE EXECUTION (Experiment {self.run_idx}) - dynamic metrics")
+        print(f"{'=' * 55}")
+
+        total_start = time.time()
+
+        step_start = time.time()
+        self.load_data()
+        print(f"[time] 1. Load Data:             {time.time() - step_start:>6.2f}s")
+
+        step_start = time.time()
+        self.compute_stft()
+        print(f"[time] 2. Compute STFT:          {time.time() - step_start:>6.2f}s")
+
+        step_start = time.time()
+        self.run_online_separation()
+        print(f"[time] 3. Run Online Separation: {time.time() - step_start:>6.2f}s")
+
+        step_start = time.time()
+        self.reconstruct_audio()
+        print(f"[time] 4. Reconstruct Audio:     {time.time() - step_start:>6.2f}s")
+
+        step_start = time.time()
+        sdr_avg, sir_avg, sar_avg = self.evaluate_and_save()
+        nr_0, nr_1 = self.compute_noise_reduction()
+        print(f"[time] 5. Evaluate:              {time.time() - step_start:>6.2f}s")
+
+        step_start = time.time()
+        dynamic_metrics = {
+            'windowed_nr': self.evaluate_windowed_noise_reduction(),
+        }
+        t_sep, sep_deg, doa0_deg, doa1_deg = self.compute_angular_separation_trace()
+        dynamic_metrics['angular_separation'] = {
+            't_sec': t_sep, 'sep_deg': sep_deg, 'doa0_deg': doa0_deg, 'doa1_deg': doa1_deg,
+        }
+        overlap_matrix = self.compute_speaker_overlap_matrix()
+        dynamic_metrics['speaker_overlap_matrix'] = overlap_matrix
+        dynamic_metrics['speaker_overlap_trace'] = self.speaker_overlap_trace(overlap_matrix)
+        dynamic_metrics['relock_events'] = self.compute_relock_latency()
+        self.investigate_geometry()
+        print(f"[time] 6. Dynamic Metrics:       {time.time() - step_start:>6.2f}s")
+
+        print(f"{'-' * 55}")
+        print(f" TOTAL EXECUTION TIME:            {time.time() - total_start:>6.2f}s")
+        print(f"{'=' * 55}\n")
+
+        self.dynamic_metrics = dynamic_metrics
+        return sdr_avg, sir_avg, sar_avg, nr_0, nr_1, dynamic_metrics
+
+
+# ==========================================================================================
+# Reporting
+# ==========================================================================================
+def plot_dynamic_report(pipeline, save_path=None):
+    """
+    Three-panel figure for a moving-speaker test run:
+      1) Tracked speaker angles + angular separation over time (deg)
+      2) Windowed SIR / SDR over time, same time axis
+      3) Windowed Noise Reduction over time
+    Vertical shaded lines mark detected re-lock events (DOA switches per slot).
+    """
+    import matplotlib.pyplot as plt
+
+    dm = pipeline.dynamic_metrics
+    if dm is None:
+        raise RuntimeError("Run pipeline.run() first.")
+
+    fig, axes = plt.subplots(3, 1, figsize=(11, 9), sharex=True)
+
+    asep = dm['angular_separation']
+    axes[0].plot(asep['t_sec'], asep['doa0_deg'], label='Speaker 0 tracked DOA', color='tab:blue')
+    axes[0].plot(asep['t_sec'], asep['doa1_deg'], label='Speaker 1 tracked DOA', color='tab:orange')
+    axes[0].plot(asep['t_sec'], asep['sep_deg'], label='Angular separation', color='black', linestyle='--')
+    axes[0].set_ylabel('Degrees')
+    axes[0].set_title('Tracked speaker angles and angular separation')
+    axes[0].legend(loc='upper right', fontsize=8)
+
+    wb = pipeline.windowed_bss_results
+    if wb is not None and len(wb['sir']) > 0:
+        axes[1].plot(wb['t_center_sec'], wb['sir'][:, 0], label='SIR spk0', color='tab:blue')
+        axes[1].plot(wb['t_center_sec'], wb['sir'][:, 1], label='SIR spk1', color='tab:orange')
+        axes[1].plot(wb['t_center_sec'], wb['sdr'][:, 0], label='SDR spk0', color='tab:blue',
+                      alpha=0.4, linestyle=':')
+        axes[1].plot(wb['t_center_sec'], wb['sdr'][:, 1], label='SDR spk1', color='tab:orange',
+                      alpha=0.4, linestyle=':')
+    axes[1].set_ylabel('dB')
+    axes[1].set_title('Windowed SIR / SDR')
+    axes[1].legend(loc='upper right', fontsize=8)
+
+    wnr = dm.get('windowed_nr')
+    if wnr is not None and len(wnr['nr_db']) > 0:
+        axes[2].plot(wnr['t_center_sec'], wnr['nr_db'][:, 0], label='NR spk0', color='tab:blue')
+        axes[2].plot(wnr['t_center_sec'], wnr['nr_db'][:, 1], label='NR spk1', color='tab:orange')
+    axes[2].set_ylabel('dB')
+    axes[2].set_xlabel('Time (s)')
+    axes[2].set_title('Windowed Noise Reduction')
+    axes[2].legend(loc='upper right', fontsize=8)
+
+    for ev in dm.get('relock_events', []):
+        color = 'tab:blue' if ev['slot'] == 0 else 'tab:orange'
+        t = ev['switch_frame'] * pipeline.p_stft['hop'] / pipeline.fs
+        for ax in axes:
+            ax.axvline(t, color=color, alpha=0.15, linewidth=1)
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    return fig
+
+
 if __name__ == "__main__":
-    # Dynamically locate the workspace
+    # Example usage - mirrors the original file's __main__ block, swapped to the
+    # dynamic-metrics subclass. Adjust paths/config to your actual setup.
     py_folder = os.path.dirname(os.path.realpath(__file__))
-    workspace_folder = py_folder
-    folder_to_all_data = os.path.join(workspace_folder, 'data')
+    folder_to_all_data = os.path.join(py_folder, 'data')
     folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
+    folder_to_results = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
 
-    # Define where the tracking pipeline saved its labels, and where we will save the separated audio
-    folder_to_results = os.path.join(workspace_folder, 'pipeline_results', 'model_predicts')
 
-    # Configuration objects (same as before)
     p_stft = {
         'nfft': 2048,
         'wlen': 2048,
@@ -832,7 +1485,6 @@ if __name__ == "__main__":
         'NUP': 1025,
         'win': np.hamming(2048)
     }
-
     p_tracking = {
         'frame_before': 8,
         'frame_after': 5,
@@ -841,7 +1493,6 @@ if __name__ == "__main__":
         'threshold_freq': 0.3,
         'threshold_chage_location': 8
     }
-
     p_beamforming = {
         'e': 0.01,
         'epsilon': 0.01,
@@ -850,20 +1501,12 @@ if __name__ == "__main__":
         'buffer_size': 32
     }
 
-    # Instantiate and run
-
-
-    for idx in range(1,5):
-        print(f"\n\n{'#'*55}\n RUNNING PIPELINE FOR EXPERIMENT {idx} \n{'#'*55}\n")
-        pipeline = SpatialSeparationPipeline(
-            run_idx=idx,
-            p_stft=p_stft,
-            p_tracking=p_tracking,
-            p_beamforming=p_beamforming,
-            folder_to_test_data=folder_to_test_data,
-            folder_to_results=folder_to_results,
-            M=4,
-            verbose=2
+    for idx in range(1, 21):
+        pipeline = DynamicSpatialSeparationPipeline(
+            run_idx=idx, p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming,
+            folder_to_test_data=folder_to_test_data, folder_to_results=folder_to_results,
+            M=4, test_bf=True, verbose=2,
         )
-
         pipeline.run()
+        plot_dynamic_report(pipeline, save_path=os.path.join(folder_to_results, f'dynamic_report_{idx}.png'))
+    
