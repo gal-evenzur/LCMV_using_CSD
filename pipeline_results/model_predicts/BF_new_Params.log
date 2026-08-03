@@ -1,0 +1,877 @@
+so[K[Kpt[Kyton[K[Khon Pp[K[Kpipeline_beamformer.py 
+[?2004l2026-08-03 08:02:31.696434: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-08-03 08:02:31.994414: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-08-03 08:02:32.140772: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8473] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-08-03 08:02:32.185323: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1471] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-08-03 08:02:32.386628: I tensorflow/core/platform/cpu_feature_guard.cc:211] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py", line 77, in <module>
+    from pipeline_beamformer import SpatialSeparationPipeline
+  File "/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py", line 77, in <module>
+    from pipeline_beamformer import SpatialSeparationPipeline
+ImportError: cannot import name 'SpatialSeparationPipeline' from partially initialized module 'pipeline_beamformer' (most likely due to a circular import) (/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py)
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python pipeline_beamformer.py 
+[?2004l2026-08-03 08:03:31.082403: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-08-03 08:03:31.097271: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-08-03 08:03:31.116095: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8473] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-08-03 08:03:31.122132: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1471] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-08-03 08:03:31.135702: I tensorflow/core/platform/cpu_feature_guard.cc:211] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 1) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 1 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.03s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.13s
+--- Running Online Separation ---
+Processing frame 0/325
+Processing frame 100/325
+Processing frame 200/325
+Processing frame 300/325
+[time] 3. Run Online Separation:   4.57s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py:1163: FutureWarning: mir_eval.separation.bss_eval_sources
+	Deprecated as of mir_eval version 0.8.
+	It will be removed in mir_eval version 0.9.
+  sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(
+
+--- Windowed Evaluation Summary (7 windows) ---
+Mean -> SDR: 3.36 dB | SIR: 10.36 dB | SAR: 5.90 dB
+  single-speaker windows (n=1): SDR=-2.49 dB, SIR=10.01 dB
+  overlap windows (n=5): SDR=3.99 dB, SIR=10.64 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 6.21 dB (over 55 shared noise frames)
+    Speaker 1: aggregate NR = 8.33 dB (over 55 shared noise frames)
+[time] 5. Evaluate:                6.92s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_1.wav) sectors visited: [4]
+      -> [35.] deg
+    Speaker 1 (second_1.wav) sectors visited: [18]
+      -> [175.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             11.71s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 2) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 2 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.03s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.15s
+--- Running Online Separation ---
+Processing frame 0/361
+Processing frame 100/361
+Processing frame 200/361
+Processing frame 300/361
+[time] 3. Run Online Separation:   5.32s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (6 windows) ---
+Mean -> SDR: 6.55 dB | SIR: 13.95 dB | SAR: 7.83 dB
+  single-speaker windows (n=1): SDR=5.07 dB, SIR=13.16 dB
+  overlap windows (n=4): SDR=7.10 dB, SIR=14.41 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 6.69 dB (over 59 shared noise frames)
+    Speaker 1: aggregate NR = 7.92 dB (over 59 shared noise frames)
+[time] 5. Evaluate:                5.95s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_2.wav) sectors visited: [16]
+      -> [155.] deg
+    Speaker 1 (second_2.wav) sectors visited: [2]
+      -> [15.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             11.52s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 3) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 3 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.03s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.16s
+--- Running Online Separation ---
+Processing frame 0/410
+Processing frame 100/410
+Processing frame 200/410
+Processing frame 300/410
+Processing frame 400/410
+[time] 3. Run Online Separation:   5.68s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (10 windows) ---
+Mean -> SDR: 3.22 dB | SIR: 8.48 dB | SAR: 5.93 dB
+  overlap windows (n=9): SDR=3.48 dB, SIR=8.88 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 5.76 dB (over 65 shared noise frames)
+    Speaker 1: aggregate NR = 7.25 dB (over 65 shared noise frames)
+[time] 5. Evaluate:                8.17s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_3.wav) sectors visited: [18]
+      -> [175.] deg
+    Speaker 1 (second_3.wav) sectors visited: [2]
+      -> [15.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             14.13s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 4) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 4 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.04s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.19s
+--- Running Online Separation ---
+Processing frame 0/469
+Processing frame 100/469
+[run 4] FAILED: LinAlgError: Matrix is not positive definite
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 5) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 5 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.14s
+--- Running Online Separation ---
+Processing frame 0/339
+Processing frame 100/339
+Processing frame 200/339
+Processing frame 300/339
+[time] 3. Run Online Separation:   4.82s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.03s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (6 windows) ---
+Mean -> SDR: 4.33 dB | SIR: 9.66 dB | SAR: 7.07 dB
+  single-speaker windows (n=1): SDR=2.73 dB, SIR=8.73 dB
+  overlap windows (n=4): SDR=4.87 dB, SIR=10.14 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 3.52 dB (over 63 shared noise frames)
+    Speaker 1: aggregate NR = 5.81 dB (over 63 shared noise frames)
+[time] 5. Evaluate:                5.79s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_5.wav) sectors visited: [3]
+      -> [25.] deg
+    Speaker 1 (second_5.wav) sectors visited: [16]
+      -> [155.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             10.84s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 6) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 6 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.17s
+--- Running Online Separation ---
+Processing frame 0/437
+[run 6] FAILED: LinAlgError: Matrix is not positive definite
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 7) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 7 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.13s
+--- Running Online Separation ---
+Processing frame 0/317
+[run 7] FAILED: LinAlgError: Matrix is not positive definite
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 8) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 8 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.03s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.15s
+--- Running Online Separation ---
+Processing frame 0/357
+Processing frame 100/357
+Processing frame 200/357
+Processing frame 300/357
+[time] 3. Run Online Separation:   4.83s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (7 windows) ---
+Mean -> SDR: 1.79 dB | SIR: 8.30 dB | SAR: 4.02 dB
+  overlap windows (n=6): SDR=3.08 dB, SIR=8.40 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 5.18 dB (over 64 shared noise frames)
+    Speaker 1: aggregate NR = 7.43 dB (over 64 shared noise frames)
+[time] 5. Evaluate:                8.26s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_8.wav) sectors visited: [2]
+      -> [15.] deg
+    Speaker 1 (second_8.wav) sectors visited: [18]
+      -> [175.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             13.33s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 9) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 9 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.15s
+--- Running Online Separation ---
+Processing frame 0/366
+[run 9] FAILED: LinAlgError: Matrix is not positive definite
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 10) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 10 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.03s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.18s
+--- Running Online Separation ---
+Processing frame 0/450
+Processing frame 100/450
+Processing frame 200/450
+Processing frame 300/450
+Processing frame 400/450
+[time] 3. Run Online Separation:   6.93s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.05s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (9 windows) ---
+Mean -> SDR: 2.69 dB | SIR: 9.30 dB | SAR: 5.15 dB
+  single-speaker windows (n=1): SDR=-2.58 dB, SIR=5.59 dB
+  overlap windows (n=7): SDR=3.41 dB, SIR=9.87 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 4.42 dB (over 67 shared noise frames)
+    Speaker 1: aggregate NR = 7.35 dB (over 67 shared noise frames)
+[time] 5. Evaluate:                8.63s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_10.wav) sectors visited: [3]
+      -> [25.] deg
+    Speaker 1 (second_10.wav) sectors visited: [7]
+      -> [65.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             15.86s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 11) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 11 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.18s
+--- Running Online Separation ---
+Processing frame 0/462
+Processing frame 100/462
+Processing frame 200/462
+Processing frame 300/462
+Processing frame 400/462
+[time] 3. Run Online Separation:   7.68s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (7 windows) ---
+Mean -> SDR: 1.29 dB | SIR: 8.24 dB | SAR: 3.24 dB
+  overlap windows (n=6): SDR=2.87 dB, SIR=8.75 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 6.13 dB (over 69 shared noise frames)
+    Speaker 1: aggregate NR = 7.86 dB (over 69 shared noise frames)
+[time] 5. Evaluate:                9.03s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_11.wav) sectors visited: [2]
+      -> [15.] deg
+    Speaker 1 (second_11.wav) sectors visited: [16]
+      -> [155.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             16.99s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 12) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 12 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.15s
+--- Running Online Separation ---
+Processing frame 0/382
+Processing frame 100/382
+Processing frame 200/382
+Processing frame 300/382
+[time] 3. Run Online Separation:   5.94s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (6 windows) ---
+Mean -> SDR: 2.85 dB | SIR: 9.51 dB | SAR: 6.02 dB
+  single-speaker windows (n=2): SDR=-0.11 dB, SIR=6.34 dB
+  overlap windows (n=3): SDR=3.26 dB, SIR=10.76 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 7.21 dB (over 60 shared noise frames)
+    Speaker 1: aggregate NR = 10.21 dB (over 60 shared noise frames)
+[time] 5. Evaluate:                4.67s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_12.wav) sectors visited: [11]
+      -> [105.] deg
+    Speaker 1 (second_12.wav) sectors visited: [18]
+      -> [175.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             10.85s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 13) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 13 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.15s
+--- Running Online Separation ---
+Processing frame 0/391
+Processing frame 100/391
+Processing frame 200/391
+Processing frame 300/391
+[time] 3. Run Online Separation:   4.55s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (8 windows) ---
+Mean -> SDR: 6.14 dB | SIR: 13.78 dB | SAR: 7.78 dB
+  overlap windows (n=6): SDR=7.99 dB, SIR=15.17 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 6.02 dB (over 91 shared noise frames)
+    Speaker 1: aggregate NR = 7.25 dB (over 91 shared noise frames)
+[time] 5. Evaluate:                6.68s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_13.wav) sectors visited: [17]
+      -> [165.] deg
+    Speaker 1 (second_13.wav) sectors visited: [4]
+      -> [35.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             11.47s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 14) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 14 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.03s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.16s
+--- Running Online Separation ---
+Processing frame 0/399
+Processing frame 100/399
+Processing frame 200/399
+Processing frame 300/399
+[time] 3. Run Online Separation:   5.86s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (8 windows) ---
+Mean -> SDR: 3.16 dB | SIR: 9.31 dB | SAR: 5.48 dB
+  single-speaker windows (n=2): SDR=0.51 dB, SIR=7.74 dB
+  overlap windows (n=5): SDR=4.10 dB, SIR=10.01 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 10.64 dB (over 60 shared noise frames)
+    Speaker 1: aggregate NR = 5.52 dB (over 60 shared noise frames)
+[time] 5. Evaluate:                6.53s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_14.wav) sectors visited: [4]
+      -> [35.] deg
+    Speaker 1 (second_14.wav) sectors visited: [7]
+      -> [65.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             12.66s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 15) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 15 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.11s
+--- Running Online Separation ---
+Processing frame 0/293
+Processing frame 100/293
+Processing frame 200/293
+[time] 3. Run Online Separation:   3.69s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.03s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (3 windows) ---
+Mean -> SDR: -7.52 dB | SIR: 0.86 dB | SAR: -2.58 dB
+  overlap windows (n=2): SDR=-7.56 dB, SIR=0.63 dB
+
+--- Computing Noise Reduction (aggregate) ---
+No shared valid frames - cannot compute aggregate NR.
+[time] 5. Evaluate:                2.47s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_15.wav) sectors visited: [5]
+      -> [45.] deg
+    Speaker 1 (second_15.wav) sectors visited: [3]
+      -> [25.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.03s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:              6.36s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 16) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 16 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.13s
+--- Running Online Separation ---
+Processing frame 0/348
+Processing frame 100/348
+Processing frame 200/348
+Processing frame 300/348
+[time] 3. Run Online Separation:   4.98s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.03s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (5 windows) ---
+Mean -> SDR: 6.17 dB | SIR: 13.56 dB | SAR: 7.26 dB
+  overlap windows (n=4): SDR=6.08 dB, SIR=13.49 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 2.49 dB (over 58 shared noise frames)
+    Speaker 1: aggregate NR = 5.74 dB (over 58 shared noise frames)
+[time] 5. Evaluate:                4.36s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_16.wav) sectors visited: [6]
+      -> [55.] deg
+    Speaker 1 (second_16.wav) sectors visited: [2]
+      -> [15.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:              9.57s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 17) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 17 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.17s
+--- Running Online Separation ---
+Processing frame 0/377
+Processing frame 100/377
+Processing frame 200/377
+Processing frame 300/377
+[time] 3. Run Online Separation:   5.90s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.05s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (5 windows) ---
+Mean -> SDR: 5.09 dB | SIR: 11.54 dB | SAR: 6.63 dB
+  overlap windows (n=4): SDR=4.45 dB, SIR=10.89 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 3.50 dB (over 54 shared noise frames)
+    Speaker 1: aggregate NR = 4.21 dB (over 54 shared noise frames)
+[time] 5. Evaluate:                4.39s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_17.wav) sectors visited: [14]
+      -> [135.] deg
+    Speaker 1 (second_17.wav) sectors visited: [5]
+      -> [45.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             10.56s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 18) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 18 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.14s
+--- Running Online Separation ---
+Processing frame 0/371
+Processing frame 100/371
+Processing frame 200/371
+Processing frame 300/371
+[time] 3. Run Online Separation:   5.25s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.03s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (7 windows) ---
+Mean -> SDR: 0.84 dB | SIR: 7.83 dB | SAR: 3.34 dB
+  single-speaker windows (n=1): SDR=-2.25 dB, SIR=7.88 dB
+  overlap windows (n=5): SDR=1.49 dB, SIR=7.86 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 7.50 dB (over 70 shared noise frames)
+    Speaker 1: aggregate NR = 7.20 dB (over 70 shared noise frames)
+[time] 5. Evaluate:                6.53s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_18.wav) sectors visited: [4]
+      -> [35.] deg
+    Speaker 1 (second_18.wav) sectors visited: [18]
+      -> [175.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             12.02s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 19) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 19 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.15s
+--- Running Online Separation ---
+Processing frame 0/388
+[run 19] FAILED: LinAlgError: Matrix is not positive definite
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 20) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 20 ---
+>> ORACLE MODE: Using ground truth CSD and DOA.
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.02s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.16s
+--- Running Online Separation ---
+Processing frame 0/415
+Processing frame 100/415
+Processing frame 200/415
+Processing frame 300/415
+Processing frame 400/415
+[time] 3. Run Online Separation:   6.45s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.04s
+--- Saving Outputs ---
+
+--- Windowed Evaluation Summary (7 windows) ---
+Mean -> SDR: 0.66 dB | SIR: 8.21 dB | SAR: 3.12 dB
+  overlap windows (n=6): SDR=3.37 dB, SIR=9.17 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 4.24 dB (over 82 shared noise frames)
+    Speaker 1: aggregate NR = 7.25 dB (over 82 shared noise frames)
+[time] 5. Evaluate:                5.74s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_20.wav) sectors visited: [10]
+      -> [95.] deg
+    Speaker 1 (second_20.wav) sectors visited: [3]
+      -> [25.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.04s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             12.46s
+=======================================================
+
+Wrote 20 rows (15 ok, 5 errors) to /home/evenzug/LCMV_using_CSD/pipeline_results/model_predicts/dynamic_metrics_summary.csv
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ עןא [K[K[K[Kgit status
+[?2004lOn branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	[31mmodified:   pipeline.py[m
+	[31mmodified:   pipeline_beamformer.py[m
+	[31mmodified:   pipeline_results/model_predicts/BF_new_Params.log[m
+	[31mmodified:   plot_doa_performance.sh[m
+	[31mdeleted:    plots/experiments_summary.csv[m
+	[31mmodified:   run_experiments.py[m
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	[31mpipeline_results/model_predicts/dynamic_metrics_summary.csv[m
+	[31mpipeline_results/model_predicts/dynamic_report_1.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_10.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_11.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_12.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_13.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_14.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_15.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_16.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_17.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_18.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_2.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_20.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_3.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_5.png[m
+	[31mpipeline_results/model_predicts/dynamic_report_8.png[m
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ git add .[K*.png
+[?2004l[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ git co[K[Kstatus
+[?2004lOn branch master
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_1.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_10.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_11.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_12.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_13.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_14.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_15.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_16.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_17.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_18.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_2.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_20.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_3.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_5.png[m
+	[32mnew file:   pipeline_results/model_predicts/dynamic_report_8.png[m
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	[31mmodified:   pipeline.py[m
+	[31mmodified:   pipeline_beamformer.py[m
+	[31mmodified:   pipeline_results/model_predicts/BF_new_Params.log[m
+	[31mmodified:   plot_doa_performance.sh[m
+	[31mdeleted:    plots/experiments_summary.csv[m
+	[31mmodified:   run_experiments.py[m
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	[31mpipeline_results/model_predicts/dynamic_metrics_summary.csv[m
+
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ git statusadd *.png[3Pstatusadd *.png[3Pstatus[K

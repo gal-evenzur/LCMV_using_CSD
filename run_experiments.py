@@ -1,4 +1,5 @@
 import os
+import glob
 import pandas as pd
 import time
 import numpy as np
@@ -7,6 +8,7 @@ import matplotlib.pyplot as plt
 # Import the pipeline classes and configurations
 from pipeline import SpatialTrackingPipeline, pipeline_config, plot_dir
 from pipeline_beamformer import SpatialSeparationPipeline
+from DataSamples_to_InputVectors.plot_confusion_matrix_from_data import plot_confusion_matrix_from_data
 def run_all_experiments(num_experiments=20):
     py_folder = os.path.dirname(os.path.realpath(__file__))
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
@@ -294,6 +296,9 @@ def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     elif test_type == 'paperlike':
         folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
         plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike')
+    elif test_type == 'paperlike_ofer_mf':
+        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
+        plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike_ofer_mf')
     os.makedirs(plot_dir, exist_ok=True)
 
     # 1. Pipeline Verification / Generation
@@ -463,5 +468,100 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     print(f"Saved aggregated analysis plot to: {analysis_plot_path}")
     
 
+def create_total_csd(folder_to_results):
+    """Combine per-experiment CSD arrays into a single aggregate timeline.
+
+    The function looks for matching ``true_CSD_*.npy`` and ``estimate_CSD_*.npy``
+    files, sorts them by experiment index, concatenates the frame-level labels,
+    saves the aggregate arrays back into the same folder, and renders a global
+    confusion matrix for the combined CSD predictions.
+    """
+
+    os.makedirs(folder_to_results, exist_ok=True)
+
+    true_paths = glob.glob(os.path.join(folder_to_results, 'true_CSD_*.npy'))
+    est_paths = glob.glob(os.path.join(folder_to_results, 'estimate_CSD_*.npy'))
+
+    def extract_run_idx(file_path):
+        base_name = os.path.basename(file_path)
+        return int(base_name.split('_')[-1].split('.')[0])
+
+    true_by_idx = {extract_run_idx(path): path for path in true_paths}
+    est_by_idx = {extract_run_idx(path): path for path in est_paths}
+    common_run_indices = sorted(set(true_by_idx) & set(est_by_idx))
+
+    if not common_run_indices:
+        raise FileNotFoundError(
+            f'No matching CSD files found in {folder_to_results}. '
+            'Expected pairs named true_CSD_<run>.npy and estimate_CSD_<run>.npy.'
+        )
+
+    all_true_csd = []
+    all_est_csd = []
+    segment_lengths = []
+
+    for run_idx in common_run_indices:
+        true_csd = np.load(true_by_idx[run_idx])
+        est_csd = np.load(est_by_idx[run_idx])
+
+        if len(true_csd) != len(est_csd):
+            raise ValueError(
+                f'CSD length mismatch for experiment {run_idx}: '
+                f'true={len(true_csd)} vs estimate={len(est_csd)}'
+            )
+
+        all_true_csd.append(true_csd)
+        all_est_csd.append(est_csd)
+        segment_lengths.append(len(true_csd))
+
+    total_true_csd = np.concatenate(all_true_csd)
+    total_est_csd = np.concatenate(all_est_csd)
+    segment_lengths = np.asarray(segment_lengths, dtype=int)
+
+
+    confusion_plot_path = os.path.join(folder_to_results, 'CSD_Global_Confusion_Matrix.png')
+
+
+    cm_plot_labels_csd = ['Noise', 'One speaker', '2 speakers']
+    plot_confusion_matrix_from_data(
+        total_true_csd,
+        total_est_csd,
+        3,
+        cm_plot_labels_csd,
+        True,
+        'Oranges',
+        '.2f',
+        9,
+        0.5,
+        False,
+        [18, 18],
+        2,
+        'y',
+        name=os.path.basename(confusion_plot_path),
+        plot_folder=folder_to_results,
+    )
+
+    print(
+        f"Saved total CSD arrays for {len(common_run_indices)} experiments "
+        f"to: {confusion_plot_path}"
+    )
+
+    
+
+    return {
+        'run_indices': common_run_indices,
+        'confusion_plot_path': confusion_plot_path,
+        'true_total_csd': total_true_csd,
+        'estimate_total_csd': total_est_csd,
+        'segment_lengths': segment_lengths,
+    }
+
+
 if __name__ == "__main__":
-    run_all_experiments(num_experiments=20)
+    py_folder = os.path.dirname(os.path.realpath(__file__))
+    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
+    
+    workspace_dir = py_folder
+    results_dir = os.path.join(workspace_dir, 'pipeline_results', 'paperlike_ofer_mf')
+    for i in range(1, 21):
+        plot_single_experiment_doa_accuracy(run_idx=i, test_type='static')

@@ -1469,6 +1469,166 @@ def plot_dynamic_report(pipeline, save_path=None):
     return fig
 
 
+# ==========================================================================================
+# Batch run -> one-row-per-file CSV summary
+# ==========================================================================================
+def _sir_by_proximity(pipeline, close_threshold_deg):
+    """
+    Splits the windowed SIR results by whether the tracked angular separation
+    at that window's center time was below (`close`) or at/above (`far`) the
+    given threshold. Returns NaN/0 fields if no windowed BSS results exist
+    (e.g. no reference audio for that file).
+    """
+    result = {
+        'close_threshold_deg': close_threshold_deg,
+        'avg_sir_close': np.nan, 'avg_sir_far': np.nan,
+        'avg_sir_close_spk0': np.nan, 'avg_sir_close_spk1': np.nan,
+        'avg_sir_far_spk0': np.nan, 'avg_sir_far_spk1': np.nan,
+        'n_windows_close': 0, 'n_windows_far': 0,
+    }
+    wb = pipeline.windowed_bss_results
+    if wb is None or len(wb['sir']) == 0:
+        return result
+
+    _, sep_deg, _, _ = pipeline.compute_angular_separation_trace()
+    frame_hop_sec = pipeline.p_stft['hop'] / pipeline.fs
+
+    # Map each BSS window's center time to the nearest angular-separation frame.
+    frame_idx = np.round(wb['t_center_sec'] / frame_hop_sec).astype(int)
+    frame_idx = np.clip(frame_idx, 0, len(sep_deg) - 1)
+    win_sep = sep_deg[frame_idx]  # NaN wherever a slot wasn't locked at that time
+
+    valid = ~np.isnan(win_sep)
+    close_mask = valid & (win_sep < close_threshold_deg)
+    far_mask = valid & (win_sep >= close_threshold_deg)
+
+    if close_mask.any():
+        result['avg_sir_close'] = float(np.nanmean(wb['sir'][close_mask]))
+        result['avg_sir_close_spk0'] = float(np.nanmean(wb['sir'][close_mask, 0]))
+        result['avg_sir_close_spk1'] = float(np.nanmean(wb['sir'][close_mask, 1]))
+        result['n_windows_close'] = int(close_mask.sum())
+    if far_mask.any():
+        result['avg_sir_far'] = float(np.nanmean(wb['sir'][far_mask]))
+        result['avg_sir_far_spk0'] = float(np.nanmean(wb['sir'][far_mask, 0]))
+        result['avg_sir_far_spk1'] = float(np.nanmean(wb['sir'][far_mask, 1]))
+        result['n_windows_far'] = int(far_mask.sum())
+    return result
+
+
+def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
+                             folder_to_test_data, folder_to_results,
+                             output_csv_path, M=4, test_bf=True,
+                             close_threshold_deg=45.0, verbose=0):
+    """
+    Runs the dynamic-metrics pipeline over a batch of test files (e.g. all 20
+    dynamic-scenario recordings) and writes ONE SUMMARY ROW PER FILE to a CSV.
+
+    Each file gets a fresh pipeline instance - the algorithm is stateful frame
+    to frame within a single recording, so instances are never reused across
+    files. If one file fails (bad data, a numerical error, missing audio,
+    etc.) that's caught and recorded as a row with status='error' plus the
+    exception message, rather than aborting the whole batch.
+
+    Args:
+        run_indices: iterable of run_idx values to process, e.g. range(1, 21)
+                      for 20 files named together_1.wav .. together_20.wav.
+        close_threshold_deg: angular separation (deg) below which a window
+                      counts as "close" and at/above which it counts as "far",
+                      for the avg_sir_close / avg_sir_far columns. Tune this
+                      to whatever you consider operationally "close" for your
+                      array - there's nothing physically special about 45 deg,
+                      it's just a reasonable starting default.
+        output_csv_path: where to write the CSV.
+
+    Returns:
+        list of dicts, one per file (the same rows written to the CSV) - so
+        you can inspect them directly in Python without re-reading the CSV.
+    """
+    import csv as csv_module
+
+    rows = []
+    for run_idx in run_indices:
+        row = {'run_idx': run_idx, 'status': 'ok', 'error_message': ''}
+        try:
+            pipeline = DynamicSpatialSeparationPipeline(
+                run_idx=run_idx, p_stft=p_stft, p_tracking=p_tracking,
+                p_beamforming=p_beamforming, folder_to_test_data=folder_to_test_data,
+                folder_to_results=folder_to_results, M=M, test_bf=test_bf, verbose=verbose,
+            )
+            sdr_avg, sir_avg, sar_avg, nr_0, nr_1, dm = pipeline.run()
+
+            plot_dynamic_report(pipeline, save_path=os.path.join(folder_to_results, f'dynamic_report_{run_idx}.png'))
+
+
+            _, sep_deg, _, _ = pipeline.compute_angular_separation_trace()
+            valid_sep = sep_deg[~np.isnan(sep_deg)]
+
+            row['n_frames'] = len(sep_deg)
+            row['duration_sec'] = len(sep_deg) * pipeline.p_stft['hop'] / pipeline.fs
+            row['mean_separation_deg'] = float(np.mean(valid_sep)) if len(valid_sep) else np.nan
+            row['min_separation_deg'] = float(np.min(valid_sep)) if len(valid_sep) else np.nan
+            row['max_separation_deg'] = float(np.max(valid_sep)) if len(valid_sep) else np.nan
+
+            wb = pipeline.windowed_bss_results
+            metric_cols = ['mean_sdr_spk0', 'mean_sdr_spk1', 'mean_sir_spk0', 'mean_sir_spk1',
+                           'mean_sar_spk0', 'mean_sar_spk1']
+            if wb is not None and len(wb['sdr']) > 0:
+                row['mean_sdr_spk0'] = float(np.nanmean(wb['sdr'][:, 0]))
+                row['mean_sdr_spk1'] = float(np.nanmean(wb['sdr'][:, 1]))
+                row['mean_sir_spk0'] = float(np.nanmean(wb['sir'][:, 0]))
+                row['mean_sir_spk1'] = float(np.nanmean(wb['sir'][:, 1]))
+                row['mean_sar_spk0'] = float(np.nanmean(wb['sar'][:, 0]))
+                row['mean_sar_spk1'] = float(np.nanmean(wb['sar'][:, 1]))
+            else:
+                for c in metric_cols:
+                    row[c] = np.nan
+
+            wnr = dm.get('windowed_nr')
+            if wnr is not None and len(wnr['nr_db']) > 0:
+                col0, col1 = wnr['nr_db'][:, 0], wnr['nr_db'][:, 1]
+                row['mean_nr_spk0'] = float(np.nanmean(col0)) if np.any(~np.isnan(col0)) else np.nan
+                row['mean_nr_spk1'] = float(np.nanmean(col1)) if np.any(~np.isnan(col1)) else np.nan
+            else:
+                row['mean_nr_spk0'] = nr_0 if nr_0 is not None else np.nan
+                row['mean_nr_spk1'] = nr_1 if nr_1 is not None else np.nan
+
+            relock = dm.get('relock_events', [])
+            latencies = [ev['latency_sec'] for ev in relock if ev['latency_sec'] is not None]
+            row['n_relock_events'] = len(relock)
+            row['mean_relock_latency_sec'] = float(np.mean(latencies)) if latencies else np.nan
+            row['pct_relock_failed'] = (1.0 - len(latencies) / len(relock)) if relock else np.nan
+
+            row.update(_sir_by_proximity(pipeline, close_threshold_deg))
+
+        except Exception as exc:
+            row['status'] = 'error'
+            row['error_message'] = f'{type(exc).__name__}: {exc}'
+            if verbose:
+                print(f"[run {run_idx}] FAILED: {row['error_message']}")
+
+        rows.append(row)
+
+    # Union of keys across all rows, in first-seen order, so a file that errored
+    # early still produces a valid (mostly-blank) row instead of breaking the CSV.
+    all_keys = []
+    for r in rows:
+        for k in r:
+            if k not in all_keys:
+                all_keys.append(k)
+
+    with open(output_csv_path, 'w', newline='') as f:
+        writer = csv_module.DictWriter(f, fieldnames=all_keys)
+        writer.writeheader()
+        for r in rows:
+            writer.writerow(r)
+
+    if verbose:
+        n_ok = sum(1 for r in rows if r['status'] == 'ok')
+        print(f"Wrote {len(rows)} rows ({n_ok} ok, {len(rows) - n_ok} errors) to {output_csv_path}")
+
+    return rows
+
+
 if __name__ == "__main__":
     # Example usage - mirrors the original file's __main__ block, swapped to the
     # dynamic-metrics subclass. Adjust paths/config to your actual setup.
@@ -1501,12 +1661,14 @@ if __name__ == "__main__":
         'buffer_size': 32
     }
 
-    for idx in range(1, 21):
-        pipeline = DynamicSpatialSeparationPipeline(
-            run_idx=idx, p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming,
-            folder_to_test_data=folder_to_test_data, folder_to_results=folder_to_results,
-            M=4, test_bf=True, verbose=2,
-        )
-        pipeline.run()
-        plot_dynamic_report(pipeline, save_path=os.path.join(folder_to_results, f'dynamic_report_{idx}.png'))
+
     
+    rows = run_batch_and_summarize(
+        run_indices=range(1, 21),                      # your 20 files
+        p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming,
+        folder_to_test_data=folder_to_test_data,
+        folder_to_results=folder_to_results,
+        output_csv_path=os.path.join(folder_to_results, 'dynamic_metrics_summary.csv'),
+        close_threshold_deg=45.0,   # tune to what you consider "close" for your array
+        verbose=2,
+    )
