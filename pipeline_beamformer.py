@@ -299,8 +299,13 @@ class SpatialSeparationPipeline:
         else:
             all_frames = z_frame
 
+        epsilon_reg = self.p_beamforming['epsilon']
+        norm_Qvv = LA.norm(self.Qvv, axis=(1,2), keepdims=True)
+        Qvv_reg = self.Qvv + epsilon_reg * norm_Qvv * np.eye(self.M)    
+
+
         # 2. Batched Cholesky and Inversion
-        chol_Qvv = LA.cholesky(self.Qvv) # (NUP, M, M)
+        chol_Qvv = LA.cholesky(Qvv_reg) # (NUP, M, M)
         norm_chol = LA.norm(chol_Qvv, axis=(1, 2), keepdims=True)
         chol_inv = LA.inv(chol_Qvv + epsilon * norm_chol * np.eye(self.M))
 
@@ -345,8 +350,12 @@ class SpatialSeparationPipeline:
         # If the candidate has persisted long enough to be promoted:
         if self.Frame_classification_system[1, 2] > (thresh - 1):
 
+            epsilon_reg = self.p_beamforming['epsilon']
+            norm_Qvv = LA.norm(self.Qvv, axis=(1,2), keepdims=True)
+            Qvv_reg = self.Qvv + epsilon_reg * norm_Qvv * np.eye(self.M)    
+
             # 1. Batched Cholesky and Inversion
-            chol_Qvv = LA.cholesky(self.Qvv) # (NUP, M, M)
+            chol_Qvv = LA.cholesky(Qvv_reg) # (NUP, M, M)
             norm_chol = LA.norm(chol_Qvv, axis=(1, 2), keepdims=True)
             chol_inv = LA.inv(chol_Qvv + epsilon * norm_chol * np.eye(self.M))
 
@@ -1605,6 +1614,16 @@ def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
             row['error_message'] = f'{type(exc).__name__}: {exc}'
             if verbose:
                 print(f"[run {run_idx}] FAILED: {row['error_message']}")
+                if verbose > 1:
+                    import traceback
+                    traceback.print_exc()
+
+                    print(f"Frame 0 CSD label: {pipeline.y_prob_stat_mf[0]}")
+                    print(f"Frame 0 DOA label: {pipeline.y2_prob_stat_mf[0]}")
+                    print(f"First noise frame index: {np.where(pipeline.y_prob_stat_mf == 0)[0][:5]}")
+                    print(f"First CSD=1 frame: {np.where(pipeline.y_prob_stat_mf == 1)[0][:5]}")
+
+                    
 
         rows.append(row)
 
