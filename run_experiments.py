@@ -287,7 +287,7 @@ def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     py_folder = os.path.dirname(os.path.realpath(__file__))
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', test_type)
     if test_type == 'static':
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
+        plot_dir = os.path.join(py_folder, 'pipeline_results', 'static')
     elif test_type == 'dynamic':
         plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic')
     elif test_type == 'val':
@@ -370,7 +370,7 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
     
     workspace_dir = py_folder
-    plot_dir = os.path.join(workspace_dir, 'pipeline_results', 'model_predicts')
+    plot_dir = os.path.join(workspace_dir, 'pipeline_results', 'static')
     
     # Ensure the output directory exists
     os.makedirs(plot_dir, exist_ok=True)
@@ -562,6 +562,10 @@ if __name__ == "__main__":
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
     
     workspace_dir = py_folder
-    results_dir = os.path.join(workspace_dir, 'pipeline_results', 'paperlike_ofer_mf')
+    results_dir = os.path.join(workspace_dir, 'pipeline_results', 'static')
     for i in range(1, 21):
         plot_single_experiment_doa_accuracy(run_idx=i, test_type='static')
+
+    # Create total CSD and generate global confusion matrix
+    create_total_csd(results_dir)
+    
