@@ -31,11 +31,11 @@ def run_all_experiments(num_experiments=20):
         
         try:
             # Step 1: Run Neural Network Inference
-            print(">> Running Neural Network Inference...")
+            print(f">> Running Neural Network Inference for experiment {i}...")
             nn_pipeline = SpatialTrackingPipeline(
-                run_idx=i, config=pipeline_config, folder_to_test_data=folder_to_test_data, n_mics=4, verbose=0
+                config=pipeline_config, folder_to_test_data=folder_to_test_data, n_mics=4, verbose=0
             )
-            nn_pipeline.run(folder_to_results)
+            nn_pipeline.process_single_run(i, folder_to_results)
             
             # Step 2: Run LCMV Beamformer
             print(">> Running Beamformer & Filtering...")
@@ -44,7 +44,7 @@ def run_all_experiments(num_experiments=20):
                 folder_to_test_data=folder_to_test_data, folder_to_results=folder_to_results, M=4, verbose=0
             )
             
-            sdr_avg, sir_avg, sar_avg, nr_0, nr_1 = bf_pipeline.run()
+            sdr_avg, sir_avg, sar_avg, nr_0, nr_1, t_sep = bf_pipeline.run()
             
             # ---------------------------------------------------------
             # Step 3: Automated Diagnostics & Data Collection
@@ -450,5 +450,4 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     
 
 if __name__ == "__main__":
-    for run_idx in range(1, 2):
-        plot_single_experiment_doa_accuracy(run_idx, 'paperlike')
+      run_all_experiments(num_experiments=20)

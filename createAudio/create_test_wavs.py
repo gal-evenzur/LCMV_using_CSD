@@ -58,7 +58,7 @@ def create_test_sample_static(
     label_first_total = None
     label_second_total = None
     
-    # First speaker speaking
+    '''# First speaker speaking
     # Then silence
     # Then second speaker speaking
     # Then silence
@@ -69,7 +69,19 @@ def create_test_sample_static(
         
     # Another load for the together part (to ensure different content for each segment)
     speech_1_together = load_speech(get_random_speech_file(speaker1_dir), config.fs)
-    speech_2_together = load_speech(get_random_speech_file(speaker2_dir), config.fs)
+    speech_2_together = load_speech(get_random_speech_file(speaker2_dir), config.fs)'''
+
+    num_sentences = 4 
+    
+    def load_long_speech(speaker_dir):
+        sentences = [load_speech(get_random_speech_file(speaker_dir), config.fs) for _ in range(num_sentences)]
+        return np.concatenate(sentences, axis=0)
+
+    speech_1_alone = load_long_speech(speaker1_dir)
+    speech_2_alone = load_long_speech(speaker2_dir)
+        
+    speech_1_together = load_long_speech(speaker1_dir)
+    speech_2_together = load_long_speech(speaker2_dir)
     
     silence_gap = np.zeros((int(config.fs * 1), config.M)) 
 
