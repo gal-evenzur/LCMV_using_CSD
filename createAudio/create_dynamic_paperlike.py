@@ -89,6 +89,8 @@ class Config:
     
     # Update total time dynamically
     t_total = 10.0 + 10.0 + t_phase3_solo + t_overlap # p1 + p2 + p3_solo + overlap
+
+    closest_angle_diff = 50       # Minimum angle difference during the wiggle phase
     
     use_directional_noise = False  # Optional flag to toggle directional noise
 
@@ -185,7 +187,7 @@ class PaperReplicationSimulator(AcousticTrajectorySimulator):
         # --- Speaker 1 Trajectory ---
         # Static during Phase 1 & 2
         s1_stat_path, s1_stat_labels = self._generate_source_path(
-            len_source_signal=p1_samp + p2_samp, update_interval=path_hop, center=center_3d,
+            len_source_signal=p1_samp + pad1_samp + p2_samp + pad2_samp, update_interval=path_hop, center=center_3d,
             radius=config.radius_s1, angle_classes=self.angle_classes, fs=fs,
             linear_velocity=0.0, start_angle=np.deg2rad(angle_s1), end_angle=np.deg2rad(angle_s1), mode='stop'
         )
@@ -201,7 +203,7 @@ class PaperReplicationSimulator(AcousticTrajectorySimulator):
         # --- Speaker 2 Trajectory ---
         # Static during Phase 1, 2, & 3
         s2_stat_path, s2_stat_labels = self._generate_source_path(
-            len_source_signal=p1_samp + p2_samp + p3_solo_samp, update_interval=path_hop, center=center_3d,
+            len_source_signal=p1_samp + pad1_samp + p2_samp + pad2_samp + p3_solo_samp, update_interval=path_hop, center=center_3d,
             radius=config.radius_s2, angle_classes=self.angle_classes, fs=fs,
             linear_velocity=0.0, start_angle=np.deg2rad(angle_s2), end_angle=np.deg2rad(angle_s2), mode='stop'
         )
@@ -418,7 +420,7 @@ def create_custom_paper_test_sample(
     female_speakers: List[str],
     angle_s1: float,
     angle_s2: float,
-    closest_angle: float,
+    closest_ang_diff: float,
     verbose: bool = True
 ) -> Dict:
     
@@ -427,13 +429,15 @@ def create_custom_paper_test_sample(
     p2_samp = int(config.t_phase2 * fs)
     p3_solo_samp = int(config.t_phase3_solo * fs)
     overlap_samp = int(config.t_overlap * fs)
+    pad1_samp = int(config.t_pad_1 * fs)
+    pad2_samp = int(config.t_pad_2 * fs)
     
     L1 = 4.0 + 0.1 * np.random.randint(1, 21)
     L2 = 4.0 + 0.1 * np.random.randint(1, 21)
     room_dim = np.array([L1, L2, config.room_height])
     
-    SNR_diffuse = config.SNR_diffuse + np.random.randint(0, 11)
-    T60 = np.random.choice([0.2, 0.3, 0.4, 0.5, 0.6])
+    SNR_diffuse = config.SNR_diffuse
+    T60 = config.T60
     total_SNR = -10 * np.log10((10 ** (-SNR_diffuse / 10)) + (10 ** (-config.SNR_direction / 10)) + (10 ** (-config.SNR_mic / 10)))
     
     plot_name = os.path.join(config.plot_dir, f'custom_paperlike_{sample_idx}_labels.png')
@@ -445,7 +449,7 @@ def create_custom_paper_test_sample(
     )
     
     s1_path, s1_labels, s2_path, s2_labels, s_noise, mic_positions = simulator.generate_custom_scenario(
-        fs, config.path_hop, config, angle_s1, angle_s2, closest_angle
+        fs, config.path_hop, config, angle_s1, angle_s2, closest_ang_diff
     )
 
     speaker1_dir = male_speakers[np.random.randint(len(male_speakers))] if np.random.rand() < 0.5 else female_speakers[np.random.randint(len(female_speakers))]
@@ -458,7 +462,7 @@ def create_custom_paper_test_sample(
     # Mask Audio based on strict timeline boundaries
     audio_s1 = np.concatenate([
         speech_s1[:p1_samp], 
-        np.zeros(p2_samp), 
+        np.zeros(pad1_samp + p2_samp + pad2_samp), 
         speech_s1[p1_samp:]
     ])
     s1_labels[p1_samp : p1_samp + p2_samp] = 0
@@ -466,11 +470,11 @@ def create_custom_paper_test_sample(
     audio_s2 = np.concatenate([
         np.zeros(p1_samp),
         speech_s2[:p2_samp],
-        np.zeros(p3_solo_samp),
+        np.zeros(pad2_samp + p3_solo_samp),
         speech_s2[p2_samp:]
     ])
-    s2_labels[:p1_samp] = 0
-    s2_labels[p1_samp + p2_samp : p1_samp + p2_samp + p3_solo_samp] = 0
+    s2_labels[:p1_samp + pad1_samp] = 0
+    s2_labels[p1_samp + pad1_samp + p2_samp : p1_samp + pad1_samp + p2_samp + pad2_samp + p3_solo_samp] = 0
 
     if verbose: print(f"\n  Running simulations...", end="", flush=True)
     Receivers_first_total = generator.generate(
@@ -489,7 +493,7 @@ def create_custom_paper_test_sample(
     receivers = Receivers_first_total + Receivers_second_total
 
     # SNR Base Calculation strictly from the chaotic overlap 
-    active_start_idx = p1_samp + p2_samp + p3_solo_samp
+    active_start_idx = p1_samp + pad1_samp + p2_samp + pad2_samp + p3_solo_samp 
     active_receivers = receivers[active_start_idx:, :]
     A_x = np.mean(np.std(active_receivers, axis=0))
     
@@ -561,9 +565,9 @@ def create_custom_paper_test_sample(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate 40s Paper Replication Dataset.")
     parser.add_argument("--num_samples", type=int, default=10, help="Number of files to generate")
-    parser.add_argument("--start_idx", type=int, default=1, help="Starting file index")
-    parser.add_argument("--seed", type=int, default=422, help="Random seed")
-    
+    parser.add_argument("--start_idx", type=int, default=20, help="Starting file index")
+    parser.add_argument("--seed", type=int, default=2, help="Random seed")
+    parser.add_argument("--closest_ang_diff", type=float, default=50.0, help="Minimum angle difference during the wiggle phase")
     # Exposing the paper parameters
     parser.add_argument("--radius_s1", type=float, default=1.3, help="Radius for S1 (m)")
     parser.add_argument("--radius_s2", type=float, default=1.3, help="Radius for S2 (m)")
@@ -584,7 +588,7 @@ if __name__ == "__main__":
     config.angle_s1_end = args.angle_s1_end
     config.angle_s2_start = args.angle_s2_start
     config.angle_s2_end = args.angle_s2_end
-    
+    config.closest_ang_diff = args.closest_ang_diff
     np.random.seed(config.seed)
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -606,7 +610,7 @@ if __name__ == "__main__":
         
         np.random.seed(config.seed + i)
         
-        result = create_custom_paper_test_sample(i, config, male_speakers, female_speakers, 40, 140, 80, verbose=True)
+        result = create_custom_paper_test_sample(i, config, male_speakers, female_speakers, 35, 145, config.closest_ang_diff, verbose=True)
         
         sf.write(os.path.join(output_path, f'first_{i}.wav'), result['first_speaker'], config.fs)
         sf.write(os.path.join(output_path, f'second_{i}.wav'), result['second_speaker'], config.fs)
