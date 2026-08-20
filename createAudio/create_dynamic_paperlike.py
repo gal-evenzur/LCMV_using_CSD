@@ -468,7 +468,7 @@ def create_custom_paper_test_sample(
     s1_labels[p1_samp : p1_samp + p2_samp] = 0
     
     audio_s2 = np.concatenate([
-        np.zeros(p1_samp),
+        np.zeros(p1_samp + pad1_samp),
         speech_s2[:p2_samp],
         np.zeros(pad2_samp + p3_solo_samp),
         speech_s2[p2_samp:]

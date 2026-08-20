@@ -1,0 +1,2 @@
+run_idx,status,error_message
+20,error,RuntimeError: Run pipeline.run() first.

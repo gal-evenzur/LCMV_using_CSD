@@ -930,6 +930,7 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
         self._rtf_deltas = {0: [], 1: []}
         self.windowed_bss_results = None
         self.dynamic_metrics = None
+        self.true_labels = None
 
     # ------------------------------------------------------------------
     # Setup hook
@@ -941,6 +942,36 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
         self._prev_slot_doa = [0, 0]
         self._relock_events = []
         self._rtf_deltas = {0: [], 1: []}
+        self.true_labels = self._load_true_labels(num_frames)
+
+    def _load_true_labels(self, num_frames):
+        """
+        Loads true per-speaker DOA labels from the dynamic test folder and aligns
+        length to the current pipeline frame count.
+        """
+        first_path = os.path.join(self.folder_to_test_data, f'label_location_first_{self.run_idx}.npy')
+        second_path = os.path.join(self.folder_to_test_data, f'label_location_second_{self.run_idx}.npy')
+
+        if not (os.path.exists(first_path) and os.path.exists(second_path)):
+            if self.verbose > 1:
+                print("True label files not found. Skipping true-label plotting overlay.")
+            return None
+
+        doa_first = np.asarray(np.load(first_path)).reshape(-1)
+        doa_second = np.asarray(np.load(second_path)).reshape(-1)
+
+        n = min(len(doa_first), len(doa_second), num_frames)
+        if n == 0:
+            return None
+
+        true_labels = np.column_stack((doa_first[:n], doa_second[:n]))
+
+        # Keep plotting robust if labels are shorter than pipeline frames.
+        if n < num_frames:
+            pad = np.full((num_frames - n, 2), np.nan)
+            true_labels = np.vstack((true_labels, pad))
+
+        return true_labels
 
     # ------------------------------------------------------------------
     # Logging hooks (call super() first, unchanged algorithm behavior)
@@ -1364,10 +1395,111 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
 
         return unique_doas_0, unique_doas_1
 
+    def plot_waveform_and_doa(self, true_labels):
+        """
+        Plots output audio waveforms and DOA tracking over time in 3 clear subplots.
+        
+        Args:
+            true_labels (np.ndarray): Array of shape (num_frames, 2) containing
+                                      the true angles for [speaker 1, speaker 2].
+        """
+
+        # 1. Create time axes for audio and STFT frames
+        wav1 = self.speech_out[0]
+        wav2 = self.speech_out[1]
+        t_audio = np.arange(len(wav1)) / self.fs
+        
+        frame_hop_sec = self.p_stft['hop'] / self.fs
+        num_frames = len(self.y_prob_stat_mf)
+        t_frames = np.arange(num_frames) * frame_hop_sec
+
+        # Fetch CSD and DOA data from saved results or fallback to internal arrays
+        try:
+            true_csd = np.load(os.path.join(self.folder_to_results, f'true_CSD_{self.run_idx}.npy'))
+            est_doa = np.load(os.path.join(self.folder_to_results, f'estimate_DOA_{self.run_idx}.npy'))
+        except FileNotFoundError:
+            true_csd = self.y_prob_stat_mf
+            est_doa = self.y2_prob_stat_mf
+
+        # Changed to 3 subplots instead of 2
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10), sharex=True)
+
+        # Determine active speaker during single-speaker frames (CSD=1) using energy
+        if self.evaluate:
+            power_1 = np.mean(np.abs(self.z_k_first[:, :, 0])**2, axis=1)
+            power_2 = np.mean(np.abs(self.z_k_second[:, :, 0])**2, axis=1)
+        else:
+            power_1 = np.mean(np.abs(self.s_hat_total[:, :, 0])**2, axis=1)
+            power_2 = np.mean(np.abs(self.s_hat_total[:, :, 1])**2, axis=1)
+
+        spk1_only = (true_csd == 1) & (power_1 > power_2 * 10)
+        spk2_only = (true_csd == 1) & (power_2 > power_1 * 10)
+        overlap = (true_csd == 2)
+
+        # Helper function to apply the exact same shading to any axis
+        def apply_shading(ax):
+            ax.fill_between(t_frames, -1.1, 1.1, where=spk1_only, color='tab:blue', alpha=0.15, linewidth=0)
+            ax.fill_between(t_frames, -1.1, 1.1, where=spk2_only, color='tab:orange', alpha=0.15, linewidth=0)
+            ax.fill_between(t_frames, -1.1, 1.1, where=overlap, color='tab:red', alpha=0.15, linewidth=0)
+            ax.set_ylim(-1.1, 1.1)
+            ax.set_ylabel('Amplitude')
+
+        # ==========================================
+        # Subplot 1: Speaker 1 Output Waveform
+        # ==========================================
+        ax1.plot(t_audio, wav1 / (np.max(np.abs(wav1)) + 1e-9), color='tab:blue', linewidth=0.8)
+        apply_shading(ax1)
+        ax1.set_title('Speaker 1 Output (Separated)')
+
+        # ==========================================
+        # Subplot 2: Speaker 2 Output Waveform
+        # ==========================================
+        ax2.plot(t_audio, wav2 / (np.max(np.abs(wav2)) + 1e-9), color='tab:orange', linewidth=0.8)
+        apply_shading(ax2)
+        ax2.set_title('Speaker 2 Output (Separated)')
+
+        # Custom legend for the shading (added to ax1 so it only appears once)
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='tab:blue', alpha=0.15, label='True Spk 1 Only'),
+            Patch(facecolor='tab:orange', alpha=0.15, label='True Spk 2 Only'),
+            Patch(facecolor='tab:red', alpha=0.15, label='True Overlap')
+        ]
+        ax1.legend(handles=legend_elements, loc='upper right')
+
+        # ==========================================
+        # Subplot 3: DOA Tracking & Angular Separation
+        # ==========================================
+        if true_labels is not None:
+            true_labels = np.asarray(true_labels)
+            
+            # Mask out 0 values (inactive periods) with NaN to prevent vertical drop lines
+            doa_spk1 = np.where(true_labels[:, 0] == 0, np.nan, true_labels[:, 0])
+            doa_spk2 = np.where(true_labels[:, 1] == 0, np.nan, true_labels[:, 1])
+            
+            ax3.plot(t_frames, doa_spk1, label='True DOA Spk 1', color='tab:blue', linestyle='--')
+            ax3.plot(t_frames, doa_spk2, label='True DOA Spk 2', color='tab:orange', linestyle='--')
+            
+            angular_distance = np.abs(doa_spk1 - doa_spk2)
+            ax3.plot(t_frames, angular_distance, label='Angular Separation', color='gray', linestyle='-.', alpha=0.6)
+
+        # Plot estimated DOA strictly when true_csd == 1, with smaller markers
+        est_doa_filtered = np.where(true_csd == 1, est_doa, np.nan)
+        ax3.plot(t_frames, est_doa_filtered, label='Estimated DOA (CSD=1)', color='black', marker='.', markersize=4, linestyle='None')
+
+        ax3.set_xlabel('Time [s]')
+        ax3.set_ylabel('DOA')
+        ax3.set_title('DOA Tracking & Angular Closeness')
+        ax3.legend(loc='upper right')
+
+        plt.tight_layout()
+        plt.savefig(os.path.join(self.folder_to_results, f'waveform_doa_{self.run_idx}.png'))
+        plt.close(fig)
+
     # ------------------------------------------------------------------
     # Orchestrator
     # ------------------------------------------------------------------
-    def run(self):
+    def run(self, evaluate=True):
         print(f"\n{'=' * 55}")
         print(f" STARTING PIPELINE EXECUTION (Experiment {self.run_idx}) - dynamic metrics")
         print(f"{'=' * 55}")
@@ -1389,6 +1521,9 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
         step_start = time.time()
         self.reconstruct_audio()
         print(f"[time] 4. Reconstruct Audio:     {time.time() - step_start:>6.2f}s")
+
+        if not evaluate:
+            return None, None, None, None, None, None
 
         step_start = time.time()
         sdr_avg, sir_avg, sar_avg = self.evaluate_and_save()
@@ -1564,7 +1699,10 @@ def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
                 p_beamforming=p_beamforming, folder_to_test_data=folder_to_test_data,
                 folder_to_results=folder_to_results, M=M, test_bf=test_bf, verbose=verbose,
             )
-            sdr_avg, sir_avg, sar_avg, nr_0, nr_1, dm = pipeline.run()
+            sdr_avg, sir_avg, sar_avg, nr_0, nr_1, dm = pipeline.run(evaluate=True)
+
+            pipeline.plot_waveform_and_doa(true_labels=pipeline.true_labels)
+
 
             plot_dynamic_report(pipeline, save_path=os.path.join(folder_to_results, f'dynamic_report_{run_idx}.png'))
 
@@ -1653,8 +1791,8 @@ if __name__ == "__main__":
     # dynamic-metrics subclass. Adjust paths/config to your actual setup.
     py_folder = os.path.dirname(os.path.realpath(__file__))
     folder_to_all_data = os.path.join(py_folder, 'data')
-    folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
-    folder_to_results = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
+    folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'dynamic_SNR=30_T60=0.2')
+    folder_to_results = os.path.join(py_folder, 'pipeline_results', 'dynamic_SNR=30_T60=0.2')
 
 
     p_stft = {
@@ -1683,11 +1821,12 @@ if __name__ == "__main__":
 
     
     rows = run_batch_and_summarize(
-        run_indices=range(1, 21),                      # your 20 files
+        run_indices=range(20, 21),                      # your 20 files
         p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming,
         folder_to_test_data=folder_to_test_data,
         folder_to_results=folder_to_results,
         output_csv_path=os.path.join(folder_to_results, 'dynamic_metrics_summary.csv'),
         close_threshold_deg=45.0,   # tune to what you consider "close" for your array
         verbose=2,
+        test_bf=False
     )

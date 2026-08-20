@@ -276,16 +276,17 @@ def run_all_experiments(num_experiments=20):
     else:
         print("Not enough valid data to generate plots.")
 
-
 def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     """
     Runs the pipeline for a single experiment (if results don't exist)
     and plots a 2-panel subplot tracking uncut ground truths:
       1. True vs Estimated CSD (Concurrent Speaker Detection) states.
       2. Uncut True vs Estimated DOA Timeline (Includes 0s and 19 Overlaps).
+         *Estimated DOA is only plotted when CSD == 1.
     """
     py_folder = os.path.dirname(os.path.realpath(__file__))
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', test_type)
+    
     if test_type == 'static':
         plot_dir = os.path.join(py_folder, 'pipeline_results', 'static')
     elif test_type == 'dynamic':
@@ -299,6 +300,10 @@ def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     elif test_type == 'paperlike_ofer_mf':
         folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
         plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike_ofer_mf')
+    elif test_type == 'dynamic_SNR=30_T60=0.2':
+        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'dynamic_SNR=30_T60=0.2')
+        plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic_SNR=30_T60=0.2')
+    
     os.makedirs(plot_dir, exist_ok=True)
 
     # 1. Pipeline Verification / Generation
@@ -344,9 +349,17 @@ def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     axs[0].legend(loc='upper right')
     axs[0].set_title('Concurrent Speaker Detection (CSD) State Tracking')
 
+    # --- MODIFICATION ---
+    # Mask the estimated DOA to be NaN whenever CSD != 1. Matplotlib ignores NaNs.
+    est_doa_masked = np.where(true_csd == 1, est_doa, np.nan)
+    # --------------------
+
     # Panel 2: Uncut Spatial Trajectory vs Estimate
     axs[1].plot(frames_x, true_doa, color='black', linewidth=2, linestyle='-', label='True DOA (Raw Uncut)')
-    axs[1].plot(frames_x, est_doa, color='darkorange', linewidth=1.2, linestyle='--', marker='.', alpha=0.6, label='Estimated DOA')
+    
+    # Use est_doa_masked instead of est_doa
+    axs[1].plot(frames_x, est_doa_masked, color='darkorange', linewidth=1.2, linestyle='--', marker='.', alpha=0.6, label='Estimated DOA (when CSD==1)')
+    
     axs[1].axhline(y=19, color='purple', linestyle=':', alpha=0.5, label='Sentinel Overlap Value (19)')
     axs[1].axhline(y=0, color='gray', linestyle=':', alpha=0.5, label='Silence/Noise Value (0)')
     
@@ -559,13 +572,12 @@ def create_total_csd(folder_to_results):
 
 if __name__ == "__main__":
     py_folder = os.path.dirname(os.path.realpath(__file__))
-    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
+    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'dynamic_SNR=30_T60=0.2')
     
     workspace_dir = py_folder
-    results_dir = os.path.join(workspace_dir, 'pipeline_results', 'static')
-    for i in range(1, 21):
-        plot_single_experiment_doa_accuracy(run_idx=i, test_type='static')
+    results_dir = os.path.join(workspace_dir, 'pipeline_results', 'dynamic_SNR=30_T60=0.2')
+    for i in range(21, 29):
+        plot_single_experiment_doa_accuracy(run_idx=i, test_type='dynamic_SNR=30_T60=0.2')
 
     # Create total CSD and generate global confusion matrix
     create_total_csd(results_dir)
-    
