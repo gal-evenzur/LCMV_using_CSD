@@ -921,7 +921,7 @@ def angular_separation(doa_deg_speaker0, doa_deg_speaker1):
 class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
     """SpatialSeparationPipeline + dynamic-scenario evaluation metrics."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, eval_mode='windowed', **kwargs):
         super().__init__(*args, **kwargs)
         # Populated in load_data() once we know the frame count
         self.slot_doa_history = None
@@ -931,6 +931,19 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
         self.windowed_bss_results = None
         self.dynamic_metrics = None
         self.true_labels = None
+ 
+        # 'windowed' (default) -> evaluate_windowed() across the whole file
+        # 'overlap'            -> evaluate_overlap_period(), the old single
+        #                          first-overlap-frame -> last-overlap-frame
+        #                          block metric, now opt-in instead of default
+        # 'both'                -> compute both; evaluate_and_save() still
+        #                          RETURNS the windowed numbers (keeps run()'s
+        #                          return signature meaning unchanged), but
+        #                          self.overlap_bss_results is also populated
+        assert eval_mode in ('windowed', 'overlap', 'both'), \
+            f"eval_mode must be 'windowed', 'overlap', or 'both', got {eval_mode!r}"
+        self.eval_mode = eval_mode
+        self.overlap_bss_results = None
 
     # ------------------------------------------------------------------
     # Setup hook
@@ -1147,6 +1160,61 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
         return results
 
     # ------------------------------------------------------------------
+    # NEW METRIC 4: Direct SDR / SIR / SAR over the overlap period
+    # ------------------------------------------------------------------
+    def evaluate_overlap_period(self, min_ref_energy=1e-6):
+        """
+        Computes total SDR, SIR, and SAR across the continuous period where 
+        both speakers are active (from the first overlap frame to the last).
+        """
+        if not self.evaluate:
+            if self.verbose:
+                print("No reference files loaded - skipping BSS evaluation.")
+            return None, None, None
+
+        # Find the period where both speakers are active (CSD == 2)
+        overlap_idx = np.where(self.y_mf == 2)[0]
+        if len(overlap_idx) == 0:
+            if self.verbose:
+                print("No overlap frames found for BSS evaluation.")
+            return None, None, None
+
+        start = overlap_idx[0]
+        end = overlap_idx[-1] + 1
+
+        win = self.p_stft['win']
+        hop = self.p_stft['hop']
+        nfft = self.p_stft['nfft']
+
+        s_hat_win = self.s_hat_total[start:end]
+        z1_win = self.z_k_first[start:end]
+        z2_win = self.z_k_second[start:end]
+
+        ref1, _ = istft(z1_win[:, :, 0].T, win, win, hop, nfft, self.fs)
+        ref2, _ = istft(z2_win[:, :, 0].T, win, win, hop, nfft, self.fs)
+
+        if np.mean(ref1 ** 2) < min_ref_energy or np.mean(ref2 ** 2) < min_ref_energy:
+            if self.verbose:
+                print("Reference energy too low in overlap period.")
+            return None, None, None
+
+        est1, _ = istft(s_hat_win[:, :, 0].T, win, win, hop, nfft, self.fs)
+        est2, _ = istft(s_hat_win[:, :, 1].T, win, win, hop, nfft, self.fs)
+
+        ref_sources = np.stack([ref1, ref2])
+        est_sources = np.stack([est1, est2])
+
+        try:
+            sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(
+                ref_sources + 1e-9, est_sources, compute_permutation=True
+            )
+            self.overlap_bss_results = {'sdr': sdr, 'sir': sir, 'sar': sar, 'perm': perm,
+                             'start_frame': int(start), 'end_frame': int(end)}
+            return sdr, sir, sar
+        except Exception:
+            return None, None, None
+
+    # ------------------------------------------------------------------
     # NEW METRIC 4: windowed SDR / SIR / SAR across the WHOLE recording
     # ------------------------------------------------------------------
     def evaluate_windowed(self, window_sec=1.0, hop_sec=0.5, min_ref_energy=1e-6):
@@ -1274,7 +1342,7 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
         }
 
     # ------------------------------------------------------------------
-    # OVERRIDDEN: file saving kept, buggy block-metric replaced by windowed eval
+    # OVERRIDDEN: file saving kept; which BSS metric runs is now a choice
     # ------------------------------------------------------------------
     def evaluate_and_save(self):
         if self.verbose:
@@ -1286,27 +1354,53 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
 
         if not self.evaluate:
             return None, None, None
+ 
+        sdr_mean = None
+        sir_mean = None
+        sar_mean = None
+ 
+        # ---- windowed metric (default; also computed under 'both') --------
+        if self.eval_mode in ('windowed', 'both'):
+            wb = self.evaluate_windowed()
+            if wb is not None and len(wb['sdr']) > 0:
+                sdr_mean = float(np.nanmean(wb['sdr']))
+                sir_mean = float(np.nanmean(wb['sir']))
+                sar_mean = float(np.nanmean(wb['sar']))
+                if self.verbose:
+                    print(f"\n--- Windowed Evaluation Summary ({len(wb['sdr'])} windows) ---")
+                    print(f"Mean -> SDR: {sdr_mean:.2f} dB | SIR: {sir_mean:.2f} dB | SAR: {sar_mean:.2f} dB")
+                    for csd_val, label in [(1, 'single-speaker windows'), (2, 'overlap windows')]:
+                        mask = wb['csd_majority'] == csd_val
+                        if np.any(mask):
+                            print(f"  {label} (n={mask.sum()}): "
+                                  f"SDR={np.nanmean(wb['sdr'][mask]):.2f} dB, "
+                                  f"SIR={np.nanmean(wb['sir'][mask]):.2f} dB")
+            elif self.verbose:
+                print("No valid windows for windowed BSS evaluation.")
+ 
+        # ---- overlap-block metric (opt-in; also computed under 'both') ----
+        if self.eval_mode in ('overlap', 'both'):
+            sdr_ov, sir_ov, sar_ov = self.evaluate_overlap_period()
+            if sdr_ov is not None:
+                ov_sdr_mean = float(np.mean(sdr_ov))
+                ov_sir_mean = float(np.mean(sir_ov))
+                ov_sar_mean = float(np.mean(sar_ov))
+                if self.verbose:
+                    print(f"\n--- Overlap Period Evaluation Summary ---")
+                    # Print for each of the 2 speakers separately
+                    print(f"Speaker 0: SDR={sdr_ov[0]:.2f} dB | SIR={sir_ov[0]:.2f} dB | SAR={sar_ov[0]:.2f} dB")
+                    print(f"Speaker 1: SDR={sdr_ov[1]:.2f} dB | SIR={sir_ov[1]:.2f} dB | SAR={sar_ov[1]:.2f} dB")
 
-        wb = self.evaluate_windowed()
-        if wb is None or len(wb['sdr']) == 0:
-            if self.verbose:
-                print("No valid windows for BSS evaluation.")
-            return None, None, None
-
-        sdr_mean = float(np.nanmean(wb['sdr']))
-        sir_mean = float(np.nanmean(wb['sir']))
-        sar_mean = float(np.nanmean(wb['sar']))
-
-        if self.verbose:
-            print(f"\n--- Windowed Evaluation Summary ({len(wb['sdr'])} windows) ---")
-            print(f"Mean -> SDR: {sdr_mean:.2f} dB | SIR: {sir_mean:.2f} dB | SAR: {sar_mean:.2f} dB")
-            for csd_val, label in [(1, 'single-speaker windows'), (2, 'overlap windows')]:
-                mask = wb['csd_majority'] == csd_val
-                if np.any(mask):
-                    print(f"  {label} (n={mask.sum()}): "
-                          f"SDR={np.nanmean(wb['sdr'][mask]):.2f} dB, "
-                          f"SIR={np.nanmean(wb['sir'][mask]):.2f} dB")
-
+                # In 'overlap' mode this IS the return value. In 'both' mode
+                # the windowed numbers computed above stay the return value,
+                # for run()'s return signature to keep meaning what it always
+                # meant; the overlap numbers are still sitting on
+                # self.overlap_bss_results for anything that wants them.
+                if self.eval_mode == 'overlap':
+                    sdr_mean, sir_mean, sar_mean = ov_sdr_mean, ov_sir_mean, ov_sar_mean
+            elif self.verbose:
+                print("Overlap-period BSS evaluation failed or was skipped.")
+ 
         return sdr_mean, sir_mean, sar_mean
 
     # ------------------------------------------------------------------
@@ -1662,17 +1756,17 @@ def _sir_by_proximity(pipeline, close_threshold_deg):
 def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
                              folder_to_test_data, folder_to_results,
                              output_csv_path, M=4, test_bf=True,
-                             close_threshold_deg=45.0, verbose=0):
+                             close_threshold_deg=45.0, eval_mode='overlap', verbose=0):
     """
     Runs the dynamic-metrics pipeline over a batch of test files (e.g. all 20
     dynamic-scenario recordings) and writes ONE SUMMARY ROW PER FILE to a CSV.
-
+ 
     Each file gets a fresh pipeline instance - the algorithm is stateful frame
     to frame within a single recording, so instances are never reused across
     files. If one file fails (bad data, a numerical error, missing audio,
     etc.) that's caught and recorded as a row with status='error' plus the
     exception message, rather than aborting the whole batch.
-
+ 
     Args:
         run_indices: iterable of run_idx values to process, e.g. range(1, 21)
                       for 20 files named together_1.wav .. together_20.wav.
@@ -1681,9 +1775,15 @@ def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
                       for the avg_sir_close / avg_sir_far columns. Tune this
                       to whatever you consider operationally "close" for your
                       array - there's nothing physically special about 45 deg,
-                      it's just a reasonable starting default.
+                      it's just a reasonable starting default. Note this
+                      breakdown always needs the WINDOWED result, so it's
+                      NaN for files run with eval_mode='overlap'.
+        eval_mode: 'windowed' (default), 'overlap', or 'both' - see
+                      DynamicSpatialSeparationPipeline.__init__. With 'both',
+                      the CSV also gets overlap_sdr/sir/sar columns so you can
+                      compare the two metrics side by side per file.
         output_csv_path: where to write the CSV.
-
+ 
     Returns:
         list of dicts, one per file (the same rows written to the CSV) - so
         you can inspect them directly in Python without re-reading the CSV.
@@ -1697,7 +1797,8 @@ def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
             pipeline = DynamicSpatialSeparationPipeline(
                 run_idx=run_idx, p_stft=p_stft, p_tracking=p_tracking,
                 p_beamforming=p_beamforming, folder_to_test_data=folder_to_test_data,
-                folder_to_results=folder_to_results, M=M, test_bf=test_bf, verbose=verbose,
+                folder_to_results=folder_to_results, M=M, test_bf=test_bf,
+                eval_mode=eval_mode, verbose=verbose,
             )
             sdr_avg, sir_avg, sar_avg, nr_0, nr_1, dm = pipeline.run(evaluate=True)
 
@@ -1730,6 +1831,21 @@ def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
                 for c in metric_cols:
                     row[c] = np.nan
 
+            # overlap-block metric - only populated when eval_mode was
+            # 'overlap' or 'both' (evaluate_and_save() is what fills this in)
+            ov = pipeline.overlap_bss_results
+            if ov is not None:
+                row['overlap_sdr_spk0'] = float(ov['sdr'][0])
+                row['overlap_sdr_spk1'] = float(ov['sdr'][1])
+                row['overlap_sir_spk0'] = float(ov['sir'][0])
+                row['overlap_sir_spk1'] = float(ov['sir'][1])
+                row['overlap_sar_spk0'] = float(ov['sar'][0])
+                row['overlap_sar_spk1'] = float(ov['sar'][1])
+            else:
+                for c in ['overlap_sdr_spk0', 'overlap_sdr_spk1', 'overlap_sir_spk0',
+                          'overlap_sir_spk1', 'overlap_sar_spk0', 'overlap_sar_spk1']:
+                    row[c] = np.nan
+ 
             wnr = dm.get('windowed_nr')
             if wnr is not None and len(wnr['nr_db']) > 0:
                 col0, col1 = wnr['nr_db'][:, 0], wnr['nr_db'][:, 1]
@@ -1821,7 +1937,7 @@ if __name__ == "__main__":
 
     
     rows = run_batch_and_summarize(
-        run_indices=range(20, 21),                      # your 20 files
+        run_indices=range(20, 23),                      # your 20 files
         p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming,
         folder_to_test_data=folder_to_test_data,
         folder_to_results=folder_to_results,

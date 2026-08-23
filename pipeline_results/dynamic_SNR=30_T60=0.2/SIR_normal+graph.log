@@ -1,0 +1,266 @@
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ cd LCMV_using_CSD/
+[?2004l[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python py[Kipeline_bre[K[Keamformer.py 
+[?2004l2026-08-20 23:35:23.276134: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-08-20 23:35:23.291221: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-08-20 23:35:23.308906: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8473] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-08-20 23:35:23.314717: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1471] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-08-20 23:35:23.327718: I tensorflow/core/platform/cpu_feature_guard.cc:211] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 20) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 20 ---
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.08s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.58s
+--- Running Online Separation ---
+Processing frame 0/1359
+Processing frame 100/1359
+Processing frame 200/1359
+Processing frame 300/1359
+Processing frame 400/1359
+Processing frame 500/1359
+Processing frame 600/1359
+Processing frame 700/1359
+Processing frame 800/1359
+Processing frame 900/1359
+Processing frame 1000/1359
+Processing frame 1100/1359
+Processing frame 1200/1359
+Processing frame 1300/1359
+[time] 3. Run Online Separation:  29.06s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.16s
+--- Saving Outputs ---
+/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py:1194: FutureWarning: mir_eval.separation.bss_eval_sources
+	Deprecated as of mir_eval version 0.8.
+	It will be removed in mir_eval version 0.9.
+  sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(
+
+--- Overlap Period Evaluation Summary ---
+Mean -> SDR: 4.67 dB | SIR: 16.92 dB | SAR: 5.06 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 14.07 dB (over 147 shared noise frames)
+    Speaker 1: aggregate NR = 6.64 dB (over 147 shared noise frames)
+[time] 5. Evaluate:               17.33s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_20.wav) sectors visited: [ 4  5  6  7 15]
+      -> [ 35.  45.  55.  65. 145.] deg
+    Speaker 1 (second_20.wav) sectors visited: [ 6 12 13 14 15]
+      -> [ 55. 115. 125. 135. 145.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.10s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             47.31s
+=======================================================
+
+[run 20] FAILED: AttributeError: 'DynamicSpatialSeparationPipeline' object has no attribute 'windowed_bss_results'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py", line 1754, in run_batch_and_summarize
+    plot_dynamic_report(pipeline, save_path=os.path.join(folder_to_results, f'dynamic_report_{run_idx}.png'))
+  File "/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py", line 1630, in plot_dynamic_report
+    wb = pipeline.windowed_bss_results
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicSpatialSeparationPipeline' object has no attribute 'windowed_bss_results'
+Frame 0 CSD label: 0
+Frame 0 DOA label: 14
+First noise frame index: [0 1 2 3 4]
+First CSD=1 frame: [57 58 59 60 61]
+Wrote 1 rows (0 ok, 1 errors) to /home/evenzug/LCMV_using_CSD/pipeline_results/dynamic_SNR=30_T60=0.2/dynamic_metrics_summary.csv
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[7P[01;32mevenzug@dsiaspl03[00m:[01;34m~/LC
+MV_using_CSD[00m$ [K[A[K[A[K[A[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python pipeline_beamformer.py 
+[?2004l2026-08-23 12:58:18.733409: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-08-23 12:58:18.752134: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-08-23 12:58:18.773762: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8473] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-08-23 12:58:18.780369: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1471] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-08-23 12:58:18.794927: I tensorflow/core/platform/cpu_feature_guard.cc:211] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 20) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 20 ---
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.12s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.79s
+--- Running Online Separation ---
+Processing frame 0/1359
+Processing frame 100/1359
+Processing frame 200/1359
+Processing frame 300/1359
+Processing frame 400/1359
+Processing frame 500/1359
+Processing frame 600/1359
+Processing frame 700/1359
+Processing frame 800/1359
+Processing frame 900/1359
+Processing frame 1000/1359
+Processing frame 1100/1359
+Processing frame 1200/1359
+Processing frame 1300/1359
+[time] 3. Run Online Separation:  29.69s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.19s
+--- Saving Outputs ---
+/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py:1208: FutureWarning: mir_eval.separation.bss_eval_sources
+	Deprecated as of mir_eval version 0.8.
+	It will be removed in mir_eval version 0.9.
+  sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(
+
+--- Overlap Period Evaluation Summary ---
+Speaker 0: SDR=6.15 dB | SIR=16.29 dB | SAR=6.69 dB
+Speaker 1: SDR=3.19 dB | SIR=17.56 dB | SAR=3.42 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 14.07 dB (over 147 shared noise frames)
+    Speaker 1: aggregate NR = 6.64 dB (over 147 shared noise frames)
+[time] 5. Evaluate:               19.04s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_20.wav) sectors visited: [ 4  5  6  7 15]
+      -> [ 35.  45.  55.  65. 145.] deg
+    Speaker 1 (second_20.wav) sectors visited: [ 6 12 13 14 15]
+      -> [ 55. 115. 125. 135. 145.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.08s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             49.91s
+=======================================================
+
+/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py:1687: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[1].legend(loc='upper right', fontsize=8)
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 21) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 21 ---
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.10s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.61s
+--- Running Online Separation ---
+Processing frame 0/1359
+Processing frame 100/1359
+Processing frame 200/1359
+Processing frame 300/1359
+Processing frame 400/1359
+Processing frame 500/1359
+Processing frame 600/1359
+Processing frame 700/1359
+Processing frame 800/1359
+Processing frame 900/1359
+Processing frame 1000/1359
+Processing frame 1100/1359
+Processing frame 1200/1359
+Processing frame 1300/1359
+[time] 3. Run Online Separation:  26.90s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.14s
+--- Saving Outputs ---
+
+--- Overlap Period Evaluation Summary ---
+Speaker 0: SDR=3.76 dB | SIR=10.92 dB | SAR=5.03 dB
+Speaker 1: SDR=6.96 dB | SIR=18.76 dB | SAR=7.31 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 7.45 dB (over 216 shared noise frames)
+    Speaker 1: aggregate NR = 5.99 dB (over 216 shared noise frames)
+[time] 5. Evaluate:               18.43s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_21.wav) sectors visited: [4 5 6 7]
+      -> [35. 45. 55. 65.] deg
+    Speaker 1 (second_21.wav) sectors visited: [12 13 14 15]
+      -> [115. 125. 135. 145.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.13s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             46.32s
+=======================================================
+
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 22) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 22 ---
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.09s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.64s
+--- Running Online Separation ---
+Processing frame 0/1359
+Processing frame 100/1359
+Processing frame 200/1359
+Processing frame 300/1359
+Processing frame 400/1359
+Processing frame 500/1359
+Processing frame 600/1359
+Processing frame 700/1359
+Processing frame 800/1359
+Processing frame 900/1359
+Processing frame 1000/1359
+Processing frame 1100/1359
+Processing frame 1200/1359
+Processing frame 1300/1359
+[time] 3. Run Online Separation:  27.65s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.15s
+--- Saving Outputs ---
+
+--- Overlap Period Evaluation Summary ---
+Speaker 0: SDR=-1.76 dB | SIR=7.39 dB | SAR=-0.47 dB
+Speaker 1: SDR=2.56 dB | SIR=15.02 dB | SAR=2.95 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 10.61 dB (over 183 shared noise frames)
+    Speaker 1: aggregate NR = 6.05 dB (over 183 shared noise frames)
+[time] 5. Evaluate:               21.94s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_22.wav) sectors visited: [ 4  5  6  7 13 15]
+      -> [ 35.  45.  55.  65. 125. 145.] deg
+    Speaker 1 (second_22.wav) sectors visited: [12 13 14 15]
+      -> [115. 125. 135. 145.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.11s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             50.58s
+=======================================================
+
+Wrote 3 rows (3 ok, 0 errors) to /home/evenzug/LCMV_using_CSD/pipeline_results/dynamic_SNR=30_T60=0.2/dynamic_metrics_summary.csv
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python pipeline_beamformer.py [A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [8Pcd LCMV_using_CSD/
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cexit[Kpython create_dynamic_paperlike.py [A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ source '/home/evenzug/LCMV_using_CSD/createAudio/.audio-env/bin/activate'[A[11Pcd createAudio/
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ cd createAudio/
