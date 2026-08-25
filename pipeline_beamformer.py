@@ -1,5 +1,7 @@
 from pipeline_ofer_funcs import *
 import time
+from pystoi import stoi
+
 """
 =========================================================================================
 SPATIAL AUDIO SEPARATION PIPELINE
@@ -1208,8 +1210,13 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
             sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(
                 ref_sources + 1e-9, est_sources, compute_permutation=True
             )
-            self.overlap_bss_results = {'sdr': sdr, 'sir': sir, 'sar': sar, 'perm': perm,
-                             'start_frame': int(start), 'end_frame': int(end)}
+
+            # Use 'perm' to align estimated sources to the correct references
+            stoi_0 = stoi(ref_sources[0], est_sources[perm[0]], self.fs, extended=False)
+            stoi_1 = stoi(ref_sources[1], est_sources[perm[1]], self.fs, extended=False)
+            stoi_arr = np.array([stoi_0, stoi_1])
+
+            self.overlap_bss_results = {'sdr': sdr, 'sir': sir, 'sar': sar, 'stoi': stoi_arr, 'perm': perm,                             'start_frame': int(start), 'end_frame': int(end)}
             return sdr, sir, sar
         except Exception:
             return None, None, None
@@ -1841,9 +1848,12 @@ def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
                 row['overlap_sir_spk1'] = float(ov['sir'][1])
                 row['overlap_sar_spk0'] = float(ov['sar'][0])
                 row['overlap_sar_spk1'] = float(ov['sar'][1])
+                row['overlap_stoi_spk0'] = float(ov['stoi'][0])
+                row['overlap_stoi_spk1'] = float(ov['stoi'][1])
             else:
                 for c in ['overlap_sdr_spk0', 'overlap_sdr_spk1', 'overlap_sir_spk0',
-                          'overlap_sir_spk1', 'overlap_sar_spk0', 'overlap_sar_spk1']:
+                          'overlap_sir_spk1', 'overlap_sar_spk0', 'overlap_sar_spk1',
+                          'overlap_stoi_spk0', 'overlap_stoi_spk1']:                    
                     row[c] = np.nan
  
             wnr = dm.get('windowed_nr')
@@ -1937,7 +1947,7 @@ if __name__ == "__main__":
 
     
     rows = run_batch_and_summarize(
-        run_indices=range(20, 23),                      # your 20 files
+        run_indices=range(20, 22),                      # your 20 files
         p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming,
         folder_to_test_data=folder_to_test_data,
         folder_to_results=folder_to_results,

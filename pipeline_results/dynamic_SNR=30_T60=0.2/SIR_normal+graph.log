@@ -263,4 +263,136 @@ Speaker 1: SDR=2.56 dB | SIR=15.02 dB | SAR=2.95 dB
 Wrote 3 rows (3 ok, 0 errors) to /home/evenzug/LCMV_using_CSD/pipeline_results/dynamic_SNR=30_T60=0.2/dynamic_metrics_summary.csv
 [?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python pipeline_beamformer.py [A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [8Pcd LCMV_using_CSD/
 [K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cexit[Kpython create_dynamic_paperlike.py [A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ source '/home/evenzug/LCMV_using_CSD/createAudio/.audio-env/bin/activate'[A[11Pcd createAudio/
-[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ cd createAudio/
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ cd createAudio/[K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ cd createAudio/[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kpython run_experiments.py [Kpython run_experiments.py cd ..[Kpython create_test_wavs.py --seed 100 --SNR 30 --start_idx 1 --num_samples 20[A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [29Pcd createAudio/
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpython create_test_wavs.py --seed 100 --SNR 30 --start_idx 1 --num_samples 20[A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ cd ..[K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpython run_experiments.py [Kpythom c[Kpipeline_n[Kbeamformer.py 
+[?2004lbash: pythom: command not found
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ pythom pipeline_beamformer.py [C[1P[1@n
+[?2004l2026-08-25 06:17:50.566319: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-08-25 06:17:50.583121: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-08-25 06:17:50.602145: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8473] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-08-25 06:17:50.608567: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1471] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-08-25 06:17:50.622523: I tensorflow/core/platform/cpu_feature_guard.cc:211] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 20) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 20 ---
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.10s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.62s
+--- Running Online Separation ---
+Processing frame 0/1359
+Processing frame 100/1359
+Processing frame 200/1359
+Processing frame 300/1359
+Processing frame 400/1359
+		Processing frame 500/1359
+Processing frame 600/1359
+Processing frame 700/1359
+Processing frame 800/1359
+Processing frame 900/1359
+Processing frame 1000/1359
+Processing frame 1100/1359
+Processing frame 1200/1359
+Processing frame 1300/1359
+[time] 3. Run Online Separation:  27.96s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.16s
+--- Saving Outputs ---
+/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py:1210: FutureWarning: mir_eval.separation.bss_eval_sources
+	Deprecated as of mir_eval version 0.8.
+	It will be removed in mir_eval version 0.9.
+  sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(
+
+--- Overlap Period Evaluation Summary ---
+Speaker 0: SDR=6.15 dB | SIR=16.29 dB | SAR=6.69 dB
+Speaker 1: SDR=3.19 dB | SIR=17.56 dB | SAR=3.42 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 14.07 dB (over 147 shared noise frames)
+    Speaker 1: aggregate NR = 6.64 dB (over 147 shared noise frames)
+[time] 5. Evaluate:               15.92s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_20.wav) sectors visited: [ 4  5  6  7 15]
+      -> [ 35.  45.  55.  65. 145.] deg
+    Speaker 1 (second_20.wav) sectors visited: [ 6 12 13 14 15]
+      -> [ 55. 115. 125. 135. 145.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.08s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             44.83s
+=======================================================
+
+/home/evenzug/LCMV_using_CSD/pipeline_beamformer.py:1694: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[1].legend(loc='upper right', fontsize=8)
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Experiment 21) - dynamic metrics
+=======================================================
+--- Loading data for Experiment 21 ---
+Reference files found. Evaluation metrics will be computed.
+[time] 1. Load Data:               0.10s
+--- Computing STFTs ---
+[time] 2. Compute STFT:            0.59s
+--- Running Online Separation ---
+Processing frame 0/1359
+Processing frame 100/1359
+Processing frame 200/1359
+Processing frame 300/1359
+Processing frame 400/1359
+Processing frame 500/1359
+Processing frame 600/1359
+Processing frame 700/1359
+Processing frame 800/1359
+Processing frame 900/1359
+Processing frame 1000/1359
+Processing frame 1100/1359
+Processing frame 1200/1359
+Processing frame 1300/1359
+[time] 3. Run Online Separation:  26.06s
+--- Reconstructing Audio (ISTFT) ---
+[time] 4. Reconstruct Audio:       0.13s
+--- Saving Outputs ---
+
+--- Overlap Period Evaluation Summary ---
+Speaker 0: SDR=3.76 dB | SIR=10.92 dB | SAR=5.03 dB
+Speaker 1: SDR=6.96 dB | SIR=18.76 dB | SAR=7.31 dB
+
+--- Computing Noise Reduction (aggregate) ---
+    Speaker 0: aggregate NR = 7.45 dB (over 216 shared noise frames)
+    Speaker 1: aggregate NR = 5.99 dB (over 216 shared noise frames)
+[time] 5. Evaluate:               18.32s
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION (reference-based)
+=======================================================
+    Speaker 0 (first_21.wav) sectors visited: [4 5 6 7]
+      -> [35. 45. 55. 65.] deg
+    Speaker 1 (second_21.wav) sectors visited: [12 13 14 15]
+      -> [115. 125. 135. 145.] deg
+    -> Array spans 0-180 deg (sectors 1-18, 10 deg/sector).
+    -> Broadside (~90 deg, sector 9-10) = best structural separation.
+    -> Endfire (~0/180 deg, sector 1 or 18) = worst structural separation,
+       regardless of how the speakers move.
+=======================================================
+
+[time] 6. Dynamic Metrics:         0.09s
+-------------------------------------------------------
+ TOTAL EXECUTION TIME:             45.30s
+=======================================================
+
+Wrote 2 rows (2 ok, 0 errors) to /home/evenzug/LCMV_using_CSD/pipeline_results/dynamic_SNR=30_T60=0.2/dynamic_metrics_summary.csv
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ 
+Display all 1267 possibilities? (y or n)
+[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ 
