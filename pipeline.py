@@ -323,61 +323,55 @@ class SpatialTrackingPipeline:
                 print("\n--- ALL EXPERIMENTS PROCESSED SUCCESSFULLY ---")
         return self
 
-# ==========================================
-# CONFIGURATION
-# ==========================================
-
-py_folder = os.path.dirname(os.path.realpath(__file__))
-workspace_folder = py_folder
-folder_to_all_data = os.path.join(workspace_folder, 'data')
-folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'dynamic')
-
-models_folder = os.path.join(workspace_folder, 'models')
-
-pipeline_config = {
-    # --- Models Config ---
-    'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_24_06.h5'),
-    'doa_path': os.path.join(models_folder, 'model_angle_GEVD_24_06.h5'),
-
-    # --- STFT Config ---
-    'n_fft': 2048,
-    'hoplen': 512,
-    'wlen': 2048,
-    'n_bins': 1025,             # Number of frequency bins (= n_fft//2 + 1)
-    'win': np.hamming(2048),
-    'silent_frames': 30, 
-
-    # --- Tracking Config ---
-    'frame_before': 8,
-    'frame_after': 5,
-    'win_vad': np.hamming(21),
-    'threshold': 40,
-    'threshold_freq': 0.3
-}
-
-run_type = 'dynamic' # Options: 'model_predicts' (normal) or 'dynamic' or 'val_data'
-plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'dynamic')
-
-
 if __name__ == "__main__":
-    # Run the pipeline for experiments 1 to 20 and save results
-    
-    parser = argparse.ArgumentParser(description="Generate parameterized dynamic acoustic trajectory samples.")
-    parser.add_argument("--start_idx", type=int, default=1, help="Starting index for file naming")
-    parser.add_argument("--end_idx", type=int, default=20, help="Ending index for file naming")
-    
+    parser = argparse.ArgumentParser(description="Run the NN spatial tracking pipeline over a batch of test files.")
+    parser.add_argument("--start_idx", type=int, default=1, help="First file index to process (inclusive)")
+    parser.add_argument("--end_idx", type=int, default=10, help="Last file index to process (inclusive)")
+    parser.add_argument("--folder_to_test_data", type=str, required=True,
+                        help="Path to the directory containing the test audio files "
+                             "(together_N.wav, first_N.wav, second_N.wav, label_location_*.npy)")
+    parser.add_argument("--folder_to_results", type=str, required=True,
+                        help="Path where NN pipeline outputs (estimate_DOA_N.npy, etc.) will be saved")
+
     args = parser.parse_args()
-    
-    
-    # Example instantiation
+
+    # ==========================================
+    # CONFIGURATION
+    # ==========================================
+    py_folder = os.path.dirname(os.path.realpath(__file__))
+    models_folder = os.path.join(py_folder, 'models')
+
+    pipeline_config = {
+        # --- Models Config ---
+        'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_24_06.h5'),
+        'doa_path': os.path.join(models_folder, 'model_angle_GEVD_24_06.h5'),
+
+        # --- STFT Config ---
+        'n_fft': 2048,
+        'hoplen': 512,
+        'wlen': 2048,
+        'n_bins': 1025,             # Number of frequency bins (= n_fft//2 + 1)
+        'win': np.hamming(2048),
+        'silent_frames': 30,
+
+        # --- Tracking Config ---
+        'frame_before': 8,
+        'frame_after': 5,
+        'win_vad': np.hamming(21),
+        'threshold': 40,
+        'threshold_freq': 0.3
+    }
+
+    os.makedirs(args.folder_to_results, exist_ok=True)
+
     pipeline = SpatialTrackingPipeline(
-        config=pipeline_config, 
-        folder_to_test_data=folder_to_test_data, 
-        n_mics=4, 
+        config=pipeline_config,
+        folder_to_test_data=args.folder_to_test_data,
+        n_mics=4,
         verbose=1
     )
 
     pipeline.run_batch(
-        run_indices=range(args.start_idx, args.end_idx + 1), 
-        folder_to_save=plot_dir
+        run_indices=range(args.start_idx, args.end_idx + 1),
+        folder_to_save=args.folder_to_results
     )

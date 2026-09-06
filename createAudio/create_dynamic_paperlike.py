@@ -565,60 +565,83 @@ def create_custom_paper_test_sample(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate 40s Paper Replication Dataset.")
     parser.add_argument("--num_samples", type=int, default=10, help="Number of files to generate")
-    parser.add_argument("--start_idx", type=int, default=20, help="Starting file index")
+    parser.add_argument("--start_idx", type=int, default=1, help="Starting file index")
     parser.add_argument("--seed", type=int, default=2, help="Random seed")
+    # Acoustic condition parameters
+    parser.add_argument("--SNR_diffuse", type=float, default=30.0, help="Diffuse noise SNR in dB")
+    parser.add_argument("--T60", type=float, default=0.2, help="Reverberation time T60 in seconds")
     parser.add_argument("--closest_ang_diff", type=float, default=50.0, help="Minimum angle difference during the wiggle phase")
-    # Exposing the paper parameters
+    # Speaker geometry parameters
     parser.add_argument("--radius_s1", type=float, default=1.3, help="Radius for S1 (m)")
     parser.add_argument("--radius_s2", type=float, default=1.3, help="Radius for S2 (m)")
-    parser.add_argument("--angle_s1_start", type=float, default=0.0, help="S1 starting/static angle")
-    parser.add_argument("--angle_s1_end", type=float, default=140.0, help="S1 movement target angle")
-    parser.add_argument("--angle_s2_start", type=float, default=160.0, help="S2 starting/static angle")
-    parser.add_argument("--angle_s2_end", type=float, default=180.0, help="S2 movement target angle")
-    
+    parser.add_argument("--angle_s1_start", type=float, default=35.0, help="S1 starting/static angle (deg)")
+    parser.add_argument("--angle_s2_start", type=float, default=145.0, help="S2 starting/static angle (deg)")
+    # Output location
+    parser.add_argument("--dataset_title", type=str, default=None,
+                        help="Subdirectory name under data/simulated_audio/test/dynamic_paper_tests/. "
+                             "Auto-generated from SNR/T60/closest_ang_diff if omitted.")
+
     args = parser.parse_args()
-    
+
     config = Config()
     config.num_samples = args.num_samples
     config.start_idx = args.start_idx
     config.seed = args.seed
+    config.SNR_diffuse = args.SNR_diffuse
+    config.T60 = args.T60
+    config.closest_angle_diff = args.closest_ang_diff 
     config.radius_s1 = args.radius_s1
     config.radius_s2 = args.radius_s2
     config.angle_s1_start = args.angle_s1_start
-    config.angle_s1_end = args.angle_s1_end
     config.angle_s2_start = args.angle_s2_start
-    config.angle_s2_end = args.angle_s2_end
-    config.closest_ang_diff = args.closest_ang_diff
+
+    # Auto-generate a descriptive subdirectory name when not explicitly supplied.
+    # The script always writes into:
+    #   <workspace>/data/simulated_audio/test/dynamic_paper_tests/<dataset_title>
+    if args.dataset_title is not None:
+        dataset_title = args.dataset_title
+    else:
+        dataset_title = f"dynamic_SNR={int(args.SNR_diffuse)}_T60={args.T60}"
+
     np.random.seed(config.seed)
-    
+
     script_dir = os.path.dirname(os.path.abspath(__file__))
     workspace_path = os.path.dirname(script_dir)
-    
+
     timit_path = os.path.join(workspace_path, 'data', 'TIMIT')
-    output_path = os.path.join(workspace_path, 'data', 'simulated_audio', config.dataset_title)
+    output_path = os.path.join(workspace_path, 'data', 'simulated_audio', 'test',
+                               'dynamic_paper_tests', dataset_title)
     config.timit_base_path = timit_path
     config.output_path = output_path
     os.makedirs(output_path, exist_ok=True)
-    
+
     male_speakers, female_speakers = get_timit_speakers(timit_path)
-    
-    print(f"\nGenerating {config.num_samples} paper replication samples...")
+
+    print(f"\nGenerating {config.num_samples} samples -> {output_path}")
+    print(f"  SNR_diffuse={config.SNR_diffuse} dB  |  T60={config.T60} s  "
+          f"|  closest_ang_diff={config.closest_angle_diff} deg")
     print("-" * 60)
-    
+
     for i in range(config.start_idx, config.start_idx + config.num_samples):
         print(f"\rProcessing sample {i}/{config.start_idx + config.num_samples - 1}...", end="", flush=True)
-        
+
         np.random.seed(config.seed + i)
-        
-        result = create_custom_paper_test_sample(i, config, male_speakers, female_speakers, 35, 145, config.closest_ang_diff, verbose=True)
-        
+
+        result = create_custom_paper_test_sample(
+            i, config, male_speakers, female_speakers,
+            angle_s1=config.angle_s1_start,
+            angle_s2=config.angle_s2_start,
+            closest_ang_diff=config.closest_angle_diff,
+            verbose=True
+        )
+
         sf.write(os.path.join(output_path, f'first_{i}.wav'), result['first_speaker'], config.fs)
         sf.write(os.path.join(output_path, f'second_{i}.wav'), result['second_speaker'], config.fs)
         sf.write(os.path.join(output_path, f'together_{i}.wav'), result['mixture'], config.fs)
-        
+
         np.save(os.path.join(output_path, f'label_location_first_{i}.npy'), result['vad_first'])
         np.save(os.path.join(output_path, f'label_location_second_{i}.npy'), result['vad_second'])
-        
+
         np.savez(
             os.path.join(output_path, f'metadata_{i}.npz'),
             room_dim=result['room_dim'],
@@ -626,5 +649,5 @@ if __name__ == "__main__":
             SNR_diffuse=result['SNR_diffuse'],
             mic_positions=result['mic_positions']
         )
-    
+
     print(f"\n\nGeneration complete! Files saved to: {output_path}")

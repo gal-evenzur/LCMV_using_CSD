@@ -1580,10 +1580,17 @@ class DynamicSpatialSeparationPipeline(SpatialSeparationPipeline):
             
             ax3.plot(t_frames, doa_spk1, label='True DOA Spk 1', color='tab:blue', linestyle='--')
             ax3.plot(t_frames, doa_spk2, label='True DOA Spk 2', color='tab:orange', linestyle='--')
-            
-            angular_distance = np.abs(doa_spk1 - doa_spk2)
-            ax3.plot(t_frames, angular_distance, label='Angular Separation', color='gray', linestyle='-.', alpha=0.6)
-
+            # Print the overlap SIR and SDR values on the plot if available
+            try:
+                if hasattr(self, 'overlap_bss_results') and self.overlap_bss_results is not None:
+                    sdr = self.overlap_bss_results.get('sdr', [np.nan, np.nan])
+                    sir = self.overlap_bss_results.get('sir', [np.nan, np.nan])
+                    ax3.text(0.02, 0.95, f"Overlap SDR: Spk1={sdr[0]:.2f} dB, Spk2={sdr[1]:.2f} dB",
+                            transform=ax3.transAxes, verticalalignment='top')
+                    ax3.text(0.02, 0.90, f"Overlap SIR: Spk1={sir[0]:.2f} dB, Spk2={sir[1]:.2f} dB",
+                            transform=ax3.transAxes, verticalalignment='top')
+            except Exception:
+                pass  # If overlap_bss_results is not available, skip printing
         # Plot estimated DOA strictly when true_csd == 1, with smaller markers
         est_doa_filtered = np.where(true_csd == 1, est_doa, np.nan)
         ax3.plot(t_frames, est_doa_filtered, label='Estimated DOA (CSD=1)', color='black', marker='.', markersize=4, linestyle='None')
@@ -1913,18 +1920,31 @@ def run_batch_and_summarize(run_indices, p_stft, p_tracking, p_beamforming,
 
 
 if __name__ == "__main__":
-    # Example usage - mirrors the original file's __main__ block, swapped to the
-    # dynamic-metrics subclass. Adjust paths/config to your actual setup.
-    py_folder = os.path.dirname(os.path.realpath(__file__))
-    folder_to_all_data = os.path.join(py_folder, 'data')
-    folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'dynamic_SNR=30_T60=0.2')
-    folder_to_results = os.path.join(py_folder, 'pipeline_results', 'dynamic_SNR=30_T60=0.2')
+    import argparse as _argparse
+    parser = _argparse.ArgumentParser(description="Run the LCMV beamformer pipeline over a batch of test files.")
+    parser.add_argument("--start_idx", type=int, default=1, help="First file index to process (inclusive)")
+    parser.add_argument("--end_idx", type=int, default=10, help="Last file index to process (inclusive)")
+    parser.add_argument("--folder_to_test_data", type=str, required=True,
+                        help="Path to the directory containing the test audio files "
+                             "(together_N.wav, first_N.wav, second_N.wav)")
+    parser.add_argument("--folder_to_results", type=str, required=True,
+                        help="Path where beamformer outputs and the summary CSV will be saved. "
+                             "Must already contain the NN pipeline outputs "
+                             "(estimate_CSD_N.npy, estimate_DOA_N.npy, true_CSD_N.npy).")
+    parser.add_argument("--test_bf", action="store_true", default=False,
+                        help="Use oracle (ground-truth) CSD/DOA instead of NN estimates")
+    parser.add_argument("--eval_mode", type=str, default="overlap",
+                        choices=["windowed", "overlap", "both"],
+                        help="BSS evaluation mode (default: both)")
+    parser.add_argument("--verbose", type=int, default=1,
+                        help="Verbosity level (0=silent, 1=key steps, 2=detailed)")
 
+    args = parser.parse_args()
 
     p_stft = {
         'nfft': 2048,
         'wlen': 2048,
-        'hop': 512,  # wlen / 4
+        'hop': 512,   # wlen / 4
         'NUP': 1025,
         'win': np.hamming(2048)
     }
@@ -1944,15 +1964,16 @@ if __name__ == "__main__":
         'buffer_size': 32
     }
 
+    os.makedirs(args.folder_to_results, exist_ok=True)
 
-    
     rows = run_batch_and_summarize(
-        run_indices=range(20, 22),                      # your 20 files
+        run_indices=range(args.start_idx, args.end_idx + 1),
         p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming,
-        folder_to_test_data=folder_to_test_data,
-        folder_to_results=folder_to_results,
-        output_csv_path=os.path.join(folder_to_results, 'dynamic_metrics_summary.csv'),
-        close_threshold_deg=45.0,   # tune to what you consider "close" for your array
-        verbose=2,
-        test_bf=False
+        folder_to_test_data=args.folder_to_test_data,
+        folder_to_results=args.folder_to_results,
+        output_csv_path=os.path.join(args.folder_to_results, 'dynamic_metrics_summary.csv'),
+        close_threshold_deg=45.0,
+        eval_mode=args.eval_mode,
+        test_bf=args.test_bf,
+        verbose=args.verbose
     )
