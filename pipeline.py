@@ -323,6 +323,30 @@ class SpatialTrackingPipeline:
                 print("\n--- ALL EXPERIMENTS PROCESSED SUCCESSFULLY ---")
         return self
 
+py_folder = os.path.dirname(os.path.realpath(__file__))
+models_folder = os.path.join(py_folder, 'models')
+
+
+pipeline_config = {
+    # --- Models Config ---
+    'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_24_06.h5'),
+    'doa_path': os.path.join(models_folder, 'model_angle_GEVD_24_06.h5'),
+
+    # --- STFT Config ---
+    'n_fft': 2048,
+    'hoplen': 512,
+    'wlen': 2048,
+    'n_bins': 1025,             # Number of frequency bins (= n_fft//2 + 1)
+    'win': np.hamming(2048),
+    'silent_frames': 30,
+
+    # --- Tracking Config ---
+    'frame_before': 8,
+    'frame_after': 5,
+    'win_vad': np.hamming(21),
+    'threshold': 40,
+    'threshold_freq': 0.3
+}
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the NN spatial tracking pipeline over a batch of test files.")
     parser.add_argument("--start_idx", type=int, default=1, help="First file index to process (inclusive)")
@@ -334,35 +358,12 @@ if __name__ == "__main__":
                         help="Path where NN pipeline outputs (estimate_DOA_N.npy, etc.) will be saved")
 
     args = parser.parse_args()
+    os.makedirs(args.folder_to_results, exist_ok=True)
+
 
     # ==========================================
     # CONFIGURATION
     # ==========================================
-    py_folder = os.path.dirname(os.path.realpath(__file__))
-    models_folder = os.path.join(py_folder, 'models')
-
-    pipeline_config = {
-        # --- Models Config ---
-        'csd_path': os.path.join(models_folder, 'model_speaker_GEVD_24_06.h5'),
-        'doa_path': os.path.join(models_folder, 'model_angle_GEVD_24_06.h5'),
-
-        # --- STFT Config ---
-        'n_fft': 2048,
-        'hoplen': 512,
-        'wlen': 2048,
-        'n_bins': 1025,             # Number of frequency bins (= n_fft//2 + 1)
-        'win': np.hamming(2048),
-        'silent_frames': 30,
-
-        # --- Tracking Config ---
-        'frame_before': 8,
-        'frame_after': 5,
-        'win_vad': np.hamming(21),
-        'threshold': 40,
-        'threshold_freq': 0.3
-    }
-
-    os.makedirs(args.folder_to_results, exist_ok=True)
 
     pipeline = SpatialTrackingPipeline(
         config=pipeline_config,

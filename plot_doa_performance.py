@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from pipeline_ofer_funcs import plot_confusion_matrix_from_data
-
+from run_experiments import plot_single_experiment_doa_accuracy
 
 def get_args():
     parser = argparse.ArgumentParser(description="Aggregate and plot DOA performance across T60 environments.")
@@ -22,11 +22,10 @@ def process_metrics(args):
     print("--- Aggregating Performance Metrics ---")
     
     # Initialize storage for counts
-    # Using rounded T60 keys to avoid float precision mismatch
     target_t60s = [round(t, 2) for t in args.t60_list]
-    metrics = {t: {'success': 0, 'low': 0, 'high': 0, 'total': 0, 'raw_errors': []} for t in target_t60s}
+    # עודכן: פיצול ל-err_10 ו-err_20 במקום 'low' יחיד
+    metrics = {t: {'success': 0, 'err_10': 0, 'err_20': 0, 'high': 0, 'total': 0, 'raw_errors': []} for t in target_t60s}
 
-    # Global CSD tracking
     all_true_csd = []
     all_est_csd = []
     
@@ -57,7 +56,6 @@ def process_metrics(args):
             print(f"Warning: Missing tracking arrays for Experiment {run_idx}. Skipping.")
             continue
 
-        # Load arrays
         true_csd = np.load(true_csd_path)
         true_doa = np.load(true_doa_path)
         est_doa = np.load(est_doa_path)
@@ -82,20 +80,21 @@ def process_metrics(args):
 
         # 2. Compute absolute bin differences
         abs_diff = np.abs(valid_true_doa - valid_est_doa)
-
         errors_in_degrees = abs_diff * 10
         metrics[t60]['raw_errors'].extend(errors_in_degrees)
 
-        # 3. Categorize errors (Resolution = 10 degrees, so 2 bins = 20 degrees)
+        # סיווג מפורט: 0 מעלות, 10 מעלות (bin 1), 20 מעלות (bin 2), ומעל 20
         success = np.sum(abs_diff == 0)
-        low_error = np.sum((abs_diff > 0) & (abs_diff <= 2))
+        err_10 = np.sum(abs_diff == 1)
+        err_20 = np.sum(abs_diff == 2)
         high_error = np.sum(abs_diff > 2)
 
         # 4. Aggregate
         metrics[t60]['success'] += success
-        metrics[t60]['low'] += low_error
+        metrics[t60]['err_10'] += err_10
+        metrics[t60]['err_20'] += err_20
         metrics[t60]['high'] += high_error
-        metrics[t60]['total'] += (success + low_error + high_error)
+        metrics[t60]['total'] += (success + err_10 + err_20 + high_error)
 
     return metrics, target_t60s, np.array(all_true_csd), np.array(all_est_csd)
 
@@ -104,8 +103,8 @@ def plot_stacked_bar(metrics, t60_list, save_dir):
     os.makedirs(save_dir, exist_ok=True)
     
     print("--- Generating Grouped Bar Chart ---")
-    success_pct, low_pct, high_pct = [], [], []
-    success_counts, low_counts, high_counts = [], [], []
+    success_pct, err_10_pct, err_20_pct, high_pct = [], [], [], []
+    success_counts, err_10_counts, err_20_counts, high_counts = [], [], [], []
     labels = []
 
     for t60 in sorted(t60_list):
@@ -113,35 +112,39 @@ def plot_stacked_bar(metrics, t60_list, save_dir):
         total = data['total']
         
         success_counts.append(data['success'])
-        low_counts.append(data['low'])
+        err_10_counts.append(data['err_10'])
+        err_20_counts.append(data['err_20'])
         high_counts.append(data['high'])
         
         if total == 0:
-            success_pct.append(0); low_pct.append(0); high_pct.append(0)
+            success_pct.append(0); err_10_pct.append(0); err_20_pct.append(0); high_pct.append(0)
         else:
             success_pct.append((data['success'] / total) * 100)
-            low_pct.append((data['low'] / total) * 100)
+            err_10_pct.append((data['err_10'] / total) * 100)
+            err_20_pct.append((data['err_20'] / total) * 100)
             high_pct.append((data['high'] / total) * 100)
         
         labels.append(f"{t60:.2f}")
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(11, 6))
     x_pos = np.arange(len(labels))
-    bar_width = 0.25 
-    
-    color_success, color_low, color_high = '#5a8cdb', '#9067c6', '#f094a4'
+    bar_width = 0.2  # רוחב מותאם ל-4 עמודות
 
-    bars_success = ax.bar(x_pos - bar_width, success_pct, bar_width, label='Exact (0° Error)', color=color_success, edgecolor='white')
-    bars_low = ax.bar(x_pos, low_pct, bar_width, label='Low Error (≤ 20°)', color=color_low, edgecolor='white')
-    bars_high = ax.bar(x_pos + bar_width, high_pct, bar_width, label='High Error (> 20°)', color=color_high, edgecolor='white')
+    colors = ['#5a8cdb', '#72b095', '#e3a857', '#f094a4']
+
+    bars_success = ax.bar(x_pos - 1.5 * bar_width, success_pct, bar_width, label='Exact (0°)', color=colors[0], edgecolor='white')
+    bars_10 = ax.bar(x_pos - 0.5 * bar_width, err_10_pct, bar_width, label='10° Error', color=colors[1], edgecolor='white')
+    bars_20 = ax.bar(x_pos + 0.5 * bar_width, err_20_pct, bar_width, label='20° Error', color=colors[2], edgecolor='white')
+    bars_high = ax.bar(x_pos + 1.5 * bar_width, high_pct, bar_width, label='> 20° Error', color=colors[3], edgecolor='white')
 
     def add_labels(bars, counts):
         for bar, count in zip(bars, counts):
             if count > 0:
-                ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1.5, f'{count}', ha='center', va='bottom', fontsize=9, color='black')
+                ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1.5, f'{count}', ha='center', va='bottom', fontsize=8, color='black')
 
     add_labels(bars_success, success_counts)
-    add_labels(bars_low, low_counts)
+    add_labels(bars_10, err_10_counts)
+    add_labels(bars_20, err_20_counts)
     add_labels(bars_high, high_counts)
 
     ax.set_xlabel('T60 (sec)', fontsize=12, labelpad=10)
@@ -149,7 +152,7 @@ def plot_stacked_bar(metrics, t60_list, save_dir):
     ax.set_xticks(x_pos)
     ax.set_xticklabels(labels, fontsize=11)
     ax.set_ylim(0, 115)
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.12), ncol=3, frameon=False, fontsize=11)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.12), ncol=4, frameon=False, fontsize=10)
     ax.grid(axis='y', linestyle='--', alpha=0.6)
     ax.set_axisbelow(True)
     ax.spines['top'].set_visible(False)
@@ -158,7 +161,7 @@ def plot_stacked_bar(metrics, t60_list, save_dir):
     plt.tight_layout()
     bar_path = os.path.join(save_dir, 'DOA_Performance_Grouped_Comparison.png')
     plt.savefig(bar_path, dpi=300, bbox_inches='tight')
-    plt.close(fig) # סגירת הגרף כדי לא להעמיס על הזיכרון
+    plt.close(fig)
     print(f"Bar Graph saved successfully to: {bar_path}")
 
 
@@ -166,10 +169,9 @@ def plot_global_csd_matrix(true_csd, est_csd, save_dir):
     """Renders the global CSD confusion matrix using the existing utility function."""
     print("--- Generating Global CSD Confusion Matrix ---")
     
-    # Plotting Defaults to match pipeline.py
     annot, cmap, fmt, fz, lw, cbar = True, 'Oranges', '.2f', 9, 0.5, False
     show_null_values, pred_val_axis = 2, 'y'
-    figsize = [18, 18]  # Adjust this if the global matrix feels too large
+    figsize = [18, 18]
     
     cm_plot_labels_csd = ['Noise', 'One speaker', '2 speakers']
     
