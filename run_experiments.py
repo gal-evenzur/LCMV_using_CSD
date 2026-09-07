@@ -542,6 +542,18 @@ def create_total_csd(folder_to_results):
 
 
     cm_plot_labels_csd = ['Noise', 'One speaker', '2 speakers']
+    # Try to extract SNR and T60 from the folder name for a clearer title
+    import re
+    base = os.path.basename(folder_to_results)
+    snr_m = re.search(r'SNR=([^_]+)', base)
+    t60_m = re.search(r'T60=([^_]+)', base)
+    subtitle_parts = []
+    if snr_m:
+        subtitle_parts.append(f'SNR={snr_m.group(1)}')
+    if t60_m:
+        subtitle_parts.append(f'T60={t60_m.group(1)}')
+    subtitle = '  |  '.join(subtitle_parts) if subtitle_parts else None
+
     plot_confusion_matrix_from_data(
         total_true_csd,
         total_est_csd,
@@ -549,6 +561,7 @@ def create_total_csd(folder_to_results):
         cm_plot_labels_csd,
         name=os.path.basename(confusion_plot_path),
         plot_folder=folder_to_results,
+        subtitle=subtitle,
     )
     
     print(
@@ -565,6 +578,48 @@ def create_total_csd(folder_to_results):
         'estimate_total_csd': total_est_csd,
         'segment_lengths': segment_lengths,
     }
+
+
+def create_total_csd_for_dynamic_paper_tests(root_folder=None):
+    """Walk each subdirectory under `root_folder` (defaults to
+    `pipeline_results/dynamic_paper_tests`) and produce a global CSD
+    confusion matrix for that directory using `create_total_csd`.
+
+    Returns a list of result dicts (one per processed directory).
+    """
+
+    py_folder = os.path.dirname(os.path.realpath(__file__))
+    if root_folder is None:
+        root_folder = os.path.join(py_folder, 'pipeline_results', 'dynamic_paper_tests')
+
+    if not os.path.exists(root_folder):
+        raise FileNotFoundError(f"Root folder not found: {root_folder}")
+
+    subdirs = sorted([
+        d for d in os.listdir(root_folder)
+        if os.path.isdir(os.path.join(root_folder, d))
+    ])
+
+    if not subdirs:
+        print(f"No subdirectories found in {root_folder} - nothing to process.")
+        return []
+
+    results = []
+    print(f"Found {len(subdirs)} subdirectories in {root_folder}. Processing...")
+
+    for sd in subdirs:
+        folder = os.path.join(root_folder, sd)
+        try:
+            print(f"\n--- Processing directory: {folder} ---")
+            res = create_total_csd(folder)
+            results.append({'folder': folder, 'result': res, 'error': None})
+            print(f"Saved CSD confusion matrix for: {folder}")
+        except Exception as e:
+            print(f"Error processing {folder}: {e}")
+            results.append({'folder': folder, 'result': None, 'error': str(e)})
+
+    print(f"\nCompleted processing {len(subdirs)} directories under {root_folder}.")
+    return results
 
 
 if __name__ == "__main__":
@@ -587,11 +642,12 @@ if __name__ == "__main__":
         folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'dynamic_SNR=30_T60=0.2')
         
         workspace_dir = py_folder
-        results_dir = os.path.join(workspace_dir, 'pipeline_results', 'dynamic_SNR=30_T60=0.2')
-        for i in range(28, 29):
-            plot_single_experiment_doa_accuracy(run_idx=i, test_type='dynamic_SNR=30_T60=0.2')
+        results_dir = os.path.join(workspace_dir, 'pipeline_results', 'dynamic_paper_tests')
+        # for i in range(28, 29):
+        #     plot_single_experiment_doa_accuracy(run_idx=i, test_type='dynamic_SNR=30_T60=0.2')
 
-        create_total_csd(results_dir)
+        # create_total_csd(results_dir)
+        create_total_csd_for_dynamic_paper_tests(root_folder=results_dir)
     else:
         # Use the provided arguments
         start_idx = args.start_idx

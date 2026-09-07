@@ -81,7 +81,7 @@ def create_test_sample_dynamic(
     # --- 2. Unified Geometry & Trajectory Setup ---
     start_rad = np.deg2rad(config.start_angle_deg)
     end_rad = np.deg2rad(config.end_angle_deg)
-    arc_length = abs(end_rad - start_rad) * config.speaker_radius
+    arc_length = 2 * abs(end_rad - start_rad) * config.speaker_radius
     
     # Prevent division by zero if stationary
     v = config.linear_velocity if config.linear_velocity > 0 else 0.01
