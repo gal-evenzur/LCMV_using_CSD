@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PASTD Separation Results Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        /* Container holds the image and allows the boxes and line to be positioned over it */
+        .image-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .image-container img {
+            max-width: 800px; /* Adjust this to make the image larger or smaller */
+            height: auto;
+            display: block;
+            border: 1px solid #ccc;
+            background-color: white;
+        }
+
+        /* The highlight box styling */
+        .highlight-box {
+            position: absolute;
+            left: 10%; /* Adjust horizontally to fit around the plot axes */
+            width: 86%; 
+            border: 5px solid #d9534f; /* Red highlight border */
+            box-sizing: border-box;
+            border-radius: 5px;
+            display: none; /* Hidden by default until a button is clicked */
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(217, 83, 79, 0.5);
+            z-index: 1;
+        }
+
+        /* Specific vertical positions for each subplot (percentages scale with the image) */
+        #box-mix { top: 14%; height: 26%; }
+        #box-spk1 { top: 40%; height: 26%; }
+        #box-spk2 { top: 68%; height: 26%; }
+
+        /* The moving vertical playback line */
+        #playback-line {
+            position: absolute;
+            top: 12.5%;    /* Starts at the top of the first subplot */
+            height: 81.5%; /* Stretches down to the bottom of the last subplot */
+            width: 2px;
+            background-color: #000; /* Black line */
+            display: none; /* Hidden by default */
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Button styling */
+        .controls { margin-top: 20px; }
+        
+        button {
+            padding: 12px 24px;
+            margin: 0 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 220px; /* Fixed width so buttons don't resize when text changes */
+        }
+        
+        button:hover { background-color: #0056b3; }
+        button.active { background-color: #28a745; } /* Turns green when playing */
+        button.paused { background-color: #ffc107; color: black; } /* Turns yellow when paused */
+    </style>
+</head>
+<body>
+
+    <h2>Signal Separation Results (Method: PASTD)</h2>
+
+    <div class="image-container">
+        <!-- Make sure to use the exact file name here -->
+        <img src="waveform_doa.png" alt="Waveform Separation Plots">
+        
+        <!-- The highlight boxes overlaying the subplots -->
+        <div id="box-mix" class="highlight-box"></div>
+        <div id="box-spk1" class="highlight-box"></div>
+        <div id="box-spk2" class="highlight-box"></div>
+        
+        <!-- The moving vertical line -->
+        <div id="playback-line"></div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-mix" onclick="toggleAudio('mix')">Play Original Mixture</button>
+        <button id="btn-spk1" onclick="toggleAudio('spk1')">Play Speaker 1</button>
+        <button id="btn-spk2" onclick="toggleAudio('spk2')">Play Speaker 2</button>
+    </div>
+
+    <!-- Hidden audio elements referencing your .mp3 files -->
+    <audio id="audio-mix" src="mixture.mp3" onended="audioEnded('mix')"></audio>
+    <audio id="audio-spk1" src="speaker1.mp3" onended="audioEnded('spk1')"></audio>
+    <audio id="audio-spk2" src="speaker2.mp3" onended="audioEnded('spk2')"></audio>
+
+    <script>
+        const tracks = ['mix', 'spk1', 'spk2'];
+        let currentTrack = null;
+        let animationFrameId = null;
+        
+        // --- CALIBRATION SETTINGS ---
+        // These percentages define where the audio line starts and ends visually on the image.
+        // Adjust these if the moving line doesn't perfectly match the start/end of the plotted waveforms.
+        const plotStartX = 9.5;  // Distance from left edge of image to the 0 seconds mark (%)
+        const plotEndX = 91.5;   // Distance from left edge of image to the end of the audio wave (%)
+
+        function getTrackLabel(trackId) {
+            if (trackId === 'mix') return 'Original Mixture';
+            if (trackId === 'spk1') return 'Speaker 1';
+            if (trackId === 'spk2') return 'Speaker 2';
+            return 'Track';
+        }
+
+        function toggleAudio(trackId) {
+            const audioToPlay = document.getElementById('audio-' + trackId);
+            const btn = document.getElementById('btn-' + trackId);
+
+            // If we clicked the track that is currently active (either playing or paused)
+            if (currentTrack === trackId) {
+                if (audioToPlay.paused) {
+                    // Resume playing
+                    audioToPlay.play();
+                    btn.classList.remove('paused');
+                    btn.classList.add('active');
+                    btn.innerText = 'Pause ' + getTrackLabel(trackId);
+                    updatePlaybackLine(); // Restart animation
+                } else {
+                    // Pause it
+                    audioToPlay.pause();
+                    btn.classList.remove('active');
+                    btn.classList.add('paused');
+                    btn.innerText = 'Resume ' + getTrackLabel(trackId);
+                    cancelAnimationFrame(animationFrameId); // Pause animation
+                }
+            } else {
+                // If we clicked a completely different track, reset UI and play the new one
+                fullReset();
+                currentTrack = trackId;
+                
+                audioToPlay.play();
+                
+                // Highlight corresponding box and show the vertical line
+                document.getElementById('box-' + trackId).style.display = 'block';
+                document.getElementById('playback-line').style.display = 'block';
+                
+                // Update button styles
+                btn.classList.add('active');
+                btn.innerText = 'Pause ' + getTrackLabel(trackId);
+                
+                // Start animation
+                updatePlaybackLine();
+            }
+        }
+
+        function updatePlaybackLine() {
+            if (!currentTrack) return;
+            const audio = document.getElementById('audio-' + currentTrack);
+            const line = document.getElementById('playback-line');
+            
+            // Wait for audio metadata to load so we have the duration
+            if (!audio.paused && !audio.ended && audio.duration) {
+                // Calculate progress between 0 and 1
+                const progress = audio.currentTime / audio.duration;
+                // Calculate current percentage across the image
+                const currentLeftPosition = plotStartX + (progress * (plotEndX - plotStartX));
+                
+                line.style.left = currentLeftPosition + '%';
+                
+                // Loop the animation smoothly to the screen's refresh rate
+                animationFrameId = requestAnimationFrame(updatePlaybackLine);
+            }
+        }
+
+        function audioEnded(trackId) {
+            fullReset();
+        }
+
+        function fullReset() {
+            // Stop any running animations
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            
+            // Hide the playback line and reset its position
+            const line = document.getElementById('playback-line');
+            line.style.display = 'none';
+            line.style.left = plotStartX + '%';
+
+            // Reset all audio elements, boxes, and buttons
+            tracks.forEach(id => {
+                let aud = document.getElementById('audio-' + id);
+                aud.pause();
+                aud.currentTime = 0; // Rewind
+                
+                document.getElementById('box-' + id).style.display = 'none';
+                
+                let btn = document.getElementById('btn-' + id);
+                btn.classList.remove('active', 'paused');
+                btn.innerText = 'Play ' + getTrackLabel(id);
+            });
+            
+            currentTrack = null;
+        }
+    </script>
+</body>
+</html>
