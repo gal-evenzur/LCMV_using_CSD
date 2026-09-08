@@ -1,0 +1,246 @@
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~[00m$ cd LCMV_using_CSD/
+[?2004l[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python '/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py'
+[?2004l2026-09-08 10:58:22.144338: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-09-08 10:58:22.165969: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-09-08 10:58:22.190530: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8473] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-09-08 10:58:22.197781: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1471] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-09-08 10:58:22.227634: I tensorflow/core/platform/cpu_feature_guard.cc:211] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 20 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       37.37 seconds
+--- Reconstructing Audio (ISTFT) ---
+--- Saving Outputs ---
+--- Computing Evaluation Metrics ---
+/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py:613: FutureWarning: mir_eval.separation.bss_eval_sources
+	Deprecated as of mir_eval version 0.8.
+	It will be removed in mir_eval version 0.9.
+  sdr, sir, sar, perm = mir_eval.separation.bss_eval_sources(ref_sources.T + 1e-9, est_sources.T, compute_permutation=True)
+
+--- Evaluation Results (During Overlap) ---
+Speaker 0 -> SDR: 6.12 dB | SIR: 15.99 dB | SAR: 6.70 dB
+Speaker 1 -> SDR: 3.16 dB | SIR: 17.49 dB | SAR: 3.40 dB
+---------------------------------------------
+Average   -> SDR: 4.64 dB | SIR: 16.74 dB | SAR: 5.05 dB
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       75.61 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4  5  6 15]
+    Speaker 1 sectors: [12 13 14 15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4493
+    Speaker 1 Spatial Overlap: 0.5285
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 14.08 dB
+    - Speaker 1 Target NR = 6.63 dB
+Failed run_idx=20 method=gevd: invalid index to scalar variable.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 21 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       41.13 seconds
+--- Reconstructing Audio (ISTFT) ---
+--- Saving Outputs ---
+--- Computing Evaluation Metrics ---
+
+--- Evaluation Results (During Overlap) ---
+Speaker 0 -> SDR: 3.74 dB | SIR: 10.84 dB | SAR: 5.02 dB
+Speaker 1 -> SDR: 6.95 dB | SIR: 18.77 dB | SAR: 7.31 dB
+---------------------------------------------
+Average   -> SDR: 5.35 dB | SIR: 14.81 dB | SAR: 6.17 dB
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       69.68 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4  5  6  7 15]
+    Speaker 1 sectors: [12 13 14 15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4264
+    Speaker 1 Spatial Overlap: 0.2750
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.28 dB
+    - Speaker 1 Target NR = 6.12 dB
+Failed run_idx=21 method=gevd: invalid index to scalar variable.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 22 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       37.15 seconds
+--- Reconstructing Audio (ISTFT) ---
+--- Saving Outputs ---
+--- Computing Evaluation Metrics ---
+
+--- Evaluation Results (During Overlap) ---
+Speaker 0 -> SDR: -1.84 dB | SIR: 7.60 dB | SAR: -0.61 dB
+Speaker 1 -> SDR: 2.19 dB | SIR: 14.35 dB | SAR: 2.62 dB
+---------------------------------------------
+Average   -> SDR: 0.18 dB | SIR: 10.97 dB | SAR: 1.00 dB
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       69.58 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4  5  6  7 15]
+    Speaker 1 sectors: [12 14 15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4239
+    Speaker 1 Spatial Overlap: 0.2846
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 10.97 dB
+    - Speaker 1 Target NR = 6.17 dB
+Failed run_idx=22 method=gevd: invalid index to scalar variable.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 20 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       45.48 seconds
+--- Reconstructing Audio (ISTFT) ---
+--- Saving Outputs ---
+--- Computing Evaluation Metrics ---
+
+--- Evaluation Results (During Overlap) ---
+Speaker 0 -> SDR: 4.97 dB | SIR: 14.93 dB | SAR: 5.57 dB
+Speaker 1 -> SDR: 3.33 dB | SIR: 17.57 dB | SAR: 3.57 dB
+---------------------------------------------
+Average   -> SDR: 4.15 dB | SIR: 16.25 dB | SAR: 4.57 dB
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       77.55 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4  5  6 15]
+    Speaker 1 sectors: [12 13 14 15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5189
+    Speaker 1 Spatial Overlap: 0.5849
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 12.84 dB
+    - Speaker 1 Target NR = 5.88 dB
+Failed run_idx=20 method=pastd: invalid index to scalar variable.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 21 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       39.47 seconds
+--- Reconstructing Audio (ISTFT) ---
+--- Saving Outputs ---
+--- Computing Evaluation Metrics ---
+
+--- Evaluation Results (During Overlap) ---
+Speaker 0 -> SDR: 3.84 dB | SIR: 12.83 dB | SAR: 4.65 dB
+Speaker 1 -> SDR: 7.01 dB | SIR: 18.35 dB | SAR: 7.40 dB
+---------------------------------------------
+Average   -> SDR: 5.43 dB | SIR: 15.59 dB | SAR: 6.03 dB
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       70.72 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4  5  6  7 15]
+    Speaker 1 sectors: [12 13 14 15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3716
+    Speaker 1 Spatial Overlap: 0.2908
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.26 dB
+    - Speaker 1 Target NR = 5.23 dB
+Failed run_idx=21 method=pastd: invalid index to scalar variable.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 22 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       42.32 seconds
+--- Reconstructing Audio (ISTFT) ---
+--- Saving Outputs ---
+--- Computing Evaluation Metrics ---
+
+--- Evaluation Results (During Overlap) ---
+Speaker 0 -> SDR: -1.35 dB | SIR: 7.67 dB | SAR: -0.08 dB
+Speaker 1 -> SDR: 2.77 dB | SIR: 12.58 dB | SAR: 3.48 dB
+---------------------------------------------
+Average   -> SDR: 0.71 dB | SIR: 10.12 dB | SAR: 1.70 dB
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       73.36 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4  5  6  7 15]
+    Speaker 1 sectors: [12 14 15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4152
+    Speaker 1 Spatial Overlap: 0.3342
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 9.83 dB
+    - Speaker 1 Target NR = 5.37 dB
+Failed run_idx=22 method=pastd: invalid index to scalar variable.
+Results appended to /home/evenzug/LCMV_using_CSD/pipeline_results/pastd_dynamic/pastd_comparison_results.csv
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ python '/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py'[A[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cfd
+[?2004lbash: fd: command not found
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ scre[Kexit
+[?2004lexit

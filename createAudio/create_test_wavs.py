@@ -1,5 +1,23 @@
 from create_data_base import *
 
+def accumulate_speech_with_gaps(speaker_dir: str, target_samples: int, fs: int) -> np.ndarray:
+    """Concatenates TIMIT sentences with organic silence gaps (0.3s - 0.8s)."""
+    accumulated_audio = []
+    current_length = 0
+    
+    while current_length < target_samples:
+        wav_path = get_random_speech_file(speaker_dir)
+        speech = load_speech(wav_path, fs)
+        
+        gap_samples = np.random.randint(int(0.3 * fs), int(0.8 * fs))
+        gap = np.zeros(gap_samples)
+        
+        accumulated_audio.extend([speech, gap])
+        current_length += len(speech) + len(gap)
+        
+    full_audio = np.concatenate(accumulated_audio)
+    return full_audio[:target_samples]
+
 
 def create_test_sample_static(
     sample_idx: int,
@@ -67,9 +85,10 @@ def create_test_sample_static(
     speech_1_alone = load_speech(get_random_speech_file(speaker1_dir), config.fs)
     speech_2_alone = load_speech(get_random_speech_file(speaker2_dir), config.fs)
         
-    # Another load for the together part (to ensure different content for each segment)
-    speech_1_together = load_speech(get_random_speech_file(speaker1_dir), config.fs)
-    speech_2_together = load_speech(get_random_speech_file(speaker2_dir), config.fs)
+    # Build part 3 (both speaking) as a longer sequence made from multiple utterances.
+    overlap_samples = int(config.overlap_duration_sec * config.fs)
+    speech_1_together = accumulate_speech_with_gaps(speaker1_dir, overlap_samples, config.fs)
+    speech_2_together = accumulate_speech_with_gaps(speaker2_dir, overlap_samples, config.fs)
     
     silence_gap = np.zeros((int(config.fs * 1), config.M)) 
 
@@ -266,7 +285,8 @@ class Config:
     T60 = 0.2 
 
     initial_noise_pad_sec = 2.0 # Seconds of pure noise to prepend
-    
+    overlap_duration_sec = 10.0 # Duration of part 3 where both speakers talk
+
     # TIMIT paths
     timit_base_path = None      # Will be set at runtime
     
@@ -303,6 +323,9 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=config.seed, help="Random seed for reproducibility")
     parser.add_argument("--SNR", type=float, default=30.0, help="SNR for diffuse noise in dB")
     parser.add_argument("--T60", type=float, default=0.2, help="Optional fixed T60 value for all samples (overrides random T60)")
+    parser.add_argument("--audio_length", type=float, default=10.0, help="Length of the generated audio in seconds")
+    parser.add_argument("--timit_base_path", type=str, default=None, help="Path to the TIMIT root directory")
+    parser.add_argument("--output_path", type=str, default=None, help="Directory where generated wav/npy files will be written")
     args = parser.parse_args()
     num_samples = args.num_samples
     start_idx = args.start_idx
@@ -311,20 +334,20 @@ if __name__ == "__main__":
     dataset_title = config.dataset_title
     config.SNR_direction = args.SNR  # Set SNR for diffuse noise
     config.T60 = args.T60
+    config.overlap_duration_sec = max(0.1, args.audio_length)
 
     # Set default paths
-    if config.timit_base_path is None:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        workspace_path = os.path.dirname(script_dir)
-        timit_path = os.path.join(workspace_path, 'data', 'TIMIT')
-    
-    if config.output_path is None:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        workspace_path = os.path.dirname(script_dir)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    workspace_path = os.path.dirname(script_dir)
+    timit_path = args.timit_base_path or os.path.join(workspace_path, 'data', 'TIMIT')
+
+    if args.output_path is None:
         data_path = os.path.join(workspace_path, 'data')
         sim_audio_path = os.path.join(data_path, 'simulated_audio')
         os.makedirs(sim_audio_path, exist_ok=True)
         output_path = os.path.join(sim_audio_path, dataset_title)
+    else:
+        output_path = args.output_path
     
     # Create output directory
     os.makedirs(output_path, exist_ok=True)
@@ -388,7 +411,11 @@ if __name__ == "__main__":
             SNR_diffuse=result['SNR_diffuse'],
             mic_positions=result['mic_positions'],
             true_sector_spk1=result['true_geom_sector_first'],
-            true_sector_spk2=result['true_geom_sector_second']
+            true_sector_spk2=result['true_geom_sector_second'],
+            audio_length_sec=float(args.audio_length),
+            seed=int(args.seed),
+            start_idx=int(start_idx),
+            num_samples=int(num_samples)
         )
     
     print(f"\n\nDatabase generation complete!")

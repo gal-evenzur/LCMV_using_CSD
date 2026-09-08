@@ -1,3 +1,4 @@
+import argparse
 from pipeline_ofer_funcs import *
 import time
 import os
@@ -618,7 +619,7 @@ class SpatialSeparationPipeline:
             print("-" * 45)
             print(f"Average   -> SDR: {sdr.mean():.2f} dB | SIR: {sir.mean():.2f} dB | SAR: {sar.mean():.2f} dB")
 
-        return sdr.mean(), sir.mean(), sar.mean()
+        return sdr, sir, sar
 
     def investigate_geometry(self):
         """Diagnoses the acoustic geometry of the current audio file."""
@@ -722,33 +723,33 @@ class SpatialSeparationPipeline:
         except Exception:
             return None, None, None
 
-    def plot_waveform_and_doa(self, true_labels):
+    def plot_waveform_and_doa(self):
         """
-        Plots output audio waveforms and DOA tracking over time in 3 clear subplots.
-        
-        Args:
-            true_labels (np.ndarray): Array of shape (num_frames, 2) containing
-                                      the true angles for [speaker 1, speaker 2].
+        Plots the original mixture and the separated output audio waveforms in 3 subplots,
+        overlaid with CSD background shading.
         """
-
-        # 1. Create time axes for audio and STFT frames
+        # 1. Extract audio signals
+        wav_in = self.receivers[:, 0]
         wav1 = self.speech_out[0]
         wav2 = self.speech_out[1]
-        t_audio = np.arange(len(wav1)) / self.fs
+        
+        # Calculate the exact time delay caused by STFT frame trimming
+        delay_sec = (self.p_tracking['frame_before'] * self.p_stft['hop']) / self.fs
+        
+        # 2. Create distinct time axes, shifting the outputs and frames by the delay
+        t_audio_in = np.arange(len(wav_in)) / self.fs
+        t_audio_out = (np.arange(len(wav1)) / self.fs) + delay_sec
         
         frame_hop_sec = self.p_stft['hop'] / self.fs
         num_frames = len(self.y_prob_stat_mf)
-        t_frames = np.arange(num_frames) * frame_hop_sec
+        t_frames = (np.arange(num_frames) * frame_hop_sec) + delay_sec
 
-        # Fetch CSD and DOA data from saved results or fallback to internal arrays
+        # Fetch CSD data from saved results or fallback to internal arrays
         try:
             true_csd = np.load(os.path.join(self.folder_to_results, f'true_CSD_{self.run_idx}.npy'))
-            est_doa = np.load(os.path.join(self.folder_to_results, f'estimate_DOA_{self.run_idx}.npy'))
         except FileNotFoundError:
             true_csd = self.y_prob_stat_mf
-            est_doa = self.y2_prob_stat_mf
 
-        # Changed to 3 subplots instead of 2
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10), sharex=True)
 
         # Determine active speaker during single-speaker frames (CSD=1) using energy
@@ -763,7 +764,6 @@ class SpatialSeparationPipeline:
         spk2_only = (true_csd == 1) & (power_2 > power_1 * 10)
         overlap = (true_csd == 2)
 
-        # Helper function to apply the exact same shading to any axis
         def apply_shading(ax):
             ax.fill_between(t_frames, -1.1, 1.1, where=spk1_only, color='tab:blue', alpha=0.15, linewidth=0)
             ax.fill_between(t_frames, -1.1, 1.1, where=spk2_only, color='tab:orange', alpha=0.15, linewidth=0)
@@ -772,20 +772,12 @@ class SpatialSeparationPipeline:
             ax.set_ylabel('Amplitude')
 
         # ==========================================
-        # Subplot 1: Speaker 1 Output Waveform
+        # Subplot 1: Original Unfiltered Mixture
         # ==========================================
-        ax1.plot(t_audio, wav1 / (np.max(np.abs(wav1)) + 1e-9), color='tab:blue', linewidth=0.8)
+        ax1.plot(t_audio_in, wav_in, color='darkgreen', linewidth=0.8)
         apply_shading(ax1)
-        ax1.set_title('Speaker 1 Output (Separated)')
-
-        # ==========================================
-        # Subplot 2: Speaker 2 Output Waveform
-        # ==========================================
-        ax2.plot(t_audio, wav2 / (np.max(np.abs(wav2)) + 1e-9), color='tab:orange', linewidth=0.8)
-        apply_shading(ax2)
-        ax2.set_title('Speaker 2 Output (Separated)')
-
-        # Custom legend for the shading (added to ax1 so it only appears once)
+        ax1.set_title('Original Mixture (Mic 1)')
+        
         from matplotlib.patches import Patch
         legend_elements = [
             Patch(facecolor='tab:blue', alpha=0.15, label='True Spk 1 Only'),
@@ -795,38 +787,35 @@ class SpatialSeparationPipeline:
         ax1.legend(handles=legend_elements, loc='upper right')
 
         # ==========================================
-        # Subplot 3: DOA Tracking & Angular Separation
+        # Subplot 2: Speaker 1 Output Waveform
         # ==========================================
-        if true_labels is not None:
-            true_labels = np.asarray(true_labels)
-            
-            # Mask out 0 values (inactive periods) with NaN to prevent vertical drop lines
-            doa_spk1 = np.where(true_labels[:, 0] == 0, np.nan, true_labels[:, 0])
-            doa_spk2 = np.where(true_labels[:, 1] == 0, np.nan, true_labels[:, 1])
-            
-            ax3.plot(t_frames, doa_spk1, label='True DOA Spk 1', color='tab:blue', linestyle='--')
-            ax3.plot(t_frames, doa_spk2, label='True DOA Spk 2', color='tab:orange', linestyle='--')
-            # Print the overlap SIR and SDR values on the plot if available
-            try:
-                if hasattr(self, 'overlap_bss_results') and self.overlap_bss_results is not None:
-                    sdr = self.overlap_bss_results.get('sdr', [np.nan, np.nan])
-                    sir = self.overlap_bss_results.get('sir', [np.nan, np.nan])
-                    ax3.text(0.02, 0.95, f"Overlap SDR: Spk1={sdr[0]:.2f} dB, Spk2={sdr[1]:.2f} dB",
-                            transform=ax3.transAxes, verticalalignment='top')
-                    ax3.text(0.02, 0.90, f"Overlap SIR: Spk1={sir[0]:.2f} dB, Spk2={sir[1]:.2f} dB",
-                            transform=ax3.transAxes, verticalalignment='top')
-            except Exception:
-                pass  # If overlap_bss_results is not available, skip printing
-        # Plot estimated DOA strictly when true_csd == 1, with smaller markers
-        est_doa_filtered = np.where(true_csd == 1, est_doa, np.nan)
-        ax3.plot(t_frames, est_doa_filtered, label='Estimated DOA (CSD=1)', color='black', marker='.', markersize=4, linestyle='None')
+        ax2.plot(t_audio_out, wav1 / (np.max(np.abs(wav1)) + 1e-9), color='tab:blue', linewidth=0.8)
+        apply_shading(ax2)
+        ax2.set_title('Speaker 1 Output (Separated)')
 
+        # ==========================================
+        # Subplot 3: Speaker 2 Output Waveform
+        # ==========================================
+        ax3.plot(t_audio_out, wav2 / (np.max(np.abs(wav2)) + 1e-9), color='tab:orange', linewidth=0.8)
+        apply_shading(ax3)
+        ax3.set_title('Speaker 2 Output (Separated)')
         ax3.set_xlabel('Time [s]')
-        ax3.set_ylabel('DOA')
-        ax3.set_title('DOA Tracking & Angular Closeness')
-        ax3.legend(loc='upper right')
 
-        plt.tight_layout()
+        # ==========================================
+        # Top Subtitle Metrics
+        # ==========================================
+        title_text = f"Separation Results (Method: {self.rtf_method.upper()})"
+        try:
+            if hasattr(self, 'overlap_bss_results') and self.overlap_bss_results is not None:
+                sdr = self.overlap_bss_results.get('sdr', [np.nan, np.nan])
+                sir = self.overlap_bss_results.get('sir', [np.nan, np.nan])
+                title_text += f"\nOverlap SDR: Spk1={sdr[0]:.2f} dB, Spk2={sdr[1]:.2f} dB   |   Overlap SIR: Spk1={sir[0]:.2f} dB, Spk2={sir[1]:.2f} dB"
+        except Exception:
+            pass
+            
+        fig.suptitle(title_text, fontsize=12, y=0.98)
+        
+        plt.tight_layout(rect=[0, 0, 1, 0.93])
         plt.savefig(os.path.join(self.folder_to_results, f'waveform_doa_{self.run_idx}.png'))
         plt.close(fig)
 
@@ -886,7 +875,7 @@ class SpatialSeparationPipeline:
         
         # 5. Evaluate and Save
         if self.evaluate:
-            sdr_avg, sir_avg, sar_avg = self.evaluate_overlap_period()
+            sdr_avg, sir_avg, sar_avg = self.evaluate_and_save()
         else:
             self.evaluate_and_save()
             sdr_avg, sir_avg, sar_avg = None, None, None
@@ -919,18 +908,21 @@ class SpatialSeparationPipeline:
 
 
 if __name__ == "__main__":
-    # =========================================================================
-    # USER CONFIGURATION
-    # =========================================================================
-    # Select mode: 'gevd', 'pastd', or 'both'
-    RUN_MODE = 'both'
-    # =========================================================================
+    parser = argparse.ArgumentParser(description="Run the PASTd/GEVD beamforming pipeline.")
+    parser.add_argument("--start_idx", type=int, default=20, help="Starting experiment index (inclusive).")
+    parser.add_argument("--end_idx", type=int, default=23, help="Ending experiment index (exclusive).")
+    parser.add_argument("--folder_to_test_data", type=str, default=None, help="Directory containing the test wavs.")
+    parser.add_argument("--results_dir", type=str, default=None, help="Directory containing tracking results and where outputs are written.")
+    parser.add_argument("--csv_path", type=str, default=None, help="CSV file to append results to.")
+    parser.add_argument("--methods", type=str, default="both", choices=["gevd", "pastd", "both"], help="RTF estimation methods to run.")
+    parser.add_argument("--verbose", type=int, default=1, help="Verbosity level.")
+    args = parser.parse_args()
 
     py_folder = os.path.dirname(os.path.realpath(__file__))
     workspace_folder = py_folder
     folder_to_all_data = os.path.join(workspace_folder, 'data')
-    folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
-    folder_to_results = os.path.join(workspace_folder, 'pipeline_results', 'pastd')
+    folder_to_test_data = args.folder_to_test_data or os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
+    folder_to_results = args.results_dir or os.path.join(workspace_folder, 'pipeline_results', 'pastd')
 
     p_stft = {
         'nfft': 2048,
@@ -958,45 +950,64 @@ if __name__ == "__main__":
         'beta_pastd': 0.95  # Required for PASTd
     }
 
-    methods_to_run = ['gevd', 'pastd'] if RUN_MODE == 'both' else [RUN_MODE]
-    results_summary = {}
-    run_indices = range(110, 111) 
-    csv_file = os.path.join(folder_to_results, 'pastd_comparison_results.csv')
+    methods_to_run = ['gevd', 'pastd'] if args.methods == 'both' else [args.methods]
+    run_indices = range(args.start_idx, args.end_idx)
+    csv_file = args.csv_path or os.path.join(folder_to_results, 'pastd_comparison_results.csv')
 
-    rows = []
+    def append_row_to_csv(row):
+        os.makedirs(os.path.dirname(csv_file), exist_ok=True)
+        file_exists = os.path.exists(csv_file)
+        with open(csv_file, 'a', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=row.keys())
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(row)
     
     for method in methods_to_run:
         for run_idx in run_indices:
-            pipeline = SpatialSeparationPipeline(
-                run_idx=run_idx, p_stft=p_stft, p_tracking=p_tracking,
-                p_beamforming=p_beamforming, folder_to_test_data=folder_to_test_data,
-                folder_to_results=folder_to_results, M=4, rtf_method=method, verbose=1
-            )
-            
-            sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+            try:
+                pipeline = SpatialSeparationPipeline(
+                    run_idx=run_idx, p_stft=p_stft, p_tracking=p_tracking,
+                    p_beamforming=p_beamforming, folder_to_test_data=folder_to_test_data,
+                    folder_to_results=folder_to_results, M=4, rtf_method=method, verbose=args.verbose
+                )
 
-            pipeline.plot_waveform_and_doa(true_labels=pipeline.true_labels)
-            
-        
-            # Add them to your row dictionary
-            wav_length_sec = len(pipeline.speech_out[0]) / pipeline.fs if pipeline.speech_out else 'N/A'
-            rows.append({
-                'run_idx': run_idx,
-                'method': method.upper(),
-                'wav_length_sec': round(wav_length_sec, 3) if isinstance(wav_length_sec, (int, float)) else 'N/A',
-                'time_sec': round(t_sep, 2),
-                'T60': round(t60, 3) if t60 is not None else 'N/A',
-                'SNR_diffuse': round(snr, 2) if snr is not None else 'N/A',
-                'mean_separation_deg': round(mean_sep, 2) if mean_sep else 'N/A',
-                'sdr_spk0': round(sdr[0], 2) if sdr is not None else 'N/A',
-                'sdr_spk1': round(sdr[1], 2) if sdr is not None else 'N/A',
-                'sir_spk0': round(sir[0], 2) if sir is not None else 'N/A',
-                'sir_spk1': round(sir[1], 2) if sir is not None else 'N/A'
-            })
-    # Write to CSV
-    if rows:
-        with open(csv_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=rows[0].keys())
-            writer.writeheader()
-            writer.writerows(rows)
-        print(f"Results saved to {csv_file}")
+                sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                pipeline.plot_waveform_and_doa()
+
+                wav_length_sec = len(pipeline.speech_out[0]) / pipeline.fs if pipeline.speech_out else 'N/A'
+                row = {
+                    'run_idx': run_idx,
+                    'method': method.upper(),
+                    'wav_length_sec': round(wav_length_sec, 3) if isinstance(wav_length_sec, (int, float)) else 'N/A',
+                    'time_sec': round(t_sep, 2),
+                    'T60': round(t60, 3) if t60 is not None else 'N/A',
+                    'SNR_diffuse': round(snr, 2) if snr is not None else 'N/A',
+                    'mean_separation_deg': round(mean_sep, 2) if mean_sep else 'N/A',
+                    'sdr_spk0': round(sdr[0], 2) if sdr is not None else 'N/A',
+                    'sdr_spk1': round(sdr[1], 2) if sdr is not None else 'N/A',
+                    'sir_spk0': round(sir[0], 2) if sir is not None else 'N/A',
+                    'sir_spk1': round(sir[1], 2) if sir is not None else 'N/A'
+                }
+                append_row_to_csv(row)
+            except Exception as exc:
+                print(f"Failed run_idx={run_idx} method={method}: {exc}")
+                # Print traceback for debugging
+                import traceback
+                traceback.print_exc()
+                row = {
+                    'run_idx': run_idx,
+                    'method': method.upper(),
+                    'wav_length_sec': 'N/A',
+                    'time_sec': 'N/A',
+                    'T60': 'N/A',
+                    'SNR_diffuse': 'N/A',
+                    'mean_separation_deg': 'N/A',
+                    'sdr_spk0': 'N/A',
+                    'sdr_spk1': 'N/A',
+                    'sir_spk0': 'N/A',
+                    'sir_spk1': 'N/A'
+                }
+                append_row_to_csv(row)
+
+    print(f"Results appended to {csv_file}")

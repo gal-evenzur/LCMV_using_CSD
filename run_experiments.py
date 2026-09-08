@@ -1,17 +1,22 @@
+import argparse
 import os
+import glob
 import pandas as pd
 import time
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Import the pipeline classes and configurations
-from pipeline import SpatialTrackingPipeline, pipeline_config, plot_dir
+from pipeline import SpatialTrackingPipeline, pipeline_config
 from pipeline_beamformer import SpatialSeparationPipeline
-
+from DataSamples_to_InputVectors.plot_confusion_matrix_from_data import plot_confusion_matrix_from_data
 def run_all_experiments(num_experiments=20):
     py_folder = os.path.dirname(os.path.realpath(__file__))
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
     folder_to_results = os.path.join(py_folder, 'plots')
+    
+    # Ensure the output directory exists
+    os.makedirs(folder_to_results, exist_ok=True)
     
     # Static configurations for the beamformer pipeline
     p_stft = {'nfft': 2048, 'wlen': 2048, 'hop': 512, 'NUP': 1025, 'win': np.hamming(2048)}
@@ -26,29 +31,40 @@ def run_all_experiments(num_experiments=20):
     
     SDR_SUCCESS_THRESHOLD = 3.0 
     
+    # ---------------------------------------------------------
+    # Step 1: Run Neural Network Inference (Batch Process)
+    # ---------------------------------------------------------
+    print(f"\n{'='*75}\n--- STARTING NEURAL NETWORK BATCH PROCESSING FOR {num_experiments} EXPERIMENTS ---\n{'='*75}")
+    
+    # Initialize the pipeline ONCE (loads models into memory)
+    nn_pipeline = SpatialTrackingPipeline(
+        config=pipeline_config, 
+        folder_to_test_data=folder_to_test_data, 
+        n_mics=4, 
+        verbose=0
+    )
+    
+    # Run the batch process for all specified experiments
+    run_indices = range(1, num_experiments + 1)
+    # nn_pipeline.run_batch(run_indices=run_indices, folder_to_save=folder_to_results)
+
+    # ---------------------------------------------------------
+    # Step 2: Run LCMV Beamformer & Diagnostics (Iterative)
+    # ---------------------------------------------------------
     for i in range(1, num_experiments + 1):
-        print(f"\n{'='*75}\n=== STARTING EXPERIMENT {i}/{num_experiments} ===\n{'='*75}")
+        print(f"\n{'='*75}\n=== STARTING BEAMFORMING & EVALUATION {i}/{num_experiments} ===\n{'='*75}")
         
         try:
-            # Step 1: Run Neural Network Inference
-            print(f">> Running Neural Network Inference for experiment {i}...")
-            nn_pipeline = SpatialTrackingPipeline(
-                config=pipeline_config, folder_to_test_data=folder_to_test_data, n_mics=4, verbose=0
-            )
-            nn_pipeline.process_single_run(i, folder_to_results)
-            
-            # Step 2: Run LCMV Beamformer
+            # Run LCMV Beamformer
             print(">> Running Beamformer & Filtering...")
             bf_pipeline = SpatialSeparationPipeline(
                 run_idx=i, p_stft=p_stft, p_tracking=p_tracking, p_beamforming=p_beamforming, 
-                folder_to_test_data=folder_to_test_data, folder_to_results=folder_to_results, M=4, verbose=0
+                folder_to_test_data=folder_to_test_data, folder_to_results=folder_to_results, M=4, test_bf=True, verbose=0
             )
             
-            sdr_avg, sir_avg, sar_avg, nr_0, nr_1, t_sep = bf_pipeline.run()
+            sdr_avg, sir_avg, sar_avg, nr_0, nr_1 = bf_pipeline.run()
             
-            # ---------------------------------------------------------
-            # Step 3: Automated Diagnostics & Data Collection
-            # ---------------------------------------------------------
+            # Automated Diagnostics & Data Collection
             diagnosis = "Unknown"
             est_silence_count, true_silence_count = 0, 0
             
@@ -68,7 +84,7 @@ def run_all_experiments(num_experiments=20):
                 noise_contam_pct = np.sum((est_csd == 0) & (true_csd > 0)) / total_frames * 100
                 spatial_contam_pct = np.sum((est_csd > 0) & (true_csd == 0)) / total_frames * 100
                 
-                # Overlap Recall Calculation (Did the network catch the double-talk?)
+                # Overlap Recall Calculation
                 true_overlap_idx = np.where(true_csd == 2)[0]
                 if len(true_overlap_idx) > 0:
                     correct_overlap_preds = np.sum(est_csd[true_overlap_idx] == 2)
@@ -261,25 +277,39 @@ def run_all_experiments(num_experiments=20):
     else:
         print("Not enough valid data to generate plots.")
 
-def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
+def plot_single_experiment_doa_accuracy(run_idx, test_type='static', folder_to_test_data=None, results_dir=None):
     """
     Runs the pipeline for a single experiment (if results don't exist)
     and plots a 2-panel subplot tracking uncut ground truths:
       1. True vs Estimated CSD (Concurrent Speaker Detection) states.
       2. Uncut True vs Estimated DOA Timeline (Includes 0s and 19 Overlaps).
+         *Estimated DOA is only plotted when CSD == 1.
     """
     py_folder = os.path.dirname(os.path.realpath(__file__))
-    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', test_type)
-    if test_type == 'static':
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'model_predicts')
-    elif test_type == 'dynamic':
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic')
-    elif test_type == 'val':
-        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', test_type)
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'val_data')
-    elif test_type == 'paperlike':
-        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike')
+    if folder_to_test_data is None or results_dir is None:
+        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', test_type)
+    
+        if test_type == 'static':
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'static')
+        elif test_type == 'dynamic':
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic')
+        elif test_type == 'val':
+            folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', test_type)
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'val_data')
+        elif test_type == 'paperlike':
+            folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike')
+        elif test_type == 'paperlike_ofer_mf':
+            folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike_ofer_mf')
+        elif test_type == 'dynamic_SNR=30_T60=0.2':
+            folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'dynamic_SNR=30_T60=0.2')
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic_SNR=30_T60=0.2')
+    else:
+        folder_to_test_data = folder_to_test_data
+        plot_dir = results_dir
+    print(f" plot_directory: {plot_dir}, folder_to_test_data: {folder_to_test_data}")
+    
     os.makedirs(plot_dir, exist_ok=True)
 
     # 1. Pipeline Verification / Generation
@@ -325,9 +355,17 @@ def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     axs[0].legend(loc='upper right')
     axs[0].set_title('Concurrent Speaker Detection (CSD) State Tracking')
 
+    # --- MODIFICATION ---
+    # Mask the estimated DOA to be NaN whenever CSD != 1. Matplotlib ignores NaNs.
+    est_doa_masked = np.where(true_csd == 1, est_doa, np.nan)
+    # --------------------
+
     # Panel 2: Uncut Spatial Trajectory vs Estimate
     axs[1].plot(frames_x, true_doa, color='black', linewidth=2, linestyle='-', label='True DOA (Raw Uncut)')
-    axs[1].plot(frames_x, est_doa, color='darkorange', linewidth=1.2, linestyle='--', marker='.', alpha=0.6, label='Estimated DOA')
+    
+    # Use est_doa_masked instead of est_doa
+    axs[1].plot(frames_x, est_doa_masked, color='darkorange', linewidth=1.2, linestyle='--', marker='.', alpha=0.6, label='Estimated DOA (when CSD==1)')
+    
     axs[1].axhline(y=19, color='purple', linestyle=':', alpha=0.5, label='Sentinel Overlap Value (19)')
     axs[1].axhline(y=0, color='gray', linestyle=':', alpha=0.5, label='Silence/Noise Value (0)')
     
@@ -351,7 +389,7 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
     
     workspace_dir = py_folder
-    plot_dir = os.path.join(workspace_dir, 'pipeline_results', 'model_predicts')
+    plot_dir = os.path.join(workspace_dir, 'pipeline_results', 'static')
     
     # Ensure the output directory exists
     os.makedirs(plot_dir, exist_ok=True)
@@ -449,5 +487,180 @@ def run_doa_experiments(num_experiments=20, need_to_estimate_doa=False):
     print(f"Saved aggregated analysis plot to: {analysis_plot_path}")
     
 
+def create_total_csd(folder_to_results):
+    """Combine per-experiment CSD arrays into a single aggregate timeline.
+
+    The function looks for matching ``true_CSD_*.npy`` and ``estimate_CSD_*.npy``
+    files, sorts them by experiment index, concatenates the frame-level labels,
+    saves the aggregate arrays back into the same folder, and renders a global
+    confusion matrix for the combined CSD predictions.
+    """
+
+    os.makedirs(folder_to_results, exist_ok=True)
+
+    true_paths = glob.glob(os.path.join(folder_to_results, 'true_CSD_*.npy'))
+    est_paths = glob.glob(os.path.join(folder_to_results, 'estimate_CSD_*.npy'))
+
+    def extract_run_idx(file_path):
+        base_name = os.path.basename(file_path)
+        return int(base_name.split('_')[-1].split('.')[0])
+
+    true_by_idx = {extract_run_idx(path): path for path in true_paths}
+    est_by_idx = {extract_run_idx(path): path for path in est_paths}
+    common_run_indices = sorted(set(true_by_idx) & set(est_by_idx))
+
+    if not common_run_indices:
+        raise FileNotFoundError(
+            f'No matching CSD files found in {folder_to_results}. '
+            'Expected pairs named true_CSD_<run>.npy and estimate_CSD_<run>.npy.'
+        )
+
+    all_true_csd = []
+    all_est_csd = []
+    segment_lengths = []
+
+    for run_idx in common_run_indices:
+        true_csd = np.load(true_by_idx[run_idx])
+        est_csd = np.load(est_by_idx[run_idx])
+
+        if len(true_csd) != len(est_csd):
+            raise ValueError(
+                f'CSD length mismatch for experiment {run_idx}: '
+                f'true={len(true_csd)} vs estimate={len(est_csd)}'
+            )
+
+        all_true_csd.append(true_csd)
+        all_est_csd.append(est_csd)
+        segment_lengths.append(len(true_csd))
+
+    total_true_csd = np.concatenate(all_true_csd)
+    total_est_csd = np.concatenate(all_est_csd)
+    segment_lengths = np.asarray(segment_lengths, dtype=int)
+
+
+    confusion_plot_path = os.path.join(folder_to_results, 'CSD_Global_Confusion_Matrix.png')
+
+
+    cm_plot_labels_csd = ['Noise', 'One speaker', '2 speakers']
+    # Try to extract SNR and T60 from the folder name for a clearer title
+    import re
+    base = os.path.basename(folder_to_results)
+    snr_m = re.search(r'SNR=([^_]+)', base)
+    t60_m = re.search(r'T60=([^_]+)', base)
+    subtitle_parts = []
+    if snr_m:
+        subtitle_parts.append(f'SNR={snr_m.group(1)}')
+    if t60_m:
+        subtitle_parts.append(f'T60={t60_m.group(1)}')
+    subtitle = '  |  '.join(subtitle_parts) if subtitle_parts else None
+
+    plot_confusion_matrix_from_data(
+        total_true_csd,
+        total_est_csd,
+        3,
+        cm_plot_labels_csd,
+        name=os.path.basename(confusion_plot_path),
+        plot_folder=folder_to_results,
+        subtitle=subtitle,
+    )
+    
+    print(
+        f"Saved total CSD arrays for {len(common_run_indices)} experiments "
+        f"to: {confusion_plot_path}"
+    )
+
+    
+
+    return {
+        'run_indices': common_run_indices,
+        'confusion_plot_path': confusion_plot_path,
+        'true_total_csd': total_true_csd,
+        'estimate_total_csd': total_est_csd,
+        'segment_lengths': segment_lengths,
+    }
+
+
+def create_total_csd_for_dynamic_paper_tests(root_folder=None):
+    """Walk each subdirectory under `root_folder` (defaults to
+    `pipeline_results/dynamic_paper_tests`) and produce a global CSD
+    confusion matrix for that directory using `create_total_csd`.
+
+    Returns a list of result dicts (one per processed directory).
+    """
+
+    py_folder = os.path.dirname(os.path.realpath(__file__))
+    if root_folder is None:
+        root_folder = os.path.join(py_folder, 'pipeline_results', 'dynamic_paper_tests')
+
+    if not os.path.exists(root_folder):
+        raise FileNotFoundError(f"Root folder not found: {root_folder}")
+
+    subdirs = sorted([
+        d for d in os.listdir(root_folder)
+        if os.path.isdir(os.path.join(root_folder, d))
+    ])
+
+    if not subdirs:
+        print(f"No subdirectories found in {root_folder} - nothing to process.")
+        return []
+
+    results = []
+    print(f"Found {len(subdirs)} subdirectories in {root_folder}. Processing...")
+
+    for sd in subdirs:
+        folder = os.path.join(root_folder, sd)
+        try:
+            print(f"\n--- Processing directory: {folder} ---")
+            res = create_total_csd(folder)
+            results.append({'folder': folder, 'result': res, 'error': None})
+            print(f"Saved CSD confusion matrix for: {folder}")
+        except Exception as e:
+            print(f"Error processing {folder}: {e}")
+            results.append({'folder': folder, 'result': None, 'error': str(e)})
+
+    print(f"\nCompleted processing {len(subdirs)} directories under {root_folder}.")
+    return results
+
+
 if __name__ == "__main__":
-      run_all_experiments(num_experiments=20)
+    # Add parser for folder_to_test_data and results_dir if needed
+    try:
+        parser = argparse.ArgumentParser(description="Run experiments and analyze DOA performance.")
+        parser.add_argument("--start_idx", type=int, default=1000, help="Starting index for the experiment range.")
+        parser.add_argument("--end_idx", type=int, default=1009, help="Ending index for the experiment range.")
+        parser.add_argument("--folder_to_test_data", type=str, default="data/simulated_audio/test/dynamic_SNR=30_T60=0.2", help="Directory containing the test data.")
+        parser.add_argument("--results_dir", type=str, default="pipeline_results/dynamic", help="Directory to save the results.")
+        parser.add_argument("--test_type", type=str, default="dynamic", help="Type of test being performed.")
+        args = parser.parse_args()
+    except Exception as e:
+        print(f"Argument parsing failed: {e}. Setting NONE values.")
+        args = None
+
+    if args is None:
+        py_folder = os.path.dirname(os.path.realpath(__file__))
+        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'dynamic_SNR=30_T60=0.2')
+        
+        workspace_dir = py_folder
+        results_dir = os.path.join(workspace_dir, 'pipeline_results', 'dynamic_paper_tests')
+        # for i in range(28, 29):
+        #     plot_single_experiment_doa_accuracy(run_idx=i, test_type='dynamic_SNR=30_T60=0.2')
+
+        # create_total_csd(results_dir)
+        create_total_csd_for_dynamic_paper_tests(root_folder=results_dir)
+    else:
+        # Use the provided arguments
+        start_idx = args.start_idx
+        end_idx = args.end_idx
+        folder_to_test_data = args.folder_to_test_data
+        results_dir = args.results_dir
+        test_type = args.test_type
+
+        # Ensure the results directory exists
+        os.makedirs(results_dir, exist_ok=True)
+
+        # Run the experiments for the specified range
+        for i in range(start_idx, end_idx):
+            plot_single_experiment_doa_accuracy(run_idx=i, test_type=test_type, folder_to_test_data=folder_to_test_data, results_dir=results_dir)
+
+    # Create total CSD and generate global confusion matrix
+    # create_total_csd(results_dir)
