@@ -17,8 +17,8 @@ def create_test_sample_static(
     room_dim = np.array([L1, L2, config.room_height])
     
     # --- Random SNR and reverberation ---
-    SNR_diffuse = 10 + np.random.randint(0, 11)  # 10 to 20 dB
-    beta = 0.3 + 0.001 * np.random.randint(0, 251)  # 0.3 to 0.55 s (T60)
+    SNR_diffuse = config.SNR_direction
+    beta = config.T60
     
     # --- Generate speaker and mic positions ---
     pos_and_rir_time = time.time()
@@ -58,7 +58,7 @@ def create_test_sample_static(
     label_first_total = None
     label_second_total = None
     
-    '''# First speaker speaking
+    # First speaker speaking
     # Then silence
     # Then second speaker speaking
     # Then silence
@@ -69,19 +69,7 @@ def create_test_sample_static(
         
     # Another load for the together part (to ensure different content for each segment)
     speech_1_together = load_speech(get_random_speech_file(speaker1_dir), config.fs)
-    speech_2_together = load_speech(get_random_speech_file(speaker2_dir), config.fs)'''
-
-    num_sentences = 4 
-    
-    def load_long_speech(speaker_dir):
-        sentences = [load_speech(get_random_speech_file(speaker_dir), config.fs) for _ in range(num_sentences)]
-        return np.concatenate(sentences, axis=0)
-
-    speech_1_alone = load_long_speech(speaker1_dir)
-    speech_2_alone = load_long_speech(speaker2_dir)
-        
-    speech_1_together = load_long_speech(speaker1_dir)
-    speech_2_together = load_long_speech(speaker2_dir)
+    speech_2_together = load_speech(get_random_speech_file(speaker2_dir), config.fs)
     
     silence_gap = np.zeros((int(config.fs * 1), config.M)) 
 
@@ -141,30 +129,36 @@ def create_test_sample_static(
         Receivers_second_total = np.vstack([Receivers_second_total, np.zeros((pad_len, config.M))])
         label_second_total = np.concatenate([label_second_total, np.zeros(pad_len)])
 
-    
-    # --- Generate point-source noise (using Gaussian as placeholder) ---
-    noise_len = maxlen - config.n_rir_samples + 1
-    noise_temp = np.random.randn(noise_len)
-    
-    # Convolve with noise RIR
-    Receivers_noise = convolve_with_rir(noise_temp, h_noise)
-    
-    # --- Normalize signals ---
-    Receivers_first_total = normalize_signal(Receivers_first_total)
-    Receivers_second_total = normalize_signal(Receivers_second_total)
-    Receivers_noise = normalize_signal(Receivers_noise)
+
     
     # --- Combine speakers ---
     receivers = Receivers_first_total + Receivers_second_total
     
     M = receivers.shape[1]
-    length_receives = receivers.shape[0]
     
-    # --- Calculate noise amplitudes for target SNRs ---
+# --- 1. Calculate noise amplitudes PRE-PADDING ---
     A_x = np.mean(np.std(receivers, axis=0))
     A_n_diffuse = A_x / (10 ** (SNR_diffuse / 20))
     A_n_direction = A_x / (10 ** (config.SNR_direction / 20))
     A_n_mic = A_x / (10 ** (config.SNR_mic / 20))
+
+    # --- 2. Inject Silence / Padding ---
+    pad_samples = int(config.initial_noise_pad_sec * config.fs)
+    zero_pad_signal = np.zeros((pad_samples, M))
+    zero_pad_labels = np.zeros(pad_samples)
+
+    # Pad signals
+    Receivers_first_total = np.vstack((zero_pad_signal, Receivers_first_total))
+    Receivers_second_total = np.vstack((zero_pad_signal, Receivers_second_total))
+    receivers = np.vstack((zero_pad_signal, receivers))
+
+    # Pad labels
+    label_first_total = np.concatenate((zero_pad_labels, label_first_total))
+    label_second_total = np.concatenate((zero_pad_labels, label_second_total))
+
+    # Update length for noise generation
+    length_receives = receivers.shape[0]
+
     
     # --- Create microphone noise ---
     mic_noise = A_n_mic * np.random.randn(length_receives, M)
@@ -190,16 +184,27 @@ def create_test_sample_static(
         repeat_times = int(np.ceil(length_receives / len(diffuse_noise)))
         diffuse_noise = np.tile(diffuse_noise, (repeat_times, 1))
     diffuse_noise = diffuse_noise[:length_receives, :M]
-    
-    # Ensure Receivers_noise matches length
-    if len(Receivers_noise) < length_receives:
-        pad_len = length_receives - len(Receivers_noise)
-        Receivers_noise = np.vstack([Receivers_noise, np.zeros((pad_len, M))])
-    Receivers_noise = Receivers_noise[:length_receives, :]
     if verbose: print(f"Diffuse noise generation took {time.time() - diff_noise:.2f} seconds.")
 
+
+
+    # --- 3. Generate point-source noise (Directional) ---
+    noise_len = maxlen - config.n_rir_samples + 1
+    noise_temp = np.random.randn(noise_len)
+    
+    # Convolve with noise RIR
+    directional_noise = convolve_with_rir(noise_temp, h_noise)
+    directional_noise = normalize_signal(directional_noise)
+    
+    # Ensure Receivers_noise matches length
+    if len(directional_noise) < length_receives:
+        pad_len = length_receives - len(directional_noise)
+        directional_noise = np.vstack([directional_noise, np.zeros((pad_len, M))])
+    directional_noise = directional_noise[:length_receives, :]
+    if not config.directional_flag:
+        directional_noise = np.zeros_like(directional_noise)
     # --- Combine all noise sources and create mixture ---
-    noise_total = mic_noise + A_n_diffuse * diffuse_noise + A_n_direction * Receivers_noise
+    noise_total = mic_noise + A_n_diffuse * diffuse_noise + A_n_direction * directional_noise
     receivers = receivers + noise_total
     
     # --- Normalize to [-1, 1] range ---
@@ -255,8 +260,12 @@ class Config:
     num_jumps = 9               # Number of trajectory segments
     
     # SNR parameters
-    SNR_direction = 15          # Directional noise SNR (dB)
+    SNR_direction = 30          # Directional noise SNR (dB)
+    directional_flag = False       # Whether to include directional noise
     SNR_mic = 30                # Microphone noise SNR (dB)
+    T60 = 0.2 
+
+    initial_noise_pad_sec = 2.0 # Seconds of pure noise to prepend
     
     # TIMIT paths
     timit_base_path = None      # Will be set at runtime
@@ -292,13 +301,16 @@ if __name__ == "__main__":
     parser.add_argument("--num_samples", type=int, default=config.num_samples, help="Number of samples to generate")
     parser.add_argument("--start_idx", type=int, default=config.start_idx, help="Starting index for file naming (e.g., 1 for 'first_1.wav')")
     parser.add_argument("--seed", type=int, default=config.seed, help="Random seed for reproducibility")
+    parser.add_argument("--SNR", type=float, default=30.0, help="SNR for diffuse noise in dB")
+    parser.add_argument("--T60", type=float, default=0.2, help="Optional fixed T60 value for all samples (overrides random T60)")
     args = parser.parse_args()
     num_samples = args.num_samples
     start_idx = args.start_idx
     np.random.seed(args.seed)
 
     dataset_title = config.dataset_title
-
+    config.SNR_direction = args.SNR  # Set SNR for diffuse noise
+    config.T60 = args.T60
 
     # Set default paths
     if config.timit_base_path is None:

@@ -258,7 +258,7 @@ class SpatialTrackingPipeline:
         """Post-processes predictions, saves outputs, and plots confusion matrices."""
         os.makedirs(folder_to_save, exist_ok=True)
 
-        true_csd_filtered = ndimage.median_filter(self.true_csd, size=11)
+        true_csd_filtered = self.true_csd
         pred_csd_filtered = ndimage.median_filter(self.pred_csd, size=25)
         pred_doa_filtered = ndimage.median_filter(self.pred_doa, size=11)
 
@@ -329,7 +329,7 @@ class SpatialTrackingPipeline:
 py_folder = os.path.dirname(os.path.realpath(__file__))
 workspace_folder = py_folder
 folder_to_all_data = os.path.join(workspace_folder, 'data')
-folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'dynamic')
+folder_to_test_data = os.path.join(folder_to_all_data, 'simulated_audio', 'test', 'static')
 
 models_folder = os.path.join(workspace_folder, 'models')
 
@@ -355,15 +355,15 @@ pipeline_config = {
 }
 
 run_type = 'dynamic' # Options: 'model_predicts' (normal) or 'dynamic' or 'val_data'
-plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'dynamic')
+plot_dir = os.path.join(workspace_folder, 'pipeline_results', 'pastd')
 
 
 if __name__ == "__main__":
     # Run the pipeline for experiments 1 to 20 and save results
     
     parser = argparse.ArgumentParser(description="Generate parameterized dynamic acoustic trajectory samples.")
-    parser.add_argument("--start_idx", type=int, default=1, help="Starting index for file naming")
-    parser.add_argument("--end_idx", type=int, default=20, help="Ending index for file naming")
+    parser.add_argument("--start_idx", type=int, default=100, help="Starting index for file naming")
+    parser.add_argument("--end_idx", type=int, default=120, help="Ending index for file naming")
     
     args = parser.parse_args()
     
