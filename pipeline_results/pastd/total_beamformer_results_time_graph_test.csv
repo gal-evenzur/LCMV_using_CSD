@@ -1,0 +1,5 @@
+run_idx,method,wav_length_sec,time_sec,T60,SNR_diffuse,mean_separation_deg,sdr_spk0,sdr_spk1,sir_spk0,sir_spk1
+2000,GEVD,12.224,5.05,0.3,10.0,60.0,N/A,N/A,N/A,N/A
+2000,PASTD,12.224,3.24,0.3,10.0,60.0,N/A,N/A,N/A,N/A
+2001,GEVD,12.512,6.46,0.3,10.0,30.0,N/A,N/A,N/A,N/A
+2001,PASTD,12.512,3.38,0.3,10.0,30.0,N/A,N/A,N/A,N/A

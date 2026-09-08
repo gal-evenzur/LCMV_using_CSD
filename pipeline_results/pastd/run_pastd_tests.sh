@@ -4,13 +4,13 @@ set -euo pipefail
 REPO_ROOT="/home/evenzug/LCMV_using_CSD"
 TEST_DIR="${REPO_ROOT}/data/simulated_audio/test/static"
 RESULTS_DIR="${REPO_ROOT}/pipeline_results/pastd"
-CSV_PATH="${RESULTS_DIR}/total_beamformer_results_time_graph.csv"
+CSV_PATH="${RESULTS_DIR}/total_beamformer_results_time_graph_test.csv"
 PIPELINE_START_IDX=2000
 
 mkdir -p "${TEST_DIR}" "${RESULTS_DIR}"
 rm -f "${CSV_PATH}"
 
-START_IDX=2000
+START_IDX=2090
 SEED_BASE=2
 SWEEP_INDEX=0
 
@@ -52,17 +52,17 @@ run_sweep() {
 # run_sweep "SNR sweep C" 30 0.2 10
 
 # Run for length = 3, 10:10:60 seconds
-run_sweep "Length sweep A" 10 0.3 3
-run_sweep "Length sweep B" 10 0.3 10
-run_sweep "Length sweep C" 10 0.3 20
-run_sweep "Length sweep D" 10 0.3 30
-run_sweep "Length sweep E" 10 0.3 40
-run_sweep "Length sweep F" 10 0.3 50
-run_sweep "Length sweep G" 10 0.3 60
+# run_sweep "Length sweep A" 10 0.3 3
+# run_sweep "Length sweep B" 10 0.3 10
+# run_sweep "Length sweep C" 10 0.3 20
+# run_sweep "Length sweep D" 10 0.3 30
+# run_sweep "Length sweep E" 10 0.3 40
+# run_sweep "Length sweep F" 10 0.3 50
+# run_sweep "Length sweep G" 10 0.3 60
 
 python "${REPO_ROOT}/pipeline_BF_PASTD.py" \
   --start_idx "${PIPELINE_START_IDX}" \
-  --end_idx $((START_IDX - 1)) \
+  --end_idx $((START_IDX)) \
   --folder_to_test_data "${TEST_DIR}" \
   --results_dir "${RESULTS_DIR}" \
   --csv_path "${CSV_PATH}" \

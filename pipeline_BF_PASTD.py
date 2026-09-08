@@ -875,7 +875,8 @@ class SpatialSeparationPipeline:
         
         # 5. Evaluate and Save
         if self.evaluate:
-            sdr_avg, sir_avg, sar_avg = self.evaluate_and_save()
+            # sdr_avg, sir_avg, sar_avg = self.evaluate_and_save()
+            sdr_avg, sir_avg, sar_avg = None, None, None
         else:
             self.evaluate_and_save()
             sdr_avg, sir_avg, sar_avg = None, None, None
@@ -909,7 +910,7 @@ class SpatialSeparationPipeline:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the PASTd/GEVD beamforming pipeline.")
-    parser.add_argument("--start_idx", type=int, default=20, help="Starting experiment index (inclusive).")
+    parser.add_argument("--start_idx", type=int, default=2000, help="Starting experiment index (inclusive).")
     parser.add_argument("--end_idx", type=int, default=23, help="Ending experiment index (exclusive).")
     parser.add_argument("--folder_to_test_data", type=str, default=None, help="Directory containing the test wavs.")
     parser.add_argument("--results_dir", type=str, default=None, help="Directory containing tracking results and where outputs are written.")
@@ -963,8 +964,8 @@ if __name__ == "__main__":
                 writer.writeheader()
             writer.writerow(row)
     
-    for method in methods_to_run:
-        for run_idx in run_indices:
+    for run_idx in run_indices:
+        for method in methods_to_run:
             try:
                 pipeline = SpatialSeparationPipeline(
                     run_idx=run_idx, p_stft=p_stft, p_tracking=p_tracking,
