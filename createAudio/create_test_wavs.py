@@ -17,8 +17,8 @@ def create_test_sample_static(
     room_dim = np.array([L1, L2, config.room_height])
     
     # --- Random SNR and reverberation ---
-    SNR_diffuse = 10 + np.random.randint(0, 11)  # 10 to 20 dB
-    beta = 0.3 + 0.001 * np.random.randint(0, 251)  # 0.3 to 0.55 s (T60)
+    SNR_diffuse = config.SNR_direction
+    beta = config.T60  # Use the T60 value from the config
     
     # --- Generate speaker and mic positions ---
     pos_and_rir_time = time.time()
@@ -260,9 +260,10 @@ class Config:
     num_jumps = 9               # Number of trajectory segments
     
     # SNR parameters
-    SNR_direction = 30          # Directional noise SNR (dB)
+    SNR_direction = 10          # Directional noise SNR (dB)
     directional_flag = False       # Whether to include directional noise
     SNR_mic = 30                # Microphone noise SNR (dB)
+    T60 = 0.3
 
     initial_noise_pad_sec = 2.0 # Seconds of pure noise to prepend
     
@@ -273,11 +274,11 @@ class Config:
     output_path = None          # Will be set at runtime
     
     # Number of samples to generate
-    num_samples = 20
+    num_samples = 5
     start_idx = 1  # Starting index for file naming (e.g., 1 for 'first_1.wav')
 
     # File naming
-    trainORval = 'test/static'  # 'train' or 'val'
+    trainORval = 'test/static_presentation'  # 'train' or 'val'
     dataset_title = trainORval
 
 
@@ -300,7 +301,9 @@ if __name__ == "__main__":
     parser.add_argument("--num_samples", type=int, default=config.num_samples, help="Number of samples to generate")
     parser.add_argument("--start_idx", type=int, default=config.start_idx, help="Starting index for file naming (e.g., 1 for 'first_1.wav')")
     parser.add_argument("--seed", type=int, default=config.seed, help="Random seed for reproducibility")
-    parser.add_argument("--SNR", type=float, default=30.0, help="SNR for diffuse noise in dB")
+    parser.add_argument("--T60", type=float, default=config.T60, help="T60 for the room in seconds")
+    parser.add_argument("--SNR", type=float, default=config.SNR_direction, help="SNR for diffuse noise in dB")
+    parser.add_argument("--output_path", type=str, default=None, help="Output path for generated audio files")
     args = parser.parse_args()
     num_samples = args.num_samples
     start_idx = args.start_idx
@@ -308,7 +311,10 @@ if __name__ == "__main__":
 
     dataset_title = config.dataset_title
     config.SNR_direction = args.SNR  # Set SNR for diffuse noise
-
+    config.T60 = args.T60  # Set T60 for the room
+    if args.output_path is not None:
+        config.output_path = args.output_path
+        output_path = config.output_path
 
     # Set default paths
     if config.timit_base_path is None:
@@ -325,6 +331,7 @@ if __name__ == "__main__":
         output_path = os.path.join(sim_audio_path, dataset_title)
     
     # Create output directory
+    print(f"Creating output directory: {output_path}")
     os.makedirs(output_path, exist_ok=True)
     
     # Get speaker lists

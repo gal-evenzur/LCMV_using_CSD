@@ -1,3 +1,4 @@
+import argparse
 import os
 import glob
 import pandas as pd
@@ -6,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import the pipeline classes and configurations
-from pipeline import SpatialTrackingPipeline, pipeline_config, plot_dir
+from pipeline import SpatialTrackingPipeline, pipeline_config
 from pipeline_beamformer import SpatialSeparationPipeline
 from DataSamples_to_InputVectors.plot_confusion_matrix_from_data import plot_confusion_matrix_from_data
 def run_all_experiments(num_experiments=20):
@@ -276,29 +277,39 @@ def run_all_experiments(num_experiments=20):
     else:
         print("Not enough valid data to generate plots.")
 
-
-def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
+def plot_single_experiment_doa_accuracy(run_idx, test_type='static', folder_to_test_data=None, results_dir=None):
     """
     Runs the pipeline for a single experiment (if results don't exist)
     and plots a 2-panel subplot tracking uncut ground truths:
       1. True vs Estimated CSD (Concurrent Speaker Detection) states.
       2. Uncut True vs Estimated DOA Timeline (Includes 0s and 19 Overlaps).
+         *Estimated DOA is only plotted when CSD == 1.
     """
     py_folder = os.path.dirname(os.path.realpath(__file__))
-    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', test_type)
-    if test_type == 'static':
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'static')
-    elif test_type == 'dynamic':
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic')
-    elif test_type == 'val':
-        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', test_type)
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'val_data')
-    elif test_type == 'paperlike':
-        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike')
-    elif test_type == 'paperlike_ofer_mf':
-        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
-        plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike_ofer_mf')
+    if folder_to_test_data is None or results_dir is None:
+        folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', test_type)
+    
+        if test_type == 'static':
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'static')
+        elif test_type == 'dynamic':
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic')
+        elif test_type == 'val':
+            folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', test_type)
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'val_data')
+        elif test_type == 'paperlike':
+            folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike')
+        elif test_type == 'paperlike_ofer_mf':
+            folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'paperlike')
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'paperlike_ofer_mf')
+        elif test_type == 'dynamic_SNR=30_T60=0.2':
+            folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'dynamic_SNR=30_T60=0.2')
+            plot_dir = os.path.join(py_folder, 'pipeline_results', 'dynamic_SNR=30_T60=0.2')
+    else:
+        folder_to_test_data = folder_to_test_data
+        plot_dir = results_dir
+    print(f" plot_directory: {plot_dir}, folder_to_test_data: {folder_to_test_data}")
+    
     os.makedirs(plot_dir, exist_ok=True)
 
     # 1. Pipeline Verification / Generation
@@ -344,9 +355,17 @@ def plot_single_experiment_doa_accuracy(run_idx, test_type='static'):
     axs[0].legend(loc='upper right')
     axs[0].set_title('Concurrent Speaker Detection (CSD) State Tracking')
 
+    # --- MODIFICATION ---
+    # Mask the estimated DOA to be NaN whenever CSD != 1. Matplotlib ignores NaNs.
+    est_doa_masked = np.where(true_csd == 1, est_doa, np.nan)
+    # --------------------
+
     # Panel 2: Uncut Spatial Trajectory vs Estimate
     axs[1].plot(frames_x, true_doa, color='black', linewidth=2, linestyle='-', label='True DOA (Raw Uncut)')
-    axs[1].plot(frames_x, est_doa, color='darkorange', linewidth=1.2, linestyle='--', marker='.', alpha=0.6, label='Estimated DOA')
+    
+    # Use est_doa_masked instead of est_doa
+    axs[1].plot(frames_x, est_doa_masked, color='darkorange', linewidth=1.2, linestyle='--', marker='.', alpha=0.6, label='Estimated DOA (when CSD==1)')
+    
     axs[1].axhline(y=19, color='purple', linestyle=':', alpha=0.5, label='Sentinel Overlap Value (19)')
     axs[1].axhline(y=0, color='gray', linestyle=':', alpha=0.5, label='Silence/Noise Value (0)')
     
@@ -523,24 +542,28 @@ def create_total_csd(folder_to_results):
 
 
     cm_plot_labels_csd = ['Noise', 'One speaker', '2 speakers']
+    # Try to extract SNR and T60 from the folder name for a clearer title
+    import re
+    base = os.path.basename(folder_to_results)
+    snr_m = re.search(r'SNR=([^_]+)', base)
+    t60_m = re.search(r'T60=([^_]+)', base)
+    subtitle_parts = []
+    if snr_m:
+        subtitle_parts.append(f'SNR={snr_m.group(1)}')
+    if t60_m:
+        subtitle_parts.append(f'T60={t60_m.group(1)}')
+    subtitle = '  |  '.join(subtitle_parts) if subtitle_parts else None
+
     plot_confusion_matrix_from_data(
         total_true_csd,
         total_est_csd,
         3,
         cm_plot_labels_csd,
-        True,
-        'Oranges',
-        '.2f',
-        9,
-        0.5,
-        False,
-        [18, 18],
-        2,
-        'y',
         name=os.path.basename(confusion_plot_path),
         plot_folder=folder_to_results,
+        subtitle=subtitle,
     )
-
+    
     print(
         f"Saved total CSD arrays for {len(common_run_indices)} experiments "
         f"to: {confusion_plot_path}"
@@ -558,14 +581,32 @@ def create_total_csd(folder_to_results):
 
 
 if __name__ == "__main__":
-    py_folder = os.path.dirname(os.path.realpath(__file__))
-    folder_to_test_data = os.path.join(py_folder, 'data', 'simulated_audio', 'test', 'static')
-    
-    workspace_dir = py_folder
-    results_dir = os.path.join(workspace_dir, 'pipeline_results', 'static')
-    for i in range(1, 21):
-        plot_single_experiment_doa_accuracy(run_idx=i, test_type='static')
+    # Add parser for folder_to_test_data and results_dir if needed
+    try:
+        parser = argparse.ArgumentParser(description="Run experiments and analyze DOA performance.")
+        parser.add_argument("--start_idx", type=int, default=1, help="Starting index for the experiment range.")
+        parser.add_argument("--end_idx", type=int, default=6, help="Ending index for the experiment range.")
+        parser.add_argument("--folder_to_test_data", type=str, default="data/simulated_audio/test/static", help="Directory containing the test data.")
+        parser.add_argument("--results_dir", type=str, default="pipeline_results/static", help="Directory to save the results.")
+        parser.add_argument("--test_type", type=str, default="static", help="Type of test being performed.")
+        args = parser.parse_args()
+    except Exception as e:
+        print(f"Argument parsing failed: {e}. Setting NONE values.")
+        args = None
+
+    # Use the provided arguments
+    start_idx = args.start_idx
+    end_idx = args.end_idx
+    folder_to_test_data = args.folder_to_test_data
+    results_dir = args.results_dir
+    test_type = args.test_type
+
+    # Ensure the results directory exists
+    os.makedirs(results_dir, exist_ok=True)
+
+    # Run the experiments for the specified range
+    for i in range(start_idx, end_idx):
+        plot_single_experiment_doa_accuracy(run_idx=i, test_type=test_type, folder_to_test_data=folder_to_test_data, results_dir=results_dir)
 
     # Create total CSD and generate global confusion matrix
-    create_total_csd(results_dir)
-    
+    # create_total_csd(results_dir)

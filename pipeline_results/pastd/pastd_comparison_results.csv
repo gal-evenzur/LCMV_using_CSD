@@ -1,0 +1,6 @@
+run_idx,method,wav_length_sec,time_sec,T60,SNR_diffuse,mean_separation_deg,sdr_spk0,sdr_spk1,sir_spk0,sir_spk1
+1,PASTD,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+2,PASTD,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+3,PASTD,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+4,PASTD,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+5,PASTD,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
