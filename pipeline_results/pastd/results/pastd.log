@@ -13822,4 +13822,4812 @@ MiB Swap:(B[m[39;49m[1m   8192.0 (B[m[39;49mtotal,(B[m[39;49m[1m     
 (B[m1144877 evenzug   20   0    5032    136    124 S   0.0   0.0   0:00.02 bash                                     (B[m[39;49m[K
 (B[m1145047 evenzug   20   0 1443228   9052   2804 S   0.0   0.0   1:17.03 MainThread                               (B[m[39;49m[K
 (B[m1206892 evenzug   20   0    5032    136    124 S   0.0   0.0   0:00.02 bash                                     (B[m[39;49m[K[?1l>[13;1H
-[?12l[?25h[K[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ 
+[?12l[?25h[K[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ source run_pa[K'/home/evenzug/LCMV_using_CSD/pipeline_results/pastd/results/run_pastd_tests.sh'
+[?2004l2026-09-09 12:48:34.258524: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-09-09 12:48:34.276157: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-09-09 12:48:34.295770: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8473] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-09-09 12:48:34.302515: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1471] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-09-09 12:48:34.318915: I tensorflow/core/platform/cpu_feature_guard.cc:211] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2000 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        9.07 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        9.51 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [11 17]
+    Speaker 1 sectors: [17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3281
+    Speaker 1 Spatial Overlap: 0.3919
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.11 dB
+    - Speaker 1 Target NR = 4.25 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2000 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        3.13 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        3.57 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [11 17]
+    Speaker 1 sectors: [17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3290
+    Speaker 1 Spatial Overlap: 0.3915
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.61 dB
+    - Speaker 1 Target NR = 4.26 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2001 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        6.54 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        6.78 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [5 8]
+    Speaker 1 sectors: [5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3591
+    Speaker 1 Spatial Overlap: 0.3339
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.99 dB
+    - Speaker 1 Target NR = 1.86 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2001 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        3.53 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        3.79 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [5 8]
+    Speaker 1 sectors: [5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3387
+    Speaker 1 Spatial Overlap: 0.2997
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.23 dB
+    - Speaker 1 Target NR = 2.52 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2002 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        7.04 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        7.36 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 8 11]
+    Speaker 1 sectors: [8]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5697
+    Speaker 1 Spatial Overlap: 0.3850
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.41 dB
+    - Speaker 1 Target NR = 3.92 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2002 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        3.74 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        4.05 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 8 11]
+    Speaker 1 sectors: [8]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5094
+    Speaker 1 Spatial Overlap: 0.3307
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.11 dB
+    - Speaker 1 Target NR = 4.16 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2003 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        5.74 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        6.04 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 12]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4232
+    Speaker 1 Spatial Overlap: 0.4383
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 8.30 dB
+    - Speaker 1 Target NR = 8.72 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2003 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        3.34 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        3.66 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 12]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4225
+    Speaker 1 Spatial Overlap: 0.4150
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 8.25 dB
+    - Speaker 1 Target NR = 8.85 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2004 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        5.54 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        5.78 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5  6  7  8 11]
+    Speaker 1 sectors: [11]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4953
+    Speaker 1 Spatial Overlap: 0.2379
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.89 dB
+    - Speaker 1 Target NR = 5.41 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2004 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        2.99 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        3.25 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5  6  7  8 11]
+    Speaker 1 sectors: [11]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5365
+    Speaker 1 Spatial Overlap: 0.3247
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.50 dB
+    - Speaker 1 Target NR = 5.91 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2005 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        5.58 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        5.80 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2  3 12 13]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.2727
+    Speaker 1 Spatial Overlap: 0.3788
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.74 dB
+    - Speaker 1 Target NR = 6.69 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2005 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        3.24 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        3.46 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2  3 12 13]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.2756
+    Speaker 1 Spatial Overlap: 0.3751
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.13 dB
+    - Speaker 1 Target NR = 6.61 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2006 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        5.72 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        5.96 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4850
+    Speaker 1 Spatial Overlap: 0.4576
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.33 dB
+    - Speaker 1 Target NR = 4.97 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2006 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        3.30 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        3.53 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4885
+    Speaker 1 Spatial Overlap: 0.4054
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.06 dB
+    - Speaker 1 Target NR = 4.21 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2007 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        6.48 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        6.77 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 17]
+    Speaker 1 sectors: [4]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4411
+    Speaker 1 Spatial Overlap: 0.4518
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.42 dB
+    - Speaker 1 Target NR = 3.71 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2007 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        3.79 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        4.05 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 17]
+    Speaker 1 sectors: [4]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4340
+    Speaker 1 Spatial Overlap: 0.3510
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.57 dB
+    - Speaker 1 Target NR = 4.15 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2008 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        6.73 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        7.17 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [10 14]
+    Speaker 1 sectors: [14]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4024
+    Speaker 1 Spatial Overlap: 0.4092
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.04 dB
+    - Speaker 1 Target NR = 6.83 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2008 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        3.75 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        4.10 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [10 14]
+    Speaker 1 sectors: [14]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3447
+    Speaker 1 Spatial Overlap: 0.3937
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.18 dB
+    - Speaker 1 Target NR = 6.93 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2009 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        4.78 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        5.02 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5  8  9 13 14]
+    Speaker 1 sectors: [9]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3014
+    Speaker 1 Spatial Overlap: 0.4510
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.21 dB
+    - Speaker 1 Target NR = 2.98 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2009 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        2.91 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        3.14 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5  8  9 13 14]
+    Speaker 1 sectors: [9]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3021
+    Speaker 1 Spatial Overlap: 0.4124
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.53 dB
+    - Speaker 1 Target NR = 3.40 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2010 (GEVD) ---
+Failed run_idx=2010 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2010.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2010.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2010 (PASTD) ---
+Failed run_idx=2010 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2010.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2010.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2011 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       10.74 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       11.32 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3587
+    Speaker 1 Spatial Overlap: 0.3403
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.12 dB
+    - Speaker 1 Target NR = 6.16 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2011 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        6.27 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        6.69 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.2924
+    Speaker 1 Spatial Overlap: 0.2872
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.26 dB
+    - Speaker 1 Target NR = 6.24 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2012 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       12.30 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       12.70 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 15]
+    Speaker 1 sectors: [15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5422
+    Speaker 1 Spatial Overlap: 0.7884
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.68 dB
+    - Speaker 1 Target NR = 4.87 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2012 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        6.61 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        7.02 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 15]
+    Speaker 1 sectors: [15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4213
+    Speaker 1 Spatial Overlap: 0.7632
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.51 dB
+    - Speaker 1 Target NR = 3.99 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2013 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       10.26 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       10.67 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [13 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4256
+    Speaker 1 Spatial Overlap: 0.4662
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.64 dB
+    - Speaker 1 Target NR = 3.65 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2013 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        5.96 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        6.38 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [13 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3966
+    Speaker 1 Spatial Overlap: 0.4661
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.29 dB
+    - Speaker 1 Target NR = 2.71 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2014 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       10.41 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       11.03 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5 17]
+    Speaker 1 sectors: [17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3348
+    Speaker 1 Spatial Overlap: 0.3353
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.41 dB
+    - Speaker 1 Target NR = 3.43 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2014 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        6.31 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        6.97 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5 17]
+    Speaker 1 sectors: [17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3048
+    Speaker 1 Spatial Overlap: 0.2246
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.37 dB
+    - Speaker 1 Target NR = 3.60 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2015 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        9.63 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       10.20 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 7]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3803
+    Speaker 1 Spatial Overlap: 0.4263
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 1.20 dB
+    - Speaker 1 Target NR = 0.65 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2015 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        5.78 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        6.42 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 7]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3638
+    Speaker 1 Spatial Overlap: 0.4752
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 1.40 dB
+    - Speaker 1 Target NR = 0.55 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2016 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       11.94 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       12.48 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5  6 15 16]
+    Speaker 1 sectors: [5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3427
+    Speaker 1 Spatial Overlap: 0.3018
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.74 dB
+    - Speaker 1 Target NR = 6.01 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2016 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        6.72 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        7.20 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5  6 15 16]
+    Speaker 1 sectors: [5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3022
+    Speaker 1 Spatial Overlap: 0.2961
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.92 dB
+    - Speaker 1 Target NR = 6.06 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2017 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       10.77 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       11.29 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [5 6 8]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4417
+    Speaker 1 Spatial Overlap: 0.2960
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2017 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        5.57 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        6.12 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [5 6 8]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3248
+    Speaker 1 Spatial Overlap: 0.2960
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2018 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        8.20 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        8.73 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [11 18]
+    Speaker 1 sectors: [17 18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3576
+    Speaker 1 Spatial Overlap: 0.3474
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.63 dB
+    - Speaker 1 Target NR = 4.69 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2018 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        5.43 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        5.93 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [11 18]
+    Speaker 1 sectors: [17 18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3743
+    Speaker 1 Spatial Overlap: 0.4092
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.59 dB
+    - Speaker 1 Target NR = 4.70 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2019 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        7.39 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:        7.86 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 17]
+    Speaker 1 sectors: [16 17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3413
+    Speaker 1 Spatial Overlap: 0.3832
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.74 dB
+    - Speaker 1 Target NR = 5.03 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2019 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        4.93 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        5.45 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 17]
+    Speaker 1 sectors: [16 17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3359
+    Speaker 1 Spatial Overlap: 0.3912
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.98 dB
+    - Speaker 1 Target NR = 5.42 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2020 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       12.00 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       12.63 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 3 14]
+    Speaker 1 sectors: [2 3]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3942
+    Speaker 1 Spatial Overlap: 0.3296
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 10.78 dB
+    - Speaker 1 Target NR = 8.01 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2020 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        7.09 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        7.63 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 3 14]
+    Speaker 1 sectors: [2 3]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3400
+    Speaker 1 Spatial Overlap: 0.3415
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 10.77 dB
+    - Speaker 1 Target NR = 7.35 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2021 (GEVD) ---
+Failed run_idx=2021 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2021.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2021.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2021 (PASTD) ---
+Failed run_idx=2021 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2021.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2021.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2022 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       18.57 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       19.40 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 7]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.7220
+    Speaker 1 Spatial Overlap: 0.5968
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.93 dB
+    - Speaker 1 Target NR = 7.70 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2022 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       10.63 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       11.43 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 7]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6778
+    Speaker 1 Spatial Overlap: 0.3512
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.74 dB
+    - Speaker 1 Target NR = 7.59 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2023 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       17.73 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       18.44 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7 15 16]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5006
+    Speaker 1 Spatial Overlap: 0.3859
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.78 dB
+    - Speaker 1 Target NR = 4.97 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2023 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       10.28 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       11.12 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7 15 16]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4568
+    Speaker 1 Spatial Overlap: 0.3106
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.80 dB
+    - Speaker 1 Target NR = 5.05 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2024 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       15.33 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       16.13 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 18]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5733
+    Speaker 1 Spatial Overlap: 0.4338
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.79 dB
+    - Speaker 1 Target NR = 4.54 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2024 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        9.83 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       10.74 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 18]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3927
+    Speaker 1 Spatial Overlap: 0.2544
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.49 dB
+    - Speaker 1 Target NR = 4.29 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2025 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       15.14 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       15.94 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [14 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6667
+    Speaker 1 Spatial Overlap: 0.3522
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.38 dB
+    - Speaker 1 Target NR = 4.18 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2025 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       11.46 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       12.46 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [14 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5877
+    Speaker 1 Spatial Overlap: 0.3114
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.26 dB
+    - Speaker 1 Target NR = 4.42 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2026 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       19.67 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       20.52 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 9 15]
+    Speaker 1 sectors: [15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6308
+    Speaker 1 Spatial Overlap: 0.4118
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.66 dB
+    - Speaker 1 Target NR = 8.50 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2026 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       11.04 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       12.09 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 9 15]
+    Speaker 1 sectors: [15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5548
+    Speaker 1 Spatial Overlap: 0.3065
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.54 dB
+    - Speaker 1 Target NR = 7.82 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2027 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       11.76 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       12.36 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7  8 12]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4545
+    Speaker 1 Spatial Overlap: 0.5671
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.22 dB
+    - Speaker 1 Target NR = 3.85 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2027 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        8.97 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        9.50 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7  8 12]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4708
+    Speaker 1 Spatial Overlap: 0.5212
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.38 dB
+    - Speaker 1 Target NR = 3.67 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2028 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       14.80 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       15.41 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 8  9 13]
+    Speaker 1 sectors: [13]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5193
+    Speaker 1 Spatial Overlap: 0.6988
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.01 dB
+    - Speaker 1 Target NR = 7.16 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2028 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        9.92 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       10.48 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 8  9 13]
+    Speaker 1 sectors: [13]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4671
+    Speaker 1 Spatial Overlap: 0.6677
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.91 dB
+    - Speaker 1 Target NR = 7.12 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2029 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       18.14 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       19.11 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 8]
+    Speaker 1 sectors: [1]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3182
+    Speaker 1 Spatial Overlap: 0.3505
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.95 dB
+    - Speaker 1 Target NR = 6.83 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2029 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       10.59 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       11.46 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 8]
+    Speaker 1 sectors: [1]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.2803
+    Speaker 1 Spatial Overlap: 0.3156
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.97 dB
+    - Speaker 1 Target NR = 6.94 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2030 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       20.65 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       21.67 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 8 11]
+    Speaker 1 sectors: [8]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3455
+    Speaker 1 Spatial Overlap: 0.2897
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.98 dB
+    - Speaker 1 Target NR = 4.66 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2030 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       11.30 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       12.26 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 8 11]
+    Speaker 1 sectors: [8]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.2901
+    Speaker 1 Spatial Overlap: 0.3041
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.36 dB
+    - Speaker 1 Target NR = 4.90 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2031 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       11.46 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       12.49 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [10 13]
+    Speaker 1 sectors: [10]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6189
+    Speaker 1 Spatial Overlap: 0.6564
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.56 dB
+    - Speaker 1 Target NR = 6.03 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2031 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:        8.79 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:        9.53 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [10 13]
+    Speaker 1 sectors: [10]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4185
+    Speaker 1 Spatial Overlap: 0.7434
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.12 dB
+    - Speaker 1 Target NR = 6.17 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2032 (GEVD) ---
+Failed run_idx=2032 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2032.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2032.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2032 (PASTD) ---
+Failed run_idx=2032 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2032.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2032.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2033 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       21.00 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       22.09 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5667
+    Speaker 1 Spatial Overlap: 0.6997
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.03 dB
+    - Speaker 1 Target NR = 6.49 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2033 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       14.34 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       15.38 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5823
+    Speaker 1 Spatial Overlap: 0.6964
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.65 dB
+    - Speaker 1 Target NR = 3.29 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2034 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       20.57 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       21.69 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [10 17]
+    Speaker 1 sectors: [10]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6087
+    Speaker 1 Spatial Overlap: 0.3821
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.88 dB
+    - Speaker 1 Target NR = 6.80 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2034 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       14.09 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       15.32 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [10 17]
+    Speaker 1 sectors: [ 9 10]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5432
+    Speaker 1 Spatial Overlap: 0.3527
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.45 dB
+    - Speaker 1 Target NR = 6.48 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2035 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       23.04 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       24.22 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2  3 14]
+    Speaker 1 sectors: [14]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3595
+    Speaker 1 Spatial Overlap: 0.4747
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 8.73 dB
+    - Speaker 1 Target NR = 7.12 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2035 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       14.08 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       15.58 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2  3 14]
+    Speaker 1 sectors: [14]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3744
+    Speaker 1 Spatial Overlap: 0.3983
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.79 dB
+    - Speaker 1 Target NR = 6.71 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2036 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       64.11 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       65.55 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 4]
+    Speaker 1 sectors: [4]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4268
+    Speaker 1 Spatial Overlap: 0.5706
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.91 dB
+    - Speaker 1 Target NR = 3.59 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2036 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       45.99 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       47.52 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 4]
+    Speaker 1 sectors: [4]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3785
+    Speaker 1 Spatial Overlap: 0.5317
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.29 dB
+    - Speaker 1 Target NR = 3.40 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2037 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       39.96 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       41.29 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 15]
+    Speaker 1 sectors: [4]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.7290
+    Speaker 1 Spatial Overlap: 0.5197
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.18 dB
+    - Speaker 1 Target NR = 7.26 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2037 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       13.51 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       14.69 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 15]
+    Speaker 1 sectors: [4]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6622
+    Speaker 1 Spatial Overlap: 0.3119
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.72 dB
+    - Speaker 1 Target NR = 7.34 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2038 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       23.15 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       24.28 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 8  9 16]
+    Speaker 1 sectors: [16]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3209
+    Speaker 1 Spatial Overlap: 0.4376
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.07 dB
+    - Speaker 1 Target NR = 6.71 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2038 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       14.08 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       15.23 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 8  9 16]
+    Speaker 1 sectors: [16 17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4618
+    Speaker 1 Spatial Overlap: 0.3723
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.20 dB
+    - Speaker 1 Target NR = 6.23 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2039 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       22.42 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       23.72 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [13 16]
+    Speaker 1 sectors: [16]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3594
+    Speaker 1 Spatial Overlap: 0.3429
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.68 dB
+    - Speaker 1 Target NR = 3.83 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2039 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       14.03 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       15.12 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [13 16]
+    Speaker 1 sectors: [16]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3534
+    Speaker 1 Spatial Overlap: 0.3039
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.76 dB
+    - Speaker 1 Target NR = 3.16 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2040 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       24.99 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       26.18 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 16]
+    Speaker 1 sectors: [6 7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3080
+    Speaker 1 Spatial Overlap: 0.3134
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.38 dB
+    - Speaker 1 Target NR = 6.14 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2040 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       16.57 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       17.78 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 16]
+    Speaker 1 sectors: [6 7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.2947
+    Speaker 1 Spatial Overlap: 0.3012
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 7.54 dB
+    - Speaker 1 Target NR = 6.50 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2041 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       33.74 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       35.15 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 10]
+    Speaker 1 sectors: [6]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6658
+    Speaker 1 Spatial Overlap: 0.5019
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.74 dB
+    - Speaker 1 Target NR = 4.37 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2041 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       24.22 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       25.47 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 10]
+    Speaker 1 sectors: [6]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6062
+    Speaker 1 Spatial Overlap: 0.4268
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.19 dB
+    - Speaker 1 Target NR = 4.18 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2042 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       30.07 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       31.37 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2  3  7  8 10 11 17 18]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5006
+    Speaker 1 Spatial Overlap: 0.6556
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.43 dB
+    - Speaker 1 Target NR = 6.72 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2042 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       23.66 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       24.84 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2  3  7  8 10 11 17 18]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4411
+    Speaker 1 Spatial Overlap: 0.7084
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.39 dB
+    - Speaker 1 Target NR = 6.81 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2043 (GEVD) ---
+Failed run_idx=2043 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2043.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2043.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2043 (PASTD) ---
+Failed run_idx=2043 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2043.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2043.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2044 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       33.84 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       34.83 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7 14]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6173
+    Speaker 1 Spatial Overlap: 0.5566
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.61 dB
+    - Speaker 1 Target NR = 5.51 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2044 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       20.98 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       22.01 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7 14]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5700
+    Speaker 1 Spatial Overlap: 0.4955
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.89 dB
+    - Speaker 1 Target NR = 5.27 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2045 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       35.74 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       36.85 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 2 3 4]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3149
+    Speaker 1 Spatial Overlap: 0.3089
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.22 dB
+    - Speaker 1 Target NR = 3.40 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2045 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       20.10 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       21.26 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [1 2 3 4]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3024
+    Speaker 1 Spatial Overlap: 0.3467
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 1.95 dB
+    - Speaker 1 Target NR = 2.27 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2046 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       30.41 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       31.49 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [11 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.7330
+    Speaker 1 Spatial Overlap: 0.4045
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.62 dB
+    - Speaker 1 Target NR = 2.22 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2046 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       20.91 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       22.24 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [11 18]
+    Speaker 1 sectors: [18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5208
+    Speaker 1 Spatial Overlap: 0.3024
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.51 dB
+    - Speaker 1 Target NR = 1.61 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2047 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       48.80 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       50.01 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 1 15]
+    Speaker 1 sectors: [15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5602
+    Speaker 1 Spatial Overlap: 0.4750
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.62 dB
+    - Speaker 1 Target NR = 5.09 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2047 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       38.92 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       40.13 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 1 15]
+    Speaker 1 sectors: [15]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4591
+    Speaker 1 Spatial Overlap: 0.3687
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.39 dB
+    - Speaker 1 Target NR = 5.21 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2048 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       30.67 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       31.78 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 12 14]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4498
+    Speaker 1 Spatial Overlap: 0.4449
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.32 dB
+    - Speaker 1 Target NR = 5.14 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2048 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       41.06 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       42.28 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 12 14]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3316
+    Speaker 1 Spatial Overlap: 0.4017
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.41 dB
+    - Speaker 1 Target NR = 5.28 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2049 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       28.90 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       29.87 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5 10]
+    Speaker 1 sectors: [5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4271
+    Speaker 1 Spatial Overlap: 0.3821
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.69 dB
+    - Speaker 1 Target NR = 5.65 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2049 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       18.68 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       19.65 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 5 10]
+    Speaker 1 sectors: [5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4025
+    Speaker 1 Spatial Overlap: 0.3531
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.31 dB
+    - Speaker 1 Target NR = 6.06 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2050 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       29.97 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       30.96 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [2 7 8]
+    Speaker 1 sectors: [1 2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4724
+    Speaker 1 Spatial Overlap: 0.6158
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.97 dB
+    - Speaker 1 Target NR = 4.00 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2050 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       19.43 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       20.40 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [2 7 8]
+    Speaker 1 sectors: [1 2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4362
+    Speaker 1 Spatial Overlap: 0.5445
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.30 dB
+    - Speaker 1 Target NR = 3.19 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2051 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       28.78 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       29.85 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7 12]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4659
+    Speaker 1 Spatial Overlap: 0.5704
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.80 dB
+    - Speaker 1 Target NR = 3.74 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2051 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       19.38 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       20.35 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7 12]
+    Speaker 1 sectors: [7]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4267
+    Speaker 1 Spatial Overlap: 0.4702
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.02 dB
+    - Speaker 1 Target NR = 4.04 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2052 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       28.70 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       29.84 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [3 8]
+    Speaker 1 sectors: [3]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4271
+    Speaker 1 Spatial Overlap: 0.4200
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.34 dB
+    - Speaker 1 Target NR = 3.64 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2052 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       20.26 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       21.41 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [3 8]
+    Speaker 1 sectors: [3]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3885
+    Speaker 1 Spatial Overlap: 0.3218
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.10 dB
+    - Speaker 1 Target NR = 3.72 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2053 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       49.75 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       50.85 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 17]
+    Speaker 1 sectors: [4]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4632
+    Speaker 1 Spatial Overlap: 0.5140
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 1.85 dB
+    - Speaker 1 Target NR = 1.85 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2053 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       39.53 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       40.61 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 4 17]
+    Speaker 1 sectors: [ 4 17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4218
+    Speaker 1 Spatial Overlap: 0.3609
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 1.62 dB
+    - Speaker 1 Target NR = 1.64 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2054 (GEVD) ---
+Failed run_idx=2054 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2054.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2054.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2054 (PASTD) ---
+Failed run_idx=2054 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2054.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2054.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2055 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       61.29 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       62.73 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [4 5 8]
+    Speaker 1 sectors: [4 5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3964
+    Speaker 1 Spatial Overlap: 0.4292
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.54 dB
+    - Speaker 1 Target NR = 4.65 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2055 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       28.48 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       29.76 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [4 5 8]
+    Speaker 1 sectors: [4 5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3980
+    Speaker 1 Spatial Overlap: 0.4562
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.69 dB
+    - Speaker 1 Target NR = 3.98 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2056 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       39.32 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       40.55 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 3 10]
+    Speaker 1 sectors: [3]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4545
+    Speaker 1 Spatial Overlap: 0.6596
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.49 dB
+    - Speaker 1 Target NR = 5.49 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2056 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       27.22 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       28.46 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 3 10]
+    Speaker 1 sectors: [3]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3598
+    Speaker 1 Spatial Overlap: 0.6146
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.82 dB
+    - Speaker 1 Target NR = 4.66 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2057 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       43.79 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       45.09 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [16 17 18]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4551
+    Speaker 1 Spatial Overlap: 0.3170
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2057 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       25.81 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       26.99 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [16 17 18]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6280
+    Speaker 1 Spatial Overlap: 0.3170
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2058 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       49.95 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       51.96 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [15 18]
+    Speaker 1 sectors: [16]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4033
+    Speaker 1 Spatial Overlap: 0.4505
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.72 dB
+    - Speaker 1 Target NR = 3.37 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2058 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       29.75 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       31.91 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [15 18]
+    Speaker 1 sectors: [16]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5861
+    Speaker 1 Spatial Overlap: 0.3810
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.57 dB
+    - Speaker 1 Target NR = 3.05 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2059 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       90.73 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       92.58 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [11 14]
+    Speaker 1 sectors: [11 14]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3978
+    Speaker 1 Spatial Overlap: 0.3920
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.16 dB
+    - Speaker 1 Target NR = 4.87 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2059 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:      119.01 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:      121.34 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [11 14]
+    Speaker 1 sectors: [14]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3212
+    Speaker 1 Spatial Overlap: 0.3003
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.75 dB
+    - Speaker 1 Target NR = 4.08 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2060 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       41.35 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       43.95 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [5 6 7]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.7000
+    Speaker 1 Spatial Overlap: 0.2897
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2060 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       26.47 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       28.55 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [5 6 7]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5153
+    Speaker 1 Spatial Overlap: 0.2897
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2061 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       50.18 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       52.36 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 10]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6094
+    Speaker 1 Spatial Overlap: 0.4659
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.12 dB
+    - Speaker 1 Target NR = 4.88 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2061 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       29.97 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       31.86 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 10]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5800
+    Speaker 1 Spatial Overlap: 0.3735
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.80 dB
+    - Speaker 1 Target NR = 4.65 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2062 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       41.02 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       42.77 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [14 15 16 17]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3953
+    Speaker 1 Spatial Overlap: 0.3043
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2062 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       25.29 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       27.02 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [14 15 16 17]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5638
+    Speaker 1 Spatial Overlap: 0.3043
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2063 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       45.31 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       47.11 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 17]
+    Speaker 1 sectors: [ 6 17]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6796
+    Speaker 1 Spatial Overlap: 0.8735
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.99 dB
+    - Speaker 1 Target NR = 3.79 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2063 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       29.37 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       31.23 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 17]
+    Speaker 1 sectors: [6]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5069
+    Speaker 1 Spatial Overlap: 0.8285
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.66 dB
+    - Speaker 1 Target NR = 3.66 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2064 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       47.65 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       49.39 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 1 12]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4719
+    Speaker 1 Spatial Overlap: 0.7242
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.74 dB
+    - Speaker 1 Target NR = 6.61 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2064 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       29.46 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       31.17 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 1 12]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3066
+    Speaker 1 Spatial Overlap: 0.6529
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.89 dB
+    - Speaker 1 Target NR = 6.55 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2065 (GEVD) ---
+Failed run_idx=2065 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2065.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2065.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2065 (PASTD) ---
+Failed run_idx=2065 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2065.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2065.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2066 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       88.91 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       91.17 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 9 12 15 18]
+    Speaker 1 sectors: [9]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4844
+    Speaker 1 Spatial Overlap: 0.6107
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.03 dB
+    - Speaker 1 Target NR = 3.16 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2066 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       34.11 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       36.22 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 9 12 15 18]
+    Speaker 1 sectors: [9]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3516
+    Speaker 1 Spatial Overlap: 0.4996
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.04 dB
+    - Speaker 1 Target NR = 3.75 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2067 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       41.62 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       43.60 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 14]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.8772
+    Speaker 1 Spatial Overlap: 0.6236
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.56 dB
+    - Speaker 1 Target NR = 3.55 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2067 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       28.58 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       30.55 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 2 14]
+    Speaker 1 sectors: [2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.7862
+    Speaker 1 Spatial Overlap: 0.4479
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.47 dB
+    - Speaker 1 Target NR = 3.58 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2068 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       46.65 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       48.69 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 3 14 15]
+    Speaker 1 sectors: [3]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3245
+    Speaker 1 Spatial Overlap: 0.5234
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.12 dB
+    - Speaker 1 Target NR = 3.93 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2068 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       32.98 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       34.87 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 3 14 15]
+    Speaker 1 sectors: [3]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3270
+    Speaker 1 Spatial Overlap: 0.3569
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.10 dB
+    - Speaker 1 Target NR = 3.55 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2069 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       54.78 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       56.88 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [12 16]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5443
+    Speaker 1 Spatial Overlap: 0.5831
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.53 dB
+    - Speaker 1 Target NR = 6.00 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2069 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       30.86 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       32.99 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [12 15 16]
+    Speaker 1 sectors: [12]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3037
+    Speaker 1 Spatial Overlap: 0.5970
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.87 dB
+    - Speaker 1 Target NR = 5.75 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2070 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       34.42 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       36.69 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [4 5 6 7 8]
+    Speaker 1 sectors: []
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3220
+    Speaker 1 Spatial Overlap: 0.4444
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2070 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       77.53 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       79.84 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [4 5 6 7 8]
+    Speaker 1 sectors: [5]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.2118
+    Speaker 1 Spatial Overlap: 0.3000
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2071 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:      156.76 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:      159.67 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [10 15]
+    Speaker 1 sectors: [10 11]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6290
+    Speaker 1 Spatial Overlap: 0.4513
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.54 dB
+    - Speaker 1 Target NR = 5.45 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2071 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       27.62 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       29.57 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [10 15]
+    Speaker 1 sectors: [10 11]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6176
+    Speaker 1 Spatial Overlap: 0.4471
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.17 dB
+    - Speaker 1 Target NR = 5.99 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2072 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       50.51 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       52.40 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 16]
+    Speaker 1 sectors: [16]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4068
+    Speaker 1 Spatial Overlap: 0.5710
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.52 dB
+    - Speaker 1 Target NR = 1.84 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2072 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       28.81 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       30.65 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6 16]
+    Speaker 1 sectors: [16]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3043
+    Speaker 1 Spatial Overlap: 0.7021
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 3.93 dB
+    - Speaker 1 Target NR = 3.16 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2073 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       39.75 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       41.69 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 7 18]
+    Speaker 1 sectors: [17 18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.7610
+    Speaker 1 Spatial Overlap: 0.7463
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 2.91 dB
+    - Speaker 1 Target NR = 4.16 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2073 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       26.93 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       28.82 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 6  7 17 18]
+    Speaker 1 sectors: [ 7 17 18]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.4976
+    Speaker 1 Spatial Overlap: 0.7044
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.15 dB
+    - Speaker 1 Target NR = 4.58 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2074 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       45.37 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       47.45 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 1  2 17 18]
+    Speaker 1 sectors: [1]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5705
+    Speaker 1 Spatial Overlap: 0.4470
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.38 dB
+    - Speaker 1 Target NR = 4.14 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2074 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       28.30 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:       30.31 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 1  2 17 18]
+    Speaker 1 sectors: [1 2]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.6014
+    Speaker 1 Spatial Overlap: 0.3051
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 4.80 dB
+    - Speaker 1 Target NR = 4.74 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2075 (GEVD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:       93.38 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL GEVD EXECUTION TIME:       95.86 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 1  2 14]
+    Speaker 1 sectors: [14]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.5505
+    Speaker 1 Spatial Overlap: 0.5796
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 6.57 dB
+    - Speaker 1 Target NR = 3.59 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2075 (PASTD) ---
+--- Computing STFTs ---
+--- Running Online Separation ---
+[⏱] 3. Run Online Separation:      156.16 seconds
+--- Reconstructing Audio (ISTFT) ---
+-------------------------------------------------------
+ TOTAL PASTD EXECUTION TIME:      158.78 seconds
+=======================================================
+
+
+=======================================================
+ ACOUSTIC GEOMETRY INVESTIGATION
+=======================================================
+    Speaker 0 sectors: [ 1  2 14]
+    Speaker 1 sectors: [14]
+
+[2] Spatial Overlap (Speaker vs. Background Noise):
+    Speaker 0 Spatial Overlap: 0.3714
+    Speaker 1 Spatial Overlap: 0.5034
+=======================================================
+
+
+--- Computing Noise Reduction Metrics ---
+    - Speaker 0 Target NR = 5.99 dB
+    - Speaker 1 Target NR = 3.49 dB
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2076 (GEVD) ---
+Failed run_idx=2076 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2076.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2076.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2076 (PASTD) ---
+Failed run_idx=2076 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2076.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2076.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2077 (GEVD) ---
+Failed run_idx=2077 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2077.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2077.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2077 (PASTD) ---
+Failed run_idx=2077 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2077.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2077.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2078 (GEVD) ---
+Failed run_idx=2078 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2078.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2078.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2078 (PASTD) ---
+Failed run_idx=2078 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2078.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2078.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2079 (GEVD) ---
+Failed run_idx=2079 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2079.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2079.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2079 (PASTD) ---
+Failed run_idx=2079 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2079.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2079.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2080 (GEVD) ---
+Failed run_idx=2080 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2080.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2080.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2080 (PASTD) ---
+Failed run_idx=2080 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2080.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2080.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2081 (GEVD) ---
+Failed run_idx=2081 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2081.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2081.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2081 (PASTD) ---
+Failed run_idx=2081 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2081.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2081.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2082 (GEVD) ---
+Failed run_idx=2082 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2082.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2082.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2082 (PASTD) ---
+Failed run_idx=2082 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2082.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2082.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2083 (GEVD) ---
+Failed run_idx=2083 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2083.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2083.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2083 (PASTD) ---
+Failed run_idx=2083 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2083.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2083.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2084 (GEVD) ---
+Failed run_idx=2084 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2084.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2084.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2084 (PASTD) ---
+Failed run_idx=2084 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2084.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2084.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2085 (GEVD) ---
+Failed run_idx=2085 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2085.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2085.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2085 (PASTD) ---
+Failed run_idx=2085 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2085.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2085.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2086 (GEVD) ---
+Failed run_idx=2086 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2086.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2086.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2086 (PASTD) ---
+Failed run_idx=2086 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2086.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2086.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2087 (GEVD) ---
+Failed run_idx=2087 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2087.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2087.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2087 (PASTD) ---
+Failed run_idx=2087 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2087.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2087.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2088 (GEVD) ---
+Failed run_idx=2088 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2088.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2088.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2088 (PASTD) ---
+Failed run_idx=2088 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2088.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2088.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: GEVD)
+=======================================================
+--- Loading data for Experiment 2089 (GEVD) ---
+Failed run_idx=2089 method=gevd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2089.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2089.wav'
+
+=======================================================
+ STARTING PIPELINE EXECUTION (Method: PASTD)
+=======================================================
+--- Loading data for Experiment 2089 (PASTD) ---
+Failed run_idx=2089 method=pastd: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2089.wav'
+Traceback (most recent call last):
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 976, in <module>
+    sdr, sir, sar, t_sep, mean_sep, t60, snr = pipeline.run()
+                                               ^^^^^^^^^^^^^^
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 862, in run
+    self.load_data()
+  File "/home/evenzug/LCMV_using_CSD/pipeline_BF_PASTD.py", line 138, in load_data
+    self.fs, receivers = wavfile.read(signal_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/evenzug/.local/lib/python3.12/site-packages/scipy/io/wavfile.py", line 721, in read
+    fid = open(filename, 'rb')
+          ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/evenzug/LCMV_using_CSD/data/simulated_audio/test/static/together_2089.wav'
+Results appended to /home/evenzug/LCMV_using_CSD/pipeline_results/pastd/results/total_beamformer_results_time_graph_test.csv
+[?2004h[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ [K[01;32mevenzug@dsiaspl03[00m:[01;34m~/LCMV_using_CSD[00m$ 

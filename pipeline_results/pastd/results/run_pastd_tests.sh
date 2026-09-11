@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT="/home/evenzug/LCMV_using_CSD"
 TEST_DIR="${REPO_ROOT}/data/simulated_audio/test/static"
 RESULTS_DIR="${REPO_ROOT}/pipeline_results/pastd"
-CSV_PATH="${RESULTS_DIR}/total_beamformer_results_time_graph_test.csv"
+CSV_PATH="${RESULTS_DIR}/results/total_beamformer_results_time_graph_test.csv"
 PIPELINE_START_IDX=2000
 
 mkdir -p "${TEST_DIR}" "${RESULTS_DIR}"
