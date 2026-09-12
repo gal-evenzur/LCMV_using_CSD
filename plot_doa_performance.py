@@ -9,7 +9,7 @@ from run_experiments import plot_single_experiment_doa_accuracy
 
 def get_args():
     parser = argparse.ArgumentParser(description="Aggregate and plot DOA performance across T60 environments.")
-    parser.add_argument("--t60_list", type=float, nargs='+', default=[0.3, 0.4, 0.6], 
+    parser.add_argument("--t60_list", type=float, nargs='+', default=[0.3, 0.5, 0.8, 1.0], 
                         help="List of T60 values to include in the plot.")
     parser.add_argument("--data_dir", type=str, default="data/simulated_audio/test/dynamic", 
                         help="Directory containing the output arrays and metadata.")
@@ -139,8 +139,9 @@ def plot_stacked_bar(metrics, t60_list, save_dir):
 
     def add_labels(bars, counts):
         for bar, count in zip(bars, counts):
-            if count > 0:
-                ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1.5, f'{count}', ha='center', va='bottom', fontsize=8, color='black')
+            # Write the percentage value above the bar
+            percentage = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1.5, f'{percentage:.1f}%', ha='center', va='bottom', fontsize=8, color='black')
 
     add_labels(bars_success, success_counts)
     add_labels(bars_10, err_10_counts)

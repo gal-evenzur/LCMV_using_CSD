@@ -111,6 +111,14 @@ run_condition() {
         --verbose              1
 
     echo " -> DONE: ${LABEL}"
+
+    python "${WORKSPACE_DIR}/run_experiments.py" \
+        --start_idx            "${START_IDX}" \
+        --end_idx              "${END_IDX}" \
+        --folder_to_test_data  "${DATA_DIR}" \
+        --folder_to_results    "${RESULTS_DIR}" \
+        --eval_mode            overlap \
+        --verbose              1
 }
 
 # ---------------------------------------------------------------------------
@@ -133,9 +141,9 @@ echo "################################################################"
 echo " GROUP 1: Varying SNR_diffuse  (T60=0.2)"
 echo "################################################################"
 
-for SNR in 20 10 3; do
-    run_condition "dynamic_SNR=${SNR}_T60=0.2" "${SNR}" "0.2" "50"
-done
+# for SNR in 20 10 3; do
+#     run_condition "dynamic_SNR=${SNR}_T60=0.2" "${SNR}" "0.2" "50"
+# done
 
 # ---------------------------------------------------------------------------
 # GROUP 2: Varying T60  (SNR_diffuse fixed = 30)
@@ -147,9 +155,9 @@ echo "################################################################"
 echo " GROUP 2: Varying T60  (SNR_diffuse=30)"
 echo "################################################################"
 
-for T60 in 0.4 0.6 0.8; do
-    run_condition "dynamic_SNR=30_T60=${T60}" "30" "${T60}" "50"
-done
+# for T60 in 0.4 0.6 0.8; do
+#     run_condition "dynamic_SNR=30_T60=${T60}" "30" "${T60}" "50"
+# done
 
 # ---------------------------------------------------------------------------
 # GROUP 3: Varying closest_ang_diff  (SNR=30, T60=0.2)
@@ -166,10 +174,10 @@ echo "################################################################"
 echo " GROUP 3: Varying closest_ang_diff  (SNR=30, T60=0.2)"
 echo "################################################################"
 
-for ANG in 40 30 20; do
-    run_condition "dynamic_SNR=30_T60=0.2_angdiff=${ANG}" "30" "0.2" "${ANG}"
-done
-
+# for ANG in 40 30 20; do
+#     run_condition "dynamic_SNR=30_T60=0.2_angdiff=${ANG}" "30" "0.2" "${ANG}"
+# done
+run_condition "dynamic_SNR=10_T60=0.3_angdiff=60" "10" "0.3" "60"
 # ---------------------------------------------------------------------------
 echo ""
 echo "============================================================"
